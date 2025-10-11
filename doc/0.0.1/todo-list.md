@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] Implemented podman-compose
 - [ ] Update java version
 - [ ] Update maven dependencies
 - [ ] Update dockerfile
