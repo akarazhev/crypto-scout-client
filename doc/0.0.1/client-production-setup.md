@@ -11,7 +11,7 @@ This document summarizes the documentation work completed for the `crypto-scout-
 production setup guide.
 
 - Updated `README.md` with a professional, production-ready overview, architecture, configuration, build/run
-  instructions, Docker usage, health check, and logging details.
+  instructions, Podman usage, health check, and logging details.
 - Added this production setup report to guide deployment and verification.
 
 ## What the service does
@@ -90,13 +90,13 @@ of truth; no environment override behavior is documented here.
     - `amqp.metrics.bybit.stream`
     - `amqp.metrics.cmc.stream`
 
-## Docker
+## Podman
 
 - The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:21-jre-ubi9-minimal`.
 - Build image:
-    - `docker build -t crypto-scout-client:0.0.1 .`
+    - `podman build -t crypto-scout-client:0.0.1 .`
 - Run container:
-    - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+    - `podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
 - Note: The image contains the bundled `application.properties`. To change configuration, update the file and rebuild
   the image.
 
@@ -127,7 +127,7 @@ of truth; no environment override behavior is documented here.
 
 ## Summary of documentation updates
 
-- `README.md`: Added description, features, architecture, configuration keys, build/run, Docker, health check, and
+- `README.md`: Added description, features, architecture, configuration keys, build/run, Podman, health check, and
   logging sections.
 - `doc/client-production-setup.md`: This report consolidates configuration, deployment steps, and operational guidance
   for production use.

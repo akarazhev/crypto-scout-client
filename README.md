@@ -93,20 +93,20 @@ curl -fsS http://localhost:8080/health
 # ok
 ```
 
-## Docker
+## Podman
 
 The provided `Dockerfile` uses Temurin JRE 21 (UBI minimal) and runs the shaded JAR.
 
 Build image:
 
 ```bash
-docker build -t crypto-scout-client:0.0.1 .
+podman build -t crypto-scout-client:0.0.1 .
 ```
 
 Run container (map HTTP port):
 
 ```bash
-docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
+podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
 ```
 
 Note: The image includes the bundled `application.properties`. Adjust config and rebuild the image if changes are
