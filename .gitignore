@@ -66,3 +66,4 @@ dev
 ### Data files ###
 podman-prod/data
 podman-dev/data
+dependency-reduced-pom.xml
