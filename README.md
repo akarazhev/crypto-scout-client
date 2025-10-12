@@ -1,6 +1,6 @@
 # crypto-scout-client
 
-Production-ready Java 21 microservice that collects crypto market data from Bybit and metrics from CoinMarketCap, then
+Production-ready Java microservice that collects crypto market data from Bybit and metrics from CoinMarketCap, then
 publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully async I/O.
 
 ## Features
@@ -27,7 +27,7 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 ## Requirements
 
-- Java 21 (Temurin recommended)
+- Java 25 JDK (Temurin recommended) to build
 - Maven
 - RabbitMQ with Streams enabled and reachable at the configured host/port
 
@@ -93,24 +93,47 @@ curl -fsS http://localhost:8080/health
 # ok
 ```
 
-## Podman
+## Container image (Podman or Docker)
 
-The provided `Dockerfile` uses Temurin JRE 21 (UBI minimal) and runs the shaded JAR.
+The provided `Dockerfile` uses Temurin JRE 25 and runs the shaded JAR.
 
-Build image:
+- Build (Podman):
 
 ```bash
 podman build -t crypto-scout-client:0.0.1 .
 ```
 
-Run container (map HTTP port):
+- Build (Docker):
+
+```bash
+docker build -t crypto-scout-client:0.0.1 .
+```
+
+- Run (Podman, map HTTP port):
 
 ```bash
 podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
 ```
 
-Note: The image includes the bundled `application.properties`. Adjust config and rebuild the image if changes are
-required.
+- Run (Docker, map HTTP port):
+
+```bash
+docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
+```
+
+Configuration is bundled from `src/main/resources/application.properties` at build-time. To change any values (e.g.,
+RabbitMQ host/credentials, Bybit/CMC API keys), update that file and rebuild the image.
+
+## Production notes
+
+- **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
+- **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
+  `amqp.crypto.bybit.stream`, `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`.
+- **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely during
+  your image build process within CI, then distribute the built image.
+- **Health endpoint:** `GET /health` returns `ok` for liveness checks.
+- **Observability:** Console logging via `src/main/resources/logback.xml` (INFO). JMX is enabled via ActiveJ
+  `JmxModule`.
 
 ## Logging
 

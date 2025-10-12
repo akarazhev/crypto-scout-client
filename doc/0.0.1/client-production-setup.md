@@ -2,7 +2,7 @@
 
 ## GitHub Short Description (proposal)
 
-Async Java 21 service that streams crypto market data (Bybit, CoinMarketCap) and publishes structured events to RabbitMQ
+Async Java 25 service that streams crypto market data (Bybit, CoinMarketCap) and publishes structured events to RabbitMQ
 Streams. Built with ActiveJ.
 
 ## Overview
@@ -70,7 +70,7 @@ of truth; no environment override behavior is documented here.
 
 ## Build
 
-- Prerequisites: Java 21, Maven, network access to Bybit/CMC endpoints if running with metrics enabled.
+- Prerequisites: Java 25 JDK, Maven, network access to Bybit/CMC endpoints if running with metrics enabled.
 - Build the shaded JAR:
     - `mvn clean package -DskipTests`
     - Output: `target/crypto-scout-client-0.0.1.jar`
@@ -90,13 +90,16 @@ of truth; no environment override behavior is documented here.
     - `amqp.metrics.bybit.stream`
     - `amqp.metrics.cmc.stream`
 
-## Podman
+## Container (Podman or Docker)
 
-- The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:21-jre-ubi9-minimal`.
+- The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:25-jre`.
 - Build image:
     - `podman build -t crypto-scout-client:0.0.1 .`
 - Run container:
     - `podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+- Docker (alternative):
+    - `docker build -t crypto-scout-client:0.0.1 .`
+    - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
 - Note: The image contains the bundled `application.properties`. To change configuration, update the file and rebuild
   the image.
 
@@ -131,3 +134,31 @@ of truth; no environment override behavior is documented here.
   logging sections.
 - `doc/client-production-setup.md`: This report consolidates configuration, deployment steps, and operational guidance
   for production use.
+
+## Appendix A: Repository Review Summary (merged)
+
+- **Tech stack (`pom.xml`):** Java 25 (`java.version`, compiler source/target 25), ActiveJ 6.0-rc2, RabbitMQ Stream
+  Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
+- **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitModule`, `CmcModule`, `WebModule` + `JmxModule`,
+  `ServiceGraphModule`. Health route `GET /health` -> `ok`.
+- **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
+  `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; Bybit/CMC timings and API keys via `AppConfig`.
+- **Containerization:** Base image `eclipse-temurin:25-jre`; copies shaded JAR and runs `java -jar`.
+
+## Appendix B: Validation Checklist (merged)
+
+- Build: `mvn clean package -DskipTests`
+- Run locally: `java -jar target/crypto-scout-client-0.0.1.jar`
+- Health check: `curl -fsS http://localhost:8080/health` -> `ok`
+- Container (Podman):
+    - `podman build -t crypto-scout-client:0.0.1 .`
+    - `podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+- Container (Docker):
+    - `docker build -t crypto-scout-client:0.0.1 .`
+    - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+- RabbitMQ Streams: ensure three streams exist and user can publish to them.
+
+## Appendix C: Next Steps (merged)
+
+- If needed for your deployment flow, consider introducing a runtime config injection mechanism (e.g., external
+  properties or env mapping) to avoid image rebuilds when changing configuration.
