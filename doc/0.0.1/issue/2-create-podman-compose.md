@@ -1,4 +1,4 @@
-# Issue 1: Create a `podman-compose` file for the `crypto-scout-client` project
+# Issue 2: Create a `podman-compose` file for the `crypto-scout-client` project
 
 In this `crypto-scout-client` project we are going to create a `podman-compose` file to run the service in a container.
 
@@ -22,4 +22,4 @@ Take the following roles:
 - As the expert dev-opts engineer recheck your proposal and make sure that they are correct and haven't missed any
   important points.
 - As the technical writer update the `README.md` and `client-production-setup.md` files with your results.
-- As the technical writer update the `issue-1-create-podman-compose.md` file with your resolution.
+- As the technical writer update the `2-create-podman-compose.md` file with your resolution.
