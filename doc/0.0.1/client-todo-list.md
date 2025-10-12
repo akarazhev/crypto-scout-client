@@ -1,4 +1,6 @@
-# TODO
+# crypto-scout-client - TODO List
+
+The list below shows the tasks that need to be completed to make the project ready for production:
 
 - [x] Implemented podman-compose
 - [x] Update java version
