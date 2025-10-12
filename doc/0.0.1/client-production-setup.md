@@ -103,6 +103,36 @@ of truth; no environment override behavior is documented here.
 - Note: The image contains the bundled `application.properties`. To change configuration, update the file and rebuild
   the image.
 
+## Podman Compose (with secrets)
+
+Use `podman-compose.yml` and `secret/client.env` for a production-like run with secrets separated.
+
+Steps:
+
+1. Build the image:
+    - `podman build -t crypto-scout-client:0.0.1 .`
+2. Prepare secrets:
+    - `cp secret/client.env.example secret/client.env`
+    - Edit `secret/client.env` and set RabbitMQ host/credentials, stream port/names, and API keys (`BYBIT_API_KEY`,
+      `BYBIT_API_SECRET`, `CMC_API_KEY`). Optionally set `SERVER_PORT`.
+3. Start the service:
+    - `podman-compose -f podman-compose.yml up -d`
+4. Verify:
+    - Health: `curl -fsS http://localhost:8080/health` -> `ok`
+    - Logs: `podman logs -f crypto-scout-client`
+
+Security hardening in `podman-compose.yml`:
+
+- `read_only: true`, `tmpfs: /tmp` for writable scratch only.
+- `security_opt: no-new-privileges:true`, `cap_drop: ALL`.
+- Non-root user: `user: "10001:10001"`.
+
+Notes on configuration:
+
+- The app reads configuration via `AppConfig` from `src/main/resources/application.properties`.
+- Runtime overrides (env vars/system properties) are not supported by the application. Edit `application.properties` and
+  rebuild the image when changes are required.
+
 ## Observability & operations
 
 - Logging: `src/main/resources/logback.xml` (console, INFO level by default).

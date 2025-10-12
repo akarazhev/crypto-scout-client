@@ -124,6 +124,57 @@ docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.
 Configuration is bundled from `src/main/resources/application.properties` at build-time. To change any values (e.g.,
 RabbitMQ host/credentials, Bybit/CMC API keys), update that file and rebuild the image.
 
+## Podman Compose (with secrets)
+
+Use the provided `podman-compose.yml` to run the service with a secrets file.
+
+0) Build the shaded JAR (required for the Dockerfile copy step):
+
+```bash
+mvn clean package -DskipTests
+```
+
+1) Build the image:
+
+```bash
+podman build -t crypto-scout-client:0.0.1 .
+```
+
+2) Create and populate secrets:
+
+```bash
+cp secret/client.env.example secret/client.env
+$EDITOR secret/client.env
+```
+
+3) Start with compose:
+
+```bash
+podman-compose -f podman-compose.yml up -d
+# or
+podman compose -f podman-compose.yml up -d
+```
+
+4) Check health and logs:
+
+```bash
+curl -fsS http://localhost:8080/health
+podman logs -f crypto-scout-client
+```
+
+Notes:
+
+- The app reads config via `AppConfig` from `src/main/resources/application.properties`. Runtime overrides via env vars
+  are not supported; edit that file and rebuild the image when you need different values (RabbitMQ host/port/streams,
+  API keys, `server.port`).
+- Real secrets must live in `secret/client.env` (ignored by Git). Never commit real credentials.
+- The `secret/client.env` file is a template/convenience for your deployment values; the application does not read it at
+  runtime. Keep it in sync with your `application.properties` before building.
+- If you change `server.port` in `application.properties`, update the `ports` mapping in `podman-compose.yml`
+  accordingly.
+- If RabbitMQ runs on your host machine, set `amqp.rabbitmq.host=host.containers.internal` in
+  `src/main/resources/application.properties` before building, so the container can reach the host.
+
 ## Production notes
 
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.

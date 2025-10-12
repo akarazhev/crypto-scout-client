@@ -65,3 +65,6 @@ dev
 
 ### Data files ###
 dependency-reduced-pom.xml
+ 
+### Secrets ###
+secret/*.env
