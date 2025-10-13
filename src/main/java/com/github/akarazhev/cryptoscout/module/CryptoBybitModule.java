@@ -61,8 +61,8 @@ public final class CryptoBybitModule extends AbstractModule {
                 .topic(Topic.KLINE_1_ETH_USDT) // kline.1.ETHUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
                 .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
-                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
-                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
+//                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
+//                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
                 .topic(Topic.ORDER_BOOK_200_BTC_USDT) // orderbook.200.BTCUSDT
                 .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
                 .topic(Topic.ALL_LIQUIDATION_BTC_USDT) // allLiquidation.BTCUSDT
@@ -81,8 +81,8 @@ public final class CryptoBybitModule extends AbstractModule {
                 .topic(Topic.KLINE_1_ETH_USDT) // kline.1.ETHUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
                 .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
-                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
-                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
+//                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
+//                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
                 .topic(Topic.ORDER_BOOK_200_BTC_USDT) // orderbook.200.BTCUSDT
                 .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
                 .build();
