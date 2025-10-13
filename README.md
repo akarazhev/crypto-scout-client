@@ -35,6 +35,12 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 Configuration is loaded from `src/main/resources/application.properties` via `AppConfig`.
 
+- **Modules**
+    - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`).
+    - `metrics.bybit.module.enabled=true` – Enable Bybit programs metrics parser (`MetricsBybitModule`).
+    - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`).
+    - Set any of these to `false` to disable the corresponding module. Flags are evaluated in
+      `src/main/java/com/github/akarazhev/cryptoscout/Client.java` via `AppConfig.getAsBoolean(...)`.
 - **Server**
     - `server.port=8080`
 - **RabbitMQ (Streams)**
@@ -180,6 +186,9 @@ Notes:
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
 - **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
   `amqp.crypto.bybit.stream`, `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`.
+- **Module toggles:** Control active modules with `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`,
+  and `crypto.bybit.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
+  in `Client.getModule()` at startup.
 - **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely during
   your image build process within CI, then distribute the built image.
 - **Health endpoint:** `GET /health` returns `ok` for liveness checks.

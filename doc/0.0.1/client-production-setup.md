@@ -10,9 +10,10 @@ Streams. Built with ActiveJ.
 This document summarizes the documentation work completed for the `crypto-scout-client` service and provides a
 production setup guide.
 
-- Updated `README.md` with a professional, production-ready overview, architecture, configuration, build/run
-  instructions, Podman usage, health check, and logging details.
-- Added this production setup report to guide deployment and verification.
+- Updated `README.md` with a professional, production-ready overview, architecture, configuration (including
+  module toggles), build/run instructions, Podman usage, health check, and logging details.
+- Added this production setup report to guide deployment and verification, and documented how to enable/disable
+  modules for production scenarios.
 
 ## What the service does
 
@@ -43,6 +44,13 @@ production setup guide.
 
 Default properties: `src/main/resources/application.properties`.
 
+- Modules (enable/disable at startup via flags read by `AppConfig` in `Client.getModule()`):
+    - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
+      to disable.
+    - `metrics.bybit.module.enabled=true` – Enable Bybit programs metrics parser (`MetricsBybitModule`). Set to `false`
+      to disable.
+    - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`). Set to `false`
+      to disable.
 - Server:
     - `server.port=8080`
 - RabbitMQ (Streams):
@@ -153,6 +161,8 @@ Notes on configuration:
 
 - Properties audited and provided for your environment (Bybit/CMC keys if required, RabbitMQ host/port/streams, server
   port).
+- Module flags set per deployment needs (`crypto.bybit.module.enabled`, `metrics.bybit.module.enabled`,
+  `metrics.cmc.module.enabled`).
 - RabbitMQ Streams available and streams pre-created with correct permissions.
 - Outbound connectivity allowed to Bybit and CoinMarketCap endpoints.
 - Container built and started with port `8080` mapped (or custom `server.port`).
@@ -160,8 +170,8 @@ Notes on configuration:
 
 ## Summary of documentation updates
 
-- `README.md`: Added description, features, architecture, configuration keys, build/run, Podman, health check, and
-  logging sections.
+- `README.md`: Added description, features, architecture, configuration keys (including module toggles), build/run,
+  Podman, health check, and logging sections.
 - `doc/client-production-setup.md`: This report consolidates configuration, deployment steps, and operational guidance
   for production use.
 
@@ -171,6 +181,8 @@ Notes on configuration:
   Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
 - **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitModule`, `CmcModule`, `WebModule` + `JmxModule`,
   `ServiceGraphModule`. Health route `GET /health` -> `ok`.
+- **Module toggles:** `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`, `crypto.bybit.module.enabled` in
+  `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
   `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; Bybit/CMC timings and API keys via `AppConfig`.
 - **Containerization:** Base image `eclipse-temurin:25-jre`; copies shaded JAR and runs `java -jar`.
@@ -187,6 +199,9 @@ Notes on configuration:
     - `docker build -t crypto-scout-client:0.0.1 .`
     - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
 - RabbitMQ Streams: ensure three streams exist and user can publish to them.
+- Module toggles: set one or more module flags to `false` in `application.properties`, rebuild the image, and verify
+  that corresponding startup log lines are absent (e.g., disabling `metrics.cmc.module.enabled` removes
+  `MetricsCmcConsumer started`).
 
 ## Appendix C: Next Steps (merged)
 
