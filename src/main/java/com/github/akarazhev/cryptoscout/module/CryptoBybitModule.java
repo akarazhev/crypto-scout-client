@@ -25,15 +25,11 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.MetricsBybitConsumer;
 import com.github.akarazhev.cryptoscout.client.CryptoBybitConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
-import com.github.akarazhev.jcryptolib.bybit.config.Type;
-import com.github.akarazhev.jcryptolib.bybit.stream.BybitParser;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
 import com.github.akarazhev.jcryptolib.bybit.stream.DataConfig;
-import io.activej.http.IHttpClient;
 import io.activej.http.IWebSocketClient;
 import io.activej.inject.annotation.Eager;
 import io.activej.inject.annotation.Named;
@@ -46,14 +42,14 @@ import org.slf4j.LoggerFactory;
 import static com.github.akarazhev.cryptoscout.module.Constants.Config.LINEAR_BYBIT_STREAM;
 import static com.github.akarazhev.cryptoscout.module.Constants.Config.SPOT_BYBIT_STREAM;
 
-public final class BybitModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BybitModule.class);
+public final class CryptoBybitModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CryptoBybitModule.class);
 
-    private BybitModule() {
+    private CryptoBybitModule() {
     }
 
-    public static BybitModule create() {
-        return new BybitModule();
+    public static CryptoBybitModule create() {
+        return new CryptoBybitModule();
     }
 
     @Provides
@@ -84,27 +80,6 @@ public final class BybitModule extends AbstractModule {
                 .build();
         LOGGER.info(config.print());
         return BybitStream.create(reactor, webSocketClient, config);
-    }
-
-    @Provides
-    private BybitParser bybitParser(final NioReactor reactor, final IHttpClient httpClient) {
-        final var config = new DataConfig.Builder()
-                .type(Type.MD) // Mega Drop
-                .type(Type.LPL) // Launch Pool
-                .type(Type.LPD) // Launchpad
-                .type(Type.BYV) // ByVotes Spot
-                .type(Type.BYS) // ByStarter
-                .type(Type.ADH) // Airdrop Hunt
-                .build();
-        LOGGER.info(config.print());
-        return BybitParser.create(reactor, httpClient, config);
-    }
-
-    @Eager
-    @Provides
-    private MetricsBybitConsumer metricsBybitConsumer(final NioReactor reactor, final BybitParser bybitParser,
-                                                      final AmqpPublisher amqpPublisher) {
-        return MetricsBybitConsumer.create(reactor, bybitParser, amqpPublisher);
     }
 
     @Eager

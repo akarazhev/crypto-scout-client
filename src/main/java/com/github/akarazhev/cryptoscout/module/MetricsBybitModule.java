@@ -25,10 +25,10 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.MetricsCmcConsumer;
-import com.github.akarazhev.jcryptolib.cmc.config.Type;
-import com.github.akarazhev.jcryptolib.cmc.stream.CmcParser;
-import com.github.akarazhev.jcryptolib.cmc.stream.DataConfig;
+import com.github.akarazhev.cryptoscout.client.MetricsBybitConsumer;
+import com.github.akarazhev.jcryptolib.bybit.config.Type;
+import com.github.akarazhev.jcryptolib.bybit.stream.BybitParser;
+import com.github.akarazhev.jcryptolib.bybit.stream.DataConfig;
 import io.activej.http.IHttpClient;
 import io.activej.inject.annotation.Eager;
 import io.activej.inject.annotation.Provides;
@@ -37,29 +37,34 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CmcModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CmcModule.class);
+public final class MetricsBybitModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsBybitModule.class);
 
-    private CmcModule() {
+    private MetricsBybitModule() {
     }
 
-    public static CmcModule create() {
-        return new CmcModule();
+    public static MetricsBybitModule create() {
+        return new MetricsBybitModule();
     }
 
     @Provides
-    private CmcParser cmcParser(final NioReactor reactor, final IHttpClient httpClient) {
+    private BybitParser bybitParser(final NioReactor reactor, final IHttpClient httpClient) {
         final var config = new DataConfig.Builder()
-                .type(Type.FGI)
+                .type(Type.MD) // Mega Drop
+                .type(Type.LPL) // Launch Pool
+                .type(Type.LPD) // Launchpad
+                .type(Type.BYV) // ByVotes Spot
+                .type(Type.BYS) // ByStarter
+                .type(Type.ADH) // Airdrop Hunt
                 .build();
         LOGGER.info(config.print());
-        return CmcParser.create(reactor, httpClient, config);
+        return BybitParser.create(reactor, httpClient, config);
     }
 
     @Eager
     @Provides
-    private MetricsCmcConsumer metricsCmcConsumer(final NioReactor reactor, final CmcParser cmcParser,
-                                                  final AmqpPublisher amqpPublisher) {
-        return MetricsCmcConsumer.create(reactor, cmcParser, amqpPublisher);
+    private MetricsBybitConsumer metricsBybitConsumer(final NioReactor reactor, final BybitParser bybitParser,
+                                                      final AmqpPublisher amqpPublisher) {
+        return MetricsBybitConsumer.create(reactor, bybitParser, amqpPublisher);
     }
 }
