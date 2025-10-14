@@ -41,7 +41,7 @@ Take the following roles:
 
 ### Key decisions and best practices
 
-- Minimal runtime base: `eclipse-temurin:25-jre` in `Dockerfile` (Java 25).
+- Minimal runtime base: `eclipse-temurin:25-jre-alpine` in `Dockerfile` (Java 25).
 - Hardened container in `podman-compose.yml`:
     - `read_only: true`, `tmpfs: /tmp`, `no-new-privileges`, `cap_drop: ALL`, non-root `user: "10001:10001"`.
 - Configuration via `JAVA_TOOL_OPTIONS` system properties (e.g., `-Dserver.port`, `-Damqp.rabbitmq.host`). If

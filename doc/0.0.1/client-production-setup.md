@@ -100,7 +100,7 @@ of truth; no environment override behavior is documented here.
 
 ## Container (Podman or Docker)
 
-- The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:25-jre`.
+- The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:25-jre-alpine`.
 - Build image:
     - `podman build -t crypto-scout-client:0.0.1 .`
 - Run container:
@@ -185,7 +185,7 @@ Notes on configuration:
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
   `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; Bybit/CMC timings and API keys via `AppConfig`.
-- **Containerization:** Base image `eclipse-temurin:25-jre`; copies shaded JAR and runs `java -jar`.
+- **Containerization:** Base image `eclipse-temurin:25-jre-alpine`; copies shaded JAR and runs `java -jar`.
 
 ## Appendix B: Validation Checklist (merged)
 
