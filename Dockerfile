@@ -20,12 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:25-jre-alpine@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621
+LABEL org.opencontainers.image.title="crypto-scout-client" \
+      org.opencontainers.image.description="Production-ready Java microservice that collects crypto market data (Bybit, CoinMarketCap) and publishes structured events to RabbitMQ Streams." \
+      org.opencontainers.image.version="0.0.1" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.vendor="Andrey Karazhev" \
+      org.opencontainers.image.source="https://github.com/akarazhev/crypto-scout-client"
+ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"
 WORKDIR /opt/crypto-scout
-RUN addgroup -S 10001 && adduser -S -G 10001 10001
-COPY target/crypto-scout-client-0.0.1.jar crypto-scout-client.jar
+RUN addgroup -S app -g 10001 && adduser -S -G app -u 10001 app
+COPY --chown=10001:app target/crypto-scout-client-0.0.1.jar crypto-scout-client.jar
 RUN apk add --no-cache curl
-RUN chown -R 10001:10001 /opt/crypto-scout
 USER 10001:10001
 EXPOSE 8080
+STOPSIGNAL SIGTERM
 ENTRYPOINT ["java", "-jar", "crypto-scout-client.jar"]

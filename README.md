@@ -103,6 +103,13 @@ curl -fsS http://localhost:8080/health
 
 The provided `Dockerfile` uses Temurin JRE 25 and runs the shaded JAR.
 
+- Non-root user: UID/GID `10001` (user `app`).
+- STOPSIGNAL: `SIGTERM` for graceful shutdown.
+- Java OOM fast-exit: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"`.
+- OCI labels: `org.opencontainers.image.*` (title, description, version, license, vendor, source).
+- Pinned base image:
+  `eclipse-temurin:25-jre-alpine@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621`.
+
 - Build (Podman):
 
 ```bash
@@ -146,14 +153,20 @@ mvn clean package -DskipTests
 podman build -t crypto-scout-client:0.0.1 .
 ```
 
-2) Create and populate secrets:
+2) Create external network (once):
+
+```bash
+podman network create crypto-scout-bridge
+```
+
+3) Create and populate secrets:
 
 ```bash
 cp secret/client.env.example secret/client.env
 $EDITOR secret/client.env
 ```
 
-3) Start with compose:
+4) Start with compose:
 
 ```bash
 podman-compose -f podman-compose.yml up -d
@@ -161,31 +174,43 @@ podman-compose -f podman-compose.yml up -d
 podman compose -f podman-compose.yml up -d
 ```
 
-4) Check health and logs:
+5) Check health and logs:
 
 ```bash
 curl -fsS http://localhost:8080/health
 podman logs -f crypto-scout-client
 ```
-
 Notes:
 
 - The app reads config via `AppConfig` from `src/main/resources/application.properties`. Runtime overrides via env vars
   are not supported; edit that file and rebuild the image when you need different values (RabbitMQ host/port/streams,
   API keys, `server.port`).
 - Real secrets must live in `secret/client.env` (ignored by Git). Never commit real credentials.
-- The `secret/client.env` file is a template/convenience for your deployment values; the application does not read it at
-  runtime. Keep it in sync with your `application.properties` before building.
+- The `secret/client.env` file is a template/convenience for your deployment values; the application does not read it 
+  at runtime. Keep it in sync with your `application.properties` before building.
 - If you change `server.port` in `application.properties`, update the `ports` mapping in `podman-compose.yml`
   accordingly.
 - If RabbitMQ runs on your host machine, set `amqp.rabbitmq.host=host.containers.internal` in
   `src/main/resources/application.properties` before building, so the container can reach the host.
 
+- Compose hardening in `podman-compose.yml`:
+  - `init: true`
+  - `pids_limit: 256`
+  - `ulimits.nofile: 4096`
+  - `stop_signal: SIGTERM`
+  - `stop_grace_period: 30s`
+  - healthcheck `start_period: 30s`
+  - `read_only` rootfs with `tmpfs: /tmp (nodev,nosuid)`
+  - `cap_drop: ALL`
+  - `security_opt: no-new-privileges=true`
+
 ## Production notes
 
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
 - **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
-  `amqp.crypto.bybit.stream`, `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`.
+  - `amqp.crypto.bybit.stream`
+  - `amqp.metrics.bybit.stream`
+  - `amqp.metrics.cmc.stream`
 - **Module toggles:** Control active modules with `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`,
   and `crypto.bybit.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
   in `Client.getModule()` at startup.
@@ -194,7 +219,6 @@ Notes:
 - **Health endpoint:** `GET /health` returns `ok` for liveness checks.
 - **Observability:** Console logging via `src/main/resources/logback.xml` (INFO). JMX is enabled via ActiveJ
   `JmxModule`.
-
 ## Logging
 
 Configured via `src/main/resources/logback.xml` (console, INFO level by default).

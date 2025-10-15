@@ -19,18 +19,25 @@ services:
       - no-new-privileges=true
     read_only: true
     tmpfs:
-      - /tmp:rw,size=64m,mode=1777
+      - /tmp:rw,size=64m,mode=1777,nodev,nosuid
     cap_drop:
       - ALL
     user: "10001:10001"
+    init: true
+    pids_limit: 256
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 4096
     restart: unless-stopped
+    stop_signal: SIGTERM
     stop_grace_period: 30s
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ]
       interval: 10s
       timeout: 3s
       retries: 5
-      start_period: 15s
+      start_period: 30s
 
 networks:
   crypto-scout-bridge:

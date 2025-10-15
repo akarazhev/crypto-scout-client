@@ -101,6 +101,12 @@ of truth; no environment override behavior is documented here.
 ## Container (Podman or Docker)
 
 - The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:25-jre-alpine`.
+- Non-root user: UID/GID `10001` (user `app`).
+- STOPSIGNAL: `SIGTERM` for graceful termination.
+- Java OOM fast-exit: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"`.
+- OCI labels present: `org.opencontainers.image.*` (title, description, version, license, vendor, source).
+- Pinned base image digest to reduce supply-chain variance: 
+  `eclipse-temurin:25-jre-alpine@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621`.
 - Build image:
     - `podman build -t crypto-scout-client:0.0.1 .`
 - Run container:
@@ -119,21 +125,27 @@ Steps:
 
 1. Build the image:
     - `podman build -t crypto-scout-client:0.0.1 .`
-2. Prepare secrets:
+2. Create external network (once):
+    - `podman network create crypto-scout-bridge`
+3. Prepare secrets:
     - `cp secret/client.env.example secret/client.env`
     - Edit `secret/client.env` and set RabbitMQ host/credentials, stream port/names, and API keys (`BYBIT_API_KEY`,
       `BYBIT_API_SECRET`, `CMC_API_KEY`). Optionally set `SERVER_PORT`.
-3. Start the service:
+4. Start the service:
     - `podman-compose -f podman-compose.yml up -d`
-4. Verify:
+5. Verify:
     - Health: `curl -fsS http://localhost:8080/health` -> `ok`
     - Logs: `podman logs -f crypto-scout-client`
 
 Security hardening in `podman-compose.yml`:
 
-- `read_only: true`, `tmpfs: /tmp` for writable scratch only.
+- `read_only: true`, `tmpfs: /tmp (nodev,nosuid)` for writable scratch only.
 - `security_opt: no-new-privileges:true`, `cap_drop: ALL`.
 - Non-root user: `user: "10001:10001"`.
+- `init: true` to reap zombie processes.
+- `pids_limit: 256` and `ulimits.nofile: 4096` to constrain resources.
+- `stop_signal: SIGTERM`, `stop_grace_period: 30s` for graceful shutdown.
+- Healthcheck `start_period: 30s` for safer warm-up time.
 
 Notes on configuration:
 
