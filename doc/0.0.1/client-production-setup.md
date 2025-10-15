@@ -73,8 +73,9 @@ Default properties: `src/main/resources/application.properties`.
       `cmc.circuit.breaker.timeout.ms`, `cmc.rate.limit.ms`
     - `cmc.api.key` (empty by default)
 
-Note: Properties are read via `AppConfig` (from the `jcryptolib` dependency). The repository config file is the source
-of truth; no environment override behavior is documented here.
+Note: Defaults are read via `AppConfig` from `src/main/resources/application.properties`. Environment variables and JVM
+system properties override these defaults at runtime. With Podman Compose, `secret/client.env` is injected as env vars.
+No rebuild is required for config changes applied via env or `-D` properties—restart the application to apply updates.
 
 ## Build
 
@@ -114,8 +115,9 @@ of truth; no environment override behavior is documented here.
 - Docker (alternative):
     - `docker build -t crypto-scout-client:0.0.1 .`
     - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
-- Note: The image contains the bundled `application.properties`. To change configuration, update the file and rebuild
-  the image.
+- Note: The image contains bundled defaults from `application.properties`. You can override any value at runtime using
+  environment variables or JVM system properties (e.g., `-Dserver.port=9090`, `-Damqp.rabbitmq.host=rmq`). No image
+  rebuild is required—update your env and restart the container.
 
 ## Podman Compose (with secrets)
 
@@ -149,9 +151,9 @@ Security hardening in `podman-compose.yml`:
 
 Notes on configuration:
 
-- The app reads configuration via `AppConfig` from `src/main/resources/application.properties`.
-- Runtime overrides (env vars/system properties) are not supported by the application. Edit `application.properties` and
-  rebuild the image when changes are required.
+- The app reads defaults via `AppConfig` from `src/main/resources/application.properties`, then applies runtime overrides
+  from environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected.
+- No rebuild is required when changing configuration via env vars/system properties; restart the service to apply.
 
 ## Observability & operations
 
@@ -217,5 +219,6 @@ Notes on configuration:
 
 ## Appendix C: Next Steps (merged)
 
-- If needed for your deployment flow, consider introducing a runtime config injection mechanism (e.g., external
-  properties or env mapping) to avoid image rebuilds when changing configuration.
+- Runtime configuration overrides via environment variables and JVM system properties are supported and documented.
+  Ensure your deployment passes required values through `secret/client.env` (Podman Compose) or your orchestrator’s
+  secret/config mechanism. Rebuilds are not necessary for config changes; restart with updated env.

@@ -54,10 +54,21 @@ deployments.
 
 ## Notes on configuration
 
-- The application reads properties from `src/main/resources/application.properties` using `AppConfig`.
-- Runtime environment overrides (env vars) are not supported by the application.
-- Treat `secret/client.env` as a template and record of your deployment values. Keep it in sync with
-  `application.properties` before building, and rebuild the image when changes are needed.
+- Defaults are loaded from `src/main/resources/application.properties` using `AppConfig`.
+- Runtime overrides are supported: environment variables and JVM system properties take precedence at startup.
+- With Podman Compose, `secret/client.env` is injected as environment variables for the container.
+- No rebuild is required for config changes via env vars; edit `secret/client.env` and restart the compose stack.
+
+Property-to-env mapping examples (dot → underscore, uppercased):
+
+- `server.port` → `SERVER_PORT`
+- `amqp.rabbitmq.host` → `AMQP_RABBITMQ_HOST`
+- `amqp.rabbitmq.username` → `AMQP_RABBITMQ_USERNAME`
+- `amqp.rabbitmq.password` → `AMQP_RABBITMQ_PASSWORD`
+- `amqp.stream.port` → `AMQP_STREAM_PORT`
+- `bybit.api.key` → `BYBIT_API_KEY`
+- `bybit.api.secret` → `BYBIT_API_SECRET`
+- `cmc.api.key` → `CMC_API_KEY`
 
 ## Security
 

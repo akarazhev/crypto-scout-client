@@ -44,9 +44,10 @@ Take the following roles:
 - Minimal runtime base: `eclipse-temurin:25-jre-alpine` in `Dockerfile` (Java 25).
 - Hardened container in `podman-compose.yml`:
     - `read_only: true`, `tmpfs: /tmp`, `no-new-privileges`, `cap_drop: ALL`, non-root `user: "10001:10001"`.
-- Configuration via `JAVA_TOOL_OPTIONS` system properties (e.g., `-Dserver.port`, `-Damqp.rabbitmq.host`). If
-  `AppConfig` does not honor overrides at runtime, update `src/main/resources/application.properties` and rebuild the
-  image.
+- Runtime configuration: environment variables and JVM system properties override defaults from
+  `src/main/resources/application.properties` at startup.
+- Podman Compose injects environment variables from `secret/client.env` into the container.
+- No image rebuild is required for configuration changes applied via env vars or `-D` properties—restart the container.
 - Ports: default `8080:8080`. If you change `SERVER_PORT` in `secret/client.env`, also adjust the compose ports mapping.
 
 ### Secrets schema (`secret/client.env.example`)

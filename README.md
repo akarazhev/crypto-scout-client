@@ -33,7 +33,21 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 ## Configuration
 
-Configuration is loaded from `src/main/resources/application.properties` via `AppConfig`.
+Defaults are loaded from `src/main/resources/application.properties` via `AppConfig`.
+
+Runtime overrides:
+
+- Environment variables and JVM system properties override the bundled defaults at startup.
+- Podman Compose loads environment variables from `secret/client.env` (see the "Podman Compose (with secrets)" section).
+- No rebuild is required when changing configuration via env vars or `-D` system properties; a restart is sufficient.
+
+Property-to-env mapping (dot to underscore, uppercased) examples:
+
+- `server.port` → `SERVER_PORT`
+- `amqp.rabbitmq.host` → `AMQP_RABBITMQ_HOST`
+- `amqp.rabbitmq.username` → `AMQP_RABBITMQ_USERNAME`
+- `amqp.rabbitmq.password` → `AMQP_RABBITMQ_PASSWORD`
+- `amqp.stream.port` → `AMQP_STREAM_PORT`
 
 - **Modules**
     - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`).
@@ -134,8 +148,9 @@ podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.
 docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
 ```
 
-Configuration is bundled from `src/main/resources/application.properties` at build-time. To change any values (e.g.,
-RabbitMQ host/credentials, Bybit/CMC API keys), update that file and rebuild the image.
+Defaults from `src/main/resources/application.properties` are bundled in the image, but you can override any value at
+runtime using environment variables or JVM system properties (e.g., `-Dserver.port=9090`, `-Damqp.rabbitmq.host=rmq`).
+No image rebuild is required—update your env file or container environment and restart the container.
 
 ## Podman Compose (with secrets)
 
@@ -182,16 +197,13 @@ podman logs -f crypto-scout-client
 ```
 Notes:
 
-- The app reads config via `AppConfig` from `src/main/resources/application.properties`. Runtime overrides via env vars
-  are not supported; edit that file and rebuild the image when you need different values (RabbitMQ host/port/streams,
-  API keys, `server.port`).
-- Real secrets must live in `secret/client.env` (ignored by Git). Never commit real credentials.
-- The `secret/client.env` file is a template/convenience for your deployment values; the application does not read it 
-  at runtime. Keep it in sync with your `application.properties` before building.
-- If you change `server.port` in `application.properties`, update the `ports` mapping in `podman-compose.yml`
-  accordingly.
-- If RabbitMQ runs on your host machine, set `amqp.rabbitmq.host=host.containers.internal` in
-  `src/main/resources/application.properties` before building, so the container can reach the host.
+- The app reads defaults from `src/main/resources/application.properties`, then applies runtime overrides from
+  environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected as env vars.
+- Real secrets should be placed in `secret/client.env` (ignored by Git). Never commit real credentials.
+- To apply config changes, edit `secret/client.env` and restart: `podman compose -f podman-compose.yml up -d`.
+- If you change the external HTTP port (`SERVER_PORT`), update the `ports` mapping in `podman-compose.yml` accordingly.
+- If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in `secret/client.env` so the
+  container can reach the host.
 
 - Compose hardening in `podman-compose.yml`:
   - `init: true`
@@ -214,8 +226,9 @@ Notes:
 - **Module toggles:** Control active modules with `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`,
   and `crypto.bybit.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
   in `Client.getModule()` at startup.
-- **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely during
-  your image build process within CI, then distribute the built image.
+- **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely at
+  runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
+  Rebuilds are not required for config/secrets changes—restart with updated env.
 - **Health endpoint:** `GET /health` returns `ok` for liveness checks.
 - **Observability:** Console logging via `src/main/resources/logback.xml` (INFO). JMX is enabled via ActiveJ
   `JmxModule`.
