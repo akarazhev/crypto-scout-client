@@ -5,27 +5,32 @@ services:
       dockerfile: Dockerfile
     image: crypto-scout-client:0.0.1
     container_name: crypto-scout-client
-    restart: unless-stopped
-    # Expose HTTP health endpoint
-    ports:
-      - "8080:8080"
-    # If you change server.port in application.properties, update the ports mapping accordingly.
-    # Secrets file is provided for your deployment workflow convenience, but the app reads
-    # configuration from src/main/resources/application.properties at build time.
-    # To change config, edit that file and rebuild the image.
+    cpus: "1.00"
+    memory: 1G
     env_file:
       - secret/client.env
+    environment:
+      TZ: UTC
     networks:
       - crypto-scout-bridge
-    # Harden container
+    ports:
+      - "8080:8080"
+    security_opt:
+      - no-new-privileges=true
     read_only: true
     tmpfs:
       - /tmp:rw,size=64m,mode=1777
-    security_opt:
-      - no-new-privileges:true
     cap_drop:
       - ALL
     user: "10001:10001"
+    restart: unless-stopped
+    stop_grace_period: 30s
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
 
 networks:
   crypto-scout-bridge:
