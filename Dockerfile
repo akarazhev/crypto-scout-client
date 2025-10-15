@@ -21,6 +21,11 @@
 # SOFTWARE.
 
 FROM eclipse-temurin:25-jre-alpine
-WORKDIR /app
+WORKDIR /opt/crypto-scout-client
+RUN addgroup -S crypto-scout-client && adduser -S -G crypto-scout-client crypto-scout-client
 COPY target/crypto-scout-client-0.0.1.jar crypto-scout-client.jar
+RUN apk add --no-cache curl
+RUN chown -R crypto-scout-client:crypto-scout-client /opt/crypto-scout-client
+USER crypto-scout-client:crypto-scout-client
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "crypto-scout-client.jar"]
