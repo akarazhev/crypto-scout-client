@@ -52,7 +52,7 @@ Default properties: `src/main/resources/application.properties`.
     - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`). Set to `false`
       to disable.
 - Server:
-    - `server.port=8080`
+    - `server.port=8081`
 - RabbitMQ (Streams):
     - `amqp.rabbitmq.host=localhost`
     - `amqp.rabbitmq.username=crypto_scout_mq`
@@ -89,7 +89,7 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 - Start the service:
     - `java -jar target/crypto-scout-client-0.0.1.jar`
 - Health check:
-    - `curl -fsS http://localhost:8080/health` -> `ok`
+    - `curl -fsS http://localhost:8081/health` -> `ok`
 
 ## RabbitMQ Streams prerequisites
 
@@ -111,10 +111,10 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 - Build image:
     - `podman build -t crypto-scout-client:0.0.1 .`
 - Run container:
-    - `podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+    - `podman run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
 - Docker (alternative):
     - `docker build -t crypto-scout-client:0.0.1 .`
-    - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+    - `docker run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
 - Note: The image contains bundled defaults from `application.properties`. You can override any value at runtime using
   environment variables or JVM system properties (e.g., `-Dserver.port=9090`, `-Damqp.rabbitmq.host=rmq`). No image
   rebuild is required—update your env and restart the container.
@@ -136,7 +136,7 @@ Steps:
 4. Start the service:
     - `podman-compose -f podman-compose.yml up -d`
 5. Verify:
-    - Health: `curl -fsS http://localhost:8080/health` -> `ok`
+    - Health: `curl -fsS http://localhost:8081/health` -> `ok`
     - Logs: `podman logs -f crypto-scout-client`
 
 Security hardening in `podman-compose.yml`:
@@ -179,7 +179,7 @@ Notes on configuration:
   `metrics.cmc.module.enabled`).
 - RabbitMQ Streams available and streams pre-created with correct permissions.
 - Outbound connectivity allowed to Bybit and CoinMarketCap endpoints.
-- Container built and started with port `8080` mapped (or custom `server.port`).
+- Container built and started with port `8081` mapped (or custom `server.port`).
 - Health endpoint monitored; logs collected at INFO level (adjust as needed in `logback.xml`).
 
 ## Summary of documentation updates
@@ -205,13 +205,13 @@ Notes on configuration:
 
 - Build: `mvn clean package -DskipTests`
 - Run locally: `java -jar target/crypto-scout-client-0.0.1.jar`
-- Health check: `curl -fsS http://localhost:8080/health` -> `ok`
+- Health check: `curl -fsS http://localhost:8081/health` -> `ok`
 - Container (Podman):
     - `podman build -t crypto-scout-client:0.0.1 .`
-    - `podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+    - `podman run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
 - Container (Docker):
     - `docker build -t crypto-scout-client:0.0.1 .`
-    - `docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1`
+    - `docker run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
 - RabbitMQ Streams: ensure three streams exist and user can publish to them.
 - Module toggles: set one or more module flags to `false` in `application.properties`, rebuild the image, and verify
   that corresponding startup log lines are absent (e.g., disabling `metrics.cmc.module.enabled` removes

@@ -48,11 +48,11 @@ Take the following roles:
   `src/main/resources/application.properties` at startup.
 - Podman Compose injects environment variables from `secret/client.env` into the container.
 - No image rebuild is required for configuration changes applied via env vars or `-D` properties—restart the container.
-- Ports: default `8080:8080`. If you change `SERVER_PORT` in `secret/client.env`, also adjust the compose ports mapping.
+- Ports: default `8081:8081`. If you change `SERVER_PORT` in `secret/client.env`, also adjust the compose ports mapping.
 
 ### Secrets schema (`secret/client.env.example`)
 
-- `SERVER_PORT=8080`
+- `SERVER_PORT=8081`
 - `AMQP_RABBITMQ_HOST`, `AMQP_RABBITMQ_USERNAME`, `AMQP_RABBITMQ_PASSWORD`
 - `AMQP_STREAM_PORT=5552`
 - `BYBIT_API_KEY`, `BYBIT_API_SECRET`
@@ -66,7 +66,7 @@ podman build -t crypto-scout-client:0.0.1 .
 cp secret/client.env.example secret/client.env
 $EDITOR secret/client.env
 podman-compose -f podman-compose.yml up -d
-curl -fsS http://localhost:8080/health
+curl -fsS http://localhost:8081/health
 podman logs -f crypto-scout-client
 ```
 

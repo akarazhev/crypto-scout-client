@@ -42,7 +42,7 @@ deployments.
 - Verify health endpoint:
 
   ```bash
-  curl -fsS http://localhost:8080/health
+  curl -fsS http://localhost:8081/health
   # ok
   ```
 

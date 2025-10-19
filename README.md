@@ -56,7 +56,7 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
     - Set any of these to `false` to disable the corresponding module. Flags are evaluated in
       `src/main/java/com/github/akarazhev/cryptoscout/Client.java` via `AppConfig.getAsBoolean(...)`.
 - **Server**
-    - `server.port=8080`
+    - `server.port=8081`
 - **RabbitMQ (Streams)**
     - `amqp.rabbitmq.host=localhost`
     - `amqp.rabbitmq.username=crypto_scout_mq`
@@ -109,7 +109,7 @@ java -jar target/crypto-scout-client-0.0.1.jar
 Health check:
 
 ```bash
-curl -fsS http://localhost:8080/health
+curl -fsS http://localhost:8081/health
 # ok
 ```
 
@@ -139,13 +139,13 @@ docker build -t crypto-scout-client:0.0.1 .
 - Run (Podman, map HTTP port):
 
 ```bash
-podman run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
+podman run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1
 ```
 
 - Run (Docker, map HTTP port):
 
 ```bash
-docker run --rm -p 8080:8080 --name crypto-scout-client crypto-scout-client:0.0.1
+docker run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1
 ```
 
 Defaults from `src/main/resources/application.properties` are bundled in the image, but you can override any value at
@@ -192,7 +192,7 @@ podman compose -f podman-compose.yml up -d
 5) Check health and logs:
 
 ```bash
-curl -fsS http://localhost:8080/health
+curl -fsS http://localhost:8081/health
 podman logs -f crypto-scout-client
 ```
 Notes:

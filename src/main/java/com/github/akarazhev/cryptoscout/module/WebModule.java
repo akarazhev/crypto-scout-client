@@ -24,7 +24,7 @@
 
 package com.github.akarazhev.cryptoscout.module;
 
-import com.github.akarazhev.cryptoscout.config.ServerConfig;
+import com.github.akarazhev.cryptoscout.config.WebConfig;
 import com.github.akarazhev.jcryptolib.bybit.config.Config;
 import io.activej.dns.DnsClient;
 import io.activej.dns.IDnsClient;
@@ -100,7 +100,7 @@ public final class WebModule extends AbstractModule {
     @Eager
     private HttpServer server(final NioReactor reactor, final AsyncServlet servlet) {
         return HttpServer.builder(reactor, servlet)
-                .withListenPort(ServerConfig.getServerPort())
+                .withListenPort(WebConfig.getServerPort())
                 .build();
     }
 }

@@ -43,8 +43,8 @@ final class Constants {
         static final String AMQP_METRICS_CMC_STREAM = "amqp.metrics.cmc.stream";
     }
 
-    final static class ServerConfig {
-        private ServerConfig() {
+    final static class WebConfig {
+        private WebConfig() {
             throw new UnsupportedOperationException();
         }
 
