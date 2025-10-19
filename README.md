@@ -48,15 +48,23 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
 - `amqp.rabbitmq.username` → `AMQP_RABBITMQ_USERNAME`
 - `amqp.rabbitmq.password` → `AMQP_RABBITMQ_PASSWORD`
 - `amqp.stream.port` → `AMQP_STREAM_PORT`
+- `dns.address` → `DNS_ADDRESS`
+- `dns.timeout.ms` → `DNS_TIMEOUT_MS`
 
-- **Modules**
-    - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`).
-    - `metrics.bybit.module.enabled=true` – Enable Bybit programs metrics parser (`MetricsBybitModule`).
-    - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`).
-    - Set any of these to `false` to disable the corresponding module. Flags are evaluated in
-      `src/main/java/com/github/akarazhev/cryptoscout/Client.java` via `AppConfig.getAsBoolean(...)`.
 - **Server**
     - `server.port=8081`
+
+- **Modules**
+    - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`). Set to `false`
+      to disable.
+    - `metrics.bybit.module.enabled=true` – Enable Bybit programs metrics parser (`MetricsBybitModule`). Set to `false`
+      to disable.
+    - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
+      to disable.
+
+- **DNS**
+    - `dns.address=8.8.8.8`
+    - `dns.timeout.ms=10000`
 - **RabbitMQ (Streams)**
     - `amqp.rabbitmq.host=localhost`
     - `amqp.rabbitmq.username=crypto_scout_mq`
@@ -90,7 +98,9 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
     - `cmc.rate.limit.ms=2100`
     - `cmc.api.key=`
 
-Ensure the three RabbitMQ Streams listed above exist and the configured user has permission to publish.
+## DNS configuration
+
+Configure the DNS client with `dns.address` (resolver address) and `dns.timeout.ms` (milliseconds).
 
 ## Build
 
@@ -195,6 +205,7 @@ podman compose -f podman-compose.yml up -d
 curl -fsS http://localhost:8081/health
 podman logs -f crypto-scout-client
 ```
+
 Notes:
 
 - The app reads defaults from `src/main/resources/application.properties`, then applies runtime overrides from
@@ -206,32 +217,34 @@ Notes:
   container can reach the host.
 
 - Compose hardening in `podman-compose.yml`:
-  - `init: true`
-  - `pids_limit: 256`
-  - `ulimits.nofile: 4096`
-  - `stop_signal: SIGTERM`
-  - `stop_grace_period: 30s`
-  - healthcheck `start_period: 30s`
-  - `read_only` rootfs with `tmpfs: /tmp (nodev,nosuid)`
-  - `cap_drop: ALL`
-  - `security_opt: no-new-privileges=true`
+    - `init: true`
+    - `pids_limit: 256`
+    - `ulimits.nofile: 4096`
+    - `stop_signal: SIGTERM`
+    - `stop_grace_period: 30s`
+    - healthcheck `start_period: 30s`
+    - `read_only` rootfs with `tmpfs: /tmp (nodev,nosuid)`
+    - `cap_drop: ALL`
+    - `security_opt: no-new-privileges=true`
 
 ## Production notes
 
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
 - **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
-  - `amqp.crypto.bybit.stream`
-  - `amqp.metrics.bybit.stream`
-  - `amqp.metrics.cmc.stream`
+    - `amqp.crypto.bybit.stream`
+    - `amqp.metrics.bybit.stream`
+    - `amqp.metrics.cmc.stream`
 - **Module toggles:** Control active modules with `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`,
   and `crypto.bybit.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
   in `Client.getModule()` at startup.
+- **DNS resolver:** Configure the DNS client with `dns.address` (resolver address) and `dns.timeout.ms` (milliseconds).
 - **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely at
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
   Rebuilds are not required for config/secrets changes—restart with updated env.
 - **Health endpoint:** `GET /health` returns `ok` for liveness checks.
 - **Observability:** Console logging via `src/main/resources/logback.xml` (INFO). JMX is enabled via ActiveJ
   `JmxModule`.
+
 ## Logging
 
 Configured via `src/main/resources/logback.xml` (console, INFO level by default).
