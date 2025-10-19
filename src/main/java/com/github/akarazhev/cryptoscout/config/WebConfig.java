@@ -34,4 +34,12 @@ public final class WebConfig {
     public static int getServerPort() {
         return AppConfig.getAsInt(Constants.WebConfig.SERVER_PORT);
     }
+
+    public static String getDnsPort() {
+        return AppConfig.getAsString(Constants.WebConfig.DNS_PORT);
+    }
+
+    public static int getDnsTimeoutMs() {
+        return AppConfig.getAsInt(Constants.WebConfig.DNS_TIMEOUT_MS);
+    }
 }

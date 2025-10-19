@@ -38,6 +38,5 @@ final class Constants {
         static final String LINEAR_BYBIT_STREAM = "linearBybitStream";
         static final String OK_RESPONSE = "ok";
         static final String HEALTH_API = "/health";
-        static final String DEFAULT_DNS = "8.8.8.8";
     }
 }

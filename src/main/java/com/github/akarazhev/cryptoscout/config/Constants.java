@@ -49,5 +49,7 @@ final class Constants {
         }
 
         static final String SERVER_PORT = "server.port";
+        static final String DNS_PORT = "dns.port";
+        static final String DNS_TIMEOUT_MS = "dns.timeout.ms";
     }
 }
