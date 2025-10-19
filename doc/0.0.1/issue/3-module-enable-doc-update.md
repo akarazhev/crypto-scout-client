@@ -1,4 +1,4 @@
-# Issue 3: Document updating of the `crypto-scout-client` production ready service
+# Issue 3: Document updating of the `crypto-scout-client` production ready service to enable modules
 
 The `crypto-scout-client` project has been configured in a container to get the collect crypto data.
 So you will need to update professional documentation of the `crypto-scout-client` project that it is ready for
