@@ -4,7 +4,7 @@ The `crypto-scout-client` project has been configured in a container to get the 
 So you will need to update professional documentation of the `crypto-scout-client` project that it is ready for
 production. We have added a support of `DNS` config with `timeout` via `application.properties`.
 
-- `dns.port=8.8.8.8`
+- `dns.address=8.8.8.8`
 - `dns.timeout.ms=10000`
 
 Application logic supports it.

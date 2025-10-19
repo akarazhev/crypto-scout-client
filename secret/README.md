@@ -22,6 +22,8 @@ deployments.
     - `BYBIT_API_KEY`, `BYBIT_API_SECRET` (optional if you do not use Bybit authenticated flows)
     - `CMC_API_KEY` (if CMC metrics are enabled)
     - `SERVER_PORT` if you need a non-default port
+    - `DNS_ADDRESS` (resolver address, e.g., `8.8.8.8`)
+    - `DNS_TIMEOUT_MS` (milliseconds, e.g., `10000`)
 
 ## Using with Podman Compose
 
@@ -69,6 +71,8 @@ Property-to-env mapping examples (dot → underscore, uppercased):
 - `bybit.api.key` → `BYBIT_API_KEY`
 - `bybit.api.secret` → `BYBIT_API_SECRET`
 - `cmc.api.key` → `CMC_API_KEY`
+ - `dns.address` → `DNS_ADDRESS`
+ - `dns.timeout.ms` → `DNS_TIMEOUT_MS`
 
 ## Security
 

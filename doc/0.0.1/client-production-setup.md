@@ -14,6 +14,8 @@ production setup guide.
   module toggles), build/run instructions, Podman usage, health check, and logging details.
 - Added this production setup report to guide deployment and verification, and documented how to enable/disable
   modules for production scenarios.
+- Documented DNS resolver configuration keys (`dns.address`, `dns.timeout.ms`) and their environment variable mappings
+  (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`).
 
 ## What the service does
 
@@ -53,6 +55,9 @@ Default properties: `src/main/resources/application.properties`.
       to disable.
 - Server:
     - `server.port=8081`
+- DNS:
+    - `dns.address=8.8.8.8` (resolver address)
+    - `dns.timeout.ms=10000` (milliseconds)
 - RabbitMQ (Streams):
     - `amqp.rabbitmq.host=localhost`
     - `amqp.rabbitmq.username=crypto_scout_mq`
@@ -154,6 +159,7 @@ Notes on configuration:
 - The app reads defaults via `AppConfig` from `src/main/resources/application.properties`, then applies runtime overrides
   from environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected.
 - No rebuild is required when changing configuration via env vars/system properties; restart the service to apply.
+- Property-to-env examples: `dns.address` → `DNS_ADDRESS`, `dns.timeout.ms` → `DNS_TIMEOUT_MS` (dot → underscore, uppercased).
 
 ## Observability & operations
 
@@ -175,6 +181,7 @@ Notes on configuration:
 
 - Properties audited and provided for your environment (Bybit/CMC keys if required, RabbitMQ host/port/streams, server
   port).
+- DNS resolver and timeout configured (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`) and reachable from the runtime environment.
 - Module flags set per deployment needs (`crypto.bybit.module.enabled`, `metrics.bybit.module.enabled`,
   `metrics.cmc.module.enabled`).
 - RabbitMQ Streams available and streams pre-created with correct permissions.
@@ -186,8 +193,9 @@ Notes on configuration:
 
 - `README.md`: Added description, features, architecture, configuration keys (including module toggles), build/run,
   Podman, health check, and logging sections.
+- `README.md`: Added DNS configuration and env mappings (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`).
 - `doc/client-production-setup.md`: This report consolidates configuration, deployment steps, and operational guidance
-  for production use.
+  for production use, including DNS configuration details.
 
 ## Appendix A: Repository Review Summary (merged)
 
@@ -198,7 +206,8 @@ Notes on configuration:
 - **Module toggles:** `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`, `crypto.bybit.module.enabled` in
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
-  `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; Bybit/CMC timings and API keys via `AppConfig`.
+  `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; DNS resolver and timeout (`dns.address`, `dns.timeout.ms`);
+  Bybit/CMC timings and API keys via `AppConfig`.
 - **Containerization:** Base image `eclipse-temurin:25-jre-alpine`; copies shaded JAR and runs `java -jar`.
 
 ## Appendix B: Validation Checklist (merged)
