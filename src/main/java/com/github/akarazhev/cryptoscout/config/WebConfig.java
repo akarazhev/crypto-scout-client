@@ -35,8 +35,8 @@ public final class WebConfig {
         return AppConfig.getAsInt(Constants.WebConfig.SERVER_PORT);
     }
 
-    public static String getDnsPort() {
-        return AppConfig.getAsString(Constants.WebConfig.DNS_PORT);
+    public static String getDnsAddress() {
+        return AppConfig.getAsString(Constants.WebConfig.DNS_ADDRESS);
     }
 
     public static int getDnsTimeoutMs() {

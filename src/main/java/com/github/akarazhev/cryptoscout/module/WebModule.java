@@ -65,7 +65,7 @@ public final class WebModule extends AbstractModule {
 
     @Provides
     private IDnsClient dnsClient(final NioReactor reactor) {
-        return DnsClient.builder(reactor, inetAddress(WebConfig.getDnsPort()))
+        return DnsClient.builder(reactor, inetAddress(WebConfig.getDnsAddress()))
                 .withTimeout(Duration.ofMillis(WebConfig.getDnsTimeoutMs()))
                 .build();
     }
