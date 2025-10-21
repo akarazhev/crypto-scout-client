@@ -36,6 +36,6 @@ final class Constants {
 
         static final String CMC_PARSER_MODULE_ENABLED = "cmc.parser.module.enabled";
         static final String BYBIT_PARSER_MODULE_ENABLED = "bybit.parser.module.enabled";
-        static final String CRYPTO_BYBIT_MODULE_ENABLED = "crypto.bybit.module.enabled";
+        static final String BYBIT_STREAM_MODULE_ENABLED = "bybit.stream.module.enabled";
     }
 }

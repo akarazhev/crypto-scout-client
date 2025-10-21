@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.CryptoBybitConsumer;
+import com.github.akarazhev.cryptoscout.client.SpotBybitStreamConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
@@ -39,37 +39,16 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.github.akarazhev.cryptoscout.module.Constants.Config.LINEAR_BYBIT_STREAM;
 import static com.github.akarazhev.cryptoscout.module.Constants.Config.SPOT_BYBIT_STREAM;
 
-public final class CryptoBybitModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CryptoBybitModule.class);
+public final class SpotBybitStreamModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpotBybitStreamModule.class);
 
-    private CryptoBybitModule() {
+    private SpotBybitStreamModule() {
     }
 
-    public static CryptoBybitModule create() {
-        return new CryptoBybitModule();
-    }
-
-    @Provides
-    @Named(LINEAR_BYBIT_STREAM)
-    private BybitStream linearBybitStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
-        final var config = new DataConfig.Builder()
-                .streamType(StreamType.PML) // Public Mainnet Linear
-                .topic(Topic.KLINE_1_BTC_USDT) // kline.1.BTCUSDT
-                .topic(Topic.KLINE_1_ETH_USDT) // kline.1.ETHUSDT
-                .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
-                .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
-//                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
-//                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
-                .topic(Topic.ORDER_BOOK_200_BTC_USDT) // orderbook.200.BTCUSDT
-                .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
-                .topic(Topic.ALL_LIQUIDATION_BTC_USDT) // allLiquidation.BTCUSDT
-                .topic(Topic.ALL_LIQUIDATION_ETH_USDT) // allLiquidation.ETHUSDT
-                .build();
-        LOGGER.info(config.print());
-        return BybitStream.create(reactor, webSocketClient, config);
+    public static SpotBybitStreamModule create() {
+        return new SpotBybitStreamModule();
     }
 
     @Provides
@@ -92,10 +71,9 @@ public final class CryptoBybitModule extends AbstractModule {
 
     @Eager
     @Provides
-    private CryptoBybitConsumer cryptoBybitConsumer(final NioReactor reactor,
-                                                    @Named(LINEAR_BYBIT_STREAM) final BybitStream linearBybitStream,
-                                                    @Named(SPOT_BYBIT_STREAM) final BybitStream spotBybitStream,
-                                                    final AmqpPublisher amqpPublisher) {
-        return CryptoBybitConsumer.create(reactor, linearBybitStream, spotBybitStream, amqpPublisher);
+    private SpotBybitStreamConsumer spotBybitStreamConsumer(final NioReactor reactor,
+                                                            @Named(SPOT_BYBIT_STREAM) final BybitStream spotBybitStream,
+                                                            final AmqpPublisher amqpPublisher) {
+        return SpotBybitStreamConsumer.create(reactor, spotBybitStream, amqpPublisher);
     }
 }

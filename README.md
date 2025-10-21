@@ -59,7 +59,7 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
       to disable.
     - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to `false`
       to disable.
-    - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
       to disable.
 
 - **DNS**
@@ -235,7 +235,7 @@ Notes:
     - `amqp.metrics.bybit.stream`
     - `amqp.metrics.cmc.stream`
 - **Module toggles:** Control active modules with `cmc.parser.module.enabled`, `bybit.parser.module.enabled`,
-  and `crypto.bybit.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
+  and `bybit.stream.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
   in `Client.getModule()` at startup.
 - **DNS resolver:** Configure the DNS client with `dns.address` (resolver address) and `dns.timeout.ms` (milliseconds).
 - **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely at

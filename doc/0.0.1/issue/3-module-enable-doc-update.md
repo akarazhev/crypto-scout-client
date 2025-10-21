@@ -4,7 +4,7 @@ The `crypto-scout-client` project has been configured in a container to get the 
 So you will need to update professional documentation of the `crypto-scout-client` project that it is ready for
 production. I splitted project modules into three parts:
 
-- `crypto.bybit.module.enabled`
+- `bybit.stream.module.enabled`
 - `bybit.parser.module.enabled`
 - `cmc.parser.module.enabled`
 

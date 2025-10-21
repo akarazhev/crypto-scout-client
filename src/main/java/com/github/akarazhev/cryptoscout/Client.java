@@ -24,7 +24,8 @@
 
 package com.github.akarazhev.cryptoscout;
 
-import com.github.akarazhev.cryptoscout.module.CryptoBybitModule;
+import com.github.akarazhev.cryptoscout.module.LinearBybitStreamModule;
+import com.github.akarazhev.cryptoscout.module.SpotBybitStreamModule;
 import com.github.akarazhev.cryptoscout.module.BybitParserModule;
 import com.github.akarazhev.cryptoscout.module.ClientModule;
 import com.github.akarazhev.cryptoscout.module.CmcParserModule;
@@ -39,7 +40,7 @@ import io.activej.service.ServiceGraphModule;
 import java.util.LinkedList;
 
 import static com.github.akarazhev.cryptoscout.Constants.Module.CMC_PARSER_MODULE_ENABLED;
-import static com.github.akarazhev.cryptoscout.Constants.Module.CRYPTO_BYBIT_MODULE_ENABLED;
+import static com.github.akarazhev.cryptoscout.Constants.Module.BYBIT_STREAM_MODULE_ENABLED;
 import static com.github.akarazhev.cryptoscout.Constants.Module.BYBIT_PARSER_MODULE_ENABLED;
 import static io.activej.inject.module.Modules.combine;
 
@@ -57,8 +58,9 @@ final class Client extends Launcher {
             modules.add(BybitParserModule.create());
         }
 
-        if (AppConfig.getAsBoolean(CRYPTO_BYBIT_MODULE_ENABLED)) {
-            modules.add(CryptoBybitModule.create());
+        if (AppConfig.getAsBoolean(BYBIT_STREAM_MODULE_ENABLED)) {
+            modules.add(SpotBybitStreamModule.create());
+            modules.add(LinearBybitStreamModule.create());
         }
 
         if (AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED)) {

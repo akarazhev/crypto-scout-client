@@ -30,43 +30,31 @@ import io.activej.datastream.consumer.StreamConsumers;
 import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public final class CryptoBybitConsumer extends AbstractReactive implements ReactiveService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CryptoBybitConsumer.class);
+public final class LinearBybitStreamConsumer extends AbstractReactive implements ReactiveService {
     private final BybitStream linearBybitStream;
-    private final BybitStream spotBybitStream;
     private final AmqpPublisher amqpPublisher;
 
-    public static CryptoBybitConsumer create(final NioReactor reactor, final BybitStream linearBybitStream,
-                                             final BybitStream spotBybitStream, final AmqpPublisher amqpPublisher) {
-        return new CryptoBybitConsumer(reactor, linearBybitStream, spotBybitStream, amqpPublisher);
+    public static LinearBybitStreamConsumer create(final NioReactor reactor, final BybitStream linearBybitStream,
+                                                   final AmqpPublisher amqpPublisher) {
+        return new LinearBybitStreamConsumer(reactor, linearBybitStream, amqpPublisher);
     }
 
-    private CryptoBybitConsumer(final NioReactor reactor, final BybitStream linearBybitStream,
-                                final BybitStream spotBybitStream, final AmqpPublisher amqpPublisher) {
+    private LinearBybitStreamConsumer(final NioReactor reactor, final BybitStream linearBybitStream,
+                                      final AmqpPublisher amqpPublisher) {
         super(reactor);
         this.linearBybitStream = linearBybitStream;
-        this.spotBybitStream = spotBybitStream;
         this.amqpPublisher = amqpPublisher;
     }
 
     @Override
     public Promise<?> start() {
-        linearBybitStream.start().then(stream ->
+        return linearBybitStream.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-        spotBybitStream.start().then(stream ->
-                stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-        LOGGER.info("CryptoBybitConsumer started");
-        return Promise.complete();
     }
 
     @Override
     public Promise<?> stop() {
-        spotBybitStream.stop();
-        linearBybitStream.stop();
-        LOGGER.info("CryptoBybitConsumer stopped");
-        return Promise.complete();
+        return linearBybitStream.stop();
     }
 }

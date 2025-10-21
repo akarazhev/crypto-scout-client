@@ -38,7 +38,7 @@ production setup guide.
     - `CmcModule` – CMC HTTP parser and consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
-- Consumers: `CryptoBybitConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
+- Consumers: `SpotBybitStreamConsumer`, `LinearBybitStreamConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
     - `ServerConfig` (server port), `AmqpConfig` (RabbitMQ Streams parameters).
 
@@ -47,7 +47,7 @@ production setup guide.
 Default properties: `src/main/resources/application.properties`.
 
 - Modules (enable/disable at startup via flags read by `AppConfig` in `Client.getModule()`):
-    - `crypto.bybit.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
       to disable.
     - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to `false`
       to disable.
@@ -166,8 +166,6 @@ Notes on configuration:
 - Logging: `src/main/resources/logback.xml` (console, INFO level by default).
 - Startup indicators in logs (INFO):
     - `AmqpPublisher started`
-    - `CryptoBybitConsumer started`
-    - `BybitParserConsumer started`
 - Liveness: `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
 
 ## Security notes
@@ -181,7 +179,7 @@ Notes on configuration:
 - Properties audited and provided for your environment (Bybit/CMC keys if required, RabbitMQ host/port/streams, server
   port).
 - DNS resolver and timeout configured (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`) and reachable from the runtime environment.
-- Module flags set per deployment needs (`crypto.bybit.module.enabled`, `bybit.parser.module.enabled`,
+- Module flags set per deployment needs (`bybit.stream.module.enabled`, `bybit.parser.module.enabled`,
   `cmc.parser.module.enabled`).
 - RabbitMQ Streams available and streams pre-created with correct permissions.
 - Outbound connectivity allowed to Bybit and CoinMarketCap endpoints.
@@ -202,7 +200,7 @@ Notes on configuration:
   Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
 - **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitModule`, `CmcModule`, `WebModule` + `JmxModule`,
   `ServiceGraphModule`. Health route `GET /health` -> `ok`.
-- **Module toggles:** `cmc.parser.module.enabled`, `bybit.parser.module.enabled`, `crypto.bybit.module.enabled` in
+- **Module toggles:** `cmc.parser.module.enabled`, `bybit.parser.module.enabled`, `bybit.stream.module.enabled` in
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
   `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; DNS resolver and timeout (`dns.address`, `dns.timeout.ms`);
