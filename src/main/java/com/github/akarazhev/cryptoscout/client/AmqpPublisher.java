@@ -47,9 +47,9 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     private final static Logger LOGGER = LoggerFactory.getLogger(AmqpPublisher.class);
     private final Executor executor;
     private volatile Environment environment;
-    private volatile Producer cryptoBybitProducer;
-    private volatile Producer metricsBybitProducer;
-    private volatile Producer metricsCmcProducer;
+    private volatile Producer bybitStreamProducer;
+    private volatile Producer bybitParserProducer;
+    private volatile Producer cmcParserProducer;
 
     public static AmqpPublisher create(final NioReactor reactor, final Executor executor) {
         return new AmqpPublisher(reactor, executor);
@@ -65,19 +65,18 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
         return Promise.ofBlocking(executor, () -> {
             try {
                 environment = AmqpConfig.getEnvironment();
-                cryptoBybitProducer = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpCryptoBybitStream())
-                        .stream(AmqpConfig.getAmqpCryptoBybitStream())
+                bybitStreamProducer = environment.producerBuilder()
+                        .name(AmqpConfig.getAmqpBybitCryptoStream())
+                        .stream(AmqpConfig.getAmqpBybitCryptoStream())
                         .build();
-                metricsBybitProducer = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpMetricsBybitStream())
-                        .stream(AmqpConfig.getAmqpMetricsBybitStream())
+                bybitParserProducer = environment.producerBuilder()
+                        .name(AmqpConfig.getAmqpBybitParserStream())
+                        .stream(AmqpConfig.getAmqpBybitParserStream())
                         .build();
-                metricsCmcProducer = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpMetricsCmcStream())
-                        .stream(AmqpConfig.getAmqpMetricsCmcStream())
+                cmcParserProducer = environment.producerBuilder()
+                        .name(AmqpConfig.getAmqpCmcParserStream())
+                        .stream(AmqpConfig.getAmqpCmcParserStream())
                         .build();
-                LOGGER.info("AmqpPublisher started");
             } catch (final Exception ex) {
                 LOGGER.error("Failed to start AmqpPublisher", ex);
                 throw new RuntimeException(ex);
@@ -88,14 +87,13 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     @Override
     public Promise<?> stop() {
         return Promise.ofBlocking(executor, () -> {
-            closeProducer(cryptoBybitProducer);
-            cryptoBybitProducer = null;
-            closeProducer(metricsBybitProducer);
-            metricsBybitProducer = null;
-            closeProducer(metricsCmcProducer);
-            metricsCmcProducer = null;
+            closeProducer(bybitStreamProducer);
+            bybitStreamProducer = null;
+            closeProducer(bybitParserProducer);
+            bybitParserProducer = null;
+            closeProducer(cmcParserProducer);
+            cmcParserProducer = null;
             closeEnvironment();
-            LOGGER.info("AmqpPublisher stopped");
         });
     }
 
@@ -132,18 +130,18 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     }
 
     private Producer getProducer(final Provider provider, final Source source) {
-        return Provider.CMC.equals(provider) ? metricsCmcProducer :
-                Provider.BYBIT.equals(provider) && isMetricsBybit(source) ? metricsBybitProducer :
-                        Provider.BYBIT.equals(provider) && isCryptoBybit(source) ? cryptoBybitProducer :
+        return Provider.CMC.equals(provider) ? cmcParserProducer :
+                Provider.BYBIT.equals(provider) && isBybitParserSource(source) ? bybitParserProducer :
+                        Provider.BYBIT.equals(provider) && isBybitStreamSource(source) ? bybitStreamProducer :
                                 null;
     }
 
-    private boolean isMetricsBybit(final Source source) {
+    private boolean isBybitParserSource(final Source source) {
         return Source.MD.equals(source) || Source.LPL.equals(source) || Source.LPD.equals(source) ||
                 Source.BYV.equals(source) || Source.BYS.equals(source) || Source.ADH.equals(source);
     }
 
-    private boolean isCryptoBybit(final Source source) {
+    private boolean isBybitStreamSource(final Source source) {
         return Source.PMST.equals(source) || Source.PML.equals(source);
     }
 

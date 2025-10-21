@@ -70,9 +70,9 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
     - `amqp.rabbitmq.username=crypto_scout_mq`
     - `amqp.rabbitmq.password=`
     - `amqp.stream.port=5552`
-    - `amqp.crypto.bybit.stream=crypto-bybit-stream`
-    - `amqp.metrics.bybit.stream=metrics-bybit-stream`
-    - `amqp.metrics.cmc.stream=metrics-cmc-stream`
+    - `amqp.bybit.crypto.stream=bybit-crypto-stream`
+    - `amqp.bybit.parser.stream=bybit-parser-stream`
+    - `amqp.cmc.parser.stream=cmc-parser-stream`
 - **Bybit connection**
     - `bybit.connect.timeout.ms=10000`
     - `bybit.initial.reconnect.interval.ms=100`
@@ -231,9 +231,9 @@ Notes:
 
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
 - **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
-    - `amqp.crypto.bybit.stream`
-    - `amqp.metrics.bybit.stream`
-    - `amqp.metrics.cmc.stream`
+    - `amqp.bybit.crypto.stream`
+    - `amqp.bybit.parser.stream`
+    - `amqp.cmc.parser.stream`
 - **Module toggles:** Control active modules with `cmc.parser.module.enabled`, `bybit.parser.module.enabled`,
   and `bybit.stream.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
   in `Client.getModule()` at startup.

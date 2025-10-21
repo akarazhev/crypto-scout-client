@@ -63,9 +63,9 @@ Default properties: `src/main/resources/application.properties`.
     - `amqp.rabbitmq.username=crypto_scout_mq`
     - `amqp.rabbitmq.password=`
     - `amqp.stream.port=5552`
-    - `amqp.crypto.bybit.stream=crypto-bybit-stream`
-    - `amqp.metrics.bybit.stream=metrics-bybit-stream`
-    - `amqp.metrics.cmc.stream=metrics-cmc-stream`
+    - `amqp.bybit.crypto.stream=bybit-crypto-stream`
+    - `amqp.bybit.parser.stream=bybit-parser-stream`
+    - `amqp.cmc.parser.stream=cmc-parser-stream`
 - Bybit connection and API (used by the Bybit client library):
     - `bybit.connect.timeout.ms`, `bybit.initial.reconnect.interval.ms`, `bybit.max.reconnect.interval.ms`,
       `bybit.max.reconnect.attempts`, `bybit.backoff.multiplier`, `bybit.ping.interval.ms`, `bybit.pong.timeout.ms`,
@@ -100,9 +100,9 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 
 - Ensure RabbitMQ Streams is enabled and reachable at `amqp.rabbitmq.host:amqp.stream.port`.
 - Pre-create the streams and ensure the user has publish permission:
-    - `amqp.crypto.bybit.stream`
-    - `amqp.metrics.bybit.stream`
-    - `amqp.metrics.cmc.stream`
+    - `amqp.bybit.crypto.stream`
+    - `amqp.bybit.parser.stream`
+    - `amqp.cmc.parser.stream`
 
 ## Container (Podman or Docker)
 
@@ -164,8 +164,6 @@ Notes on configuration:
 ## Observability & operations
 
 - Logging: `src/main/resources/logback.xml` (console, INFO level by default).
-- Startup indicators in logs (INFO):
-    - `AmqpPublisher started`
 - Liveness: `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
 
 ## Security notes
@@ -202,8 +200,8 @@ Notes on configuration:
   `ServiceGraphModule`. Health route `GET /health` -> `ok`.
 - **Module toggles:** `cmc.parser.module.enabled`, `bybit.parser.module.enabled`, `bybit.stream.module.enabled` in
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
-- **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
-  `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; DNS resolver and timeout (`dns.address`, `dns.timeout.ms`);
+- **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.bybit.crypto.stream`,
+  `amqp.bybit.parser.stream`, `amqp.cmc.parser.stream`; DNS resolver and timeout (`dns.address`, `dns.timeout.ms`);
   Bybit/CMC timings and API keys via `AppConfig`.
 - **Containerization:** Base image `eclipse-temurin:25-jre-alpine`; copies shaded JAR and runs `java -jar`.
 
