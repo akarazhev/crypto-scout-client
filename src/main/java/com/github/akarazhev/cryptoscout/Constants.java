@@ -34,7 +34,7 @@ final class Constants {
             throw new UnsupportedOperationException();
         }
 
-        static final String METRICS_CMC_MODULE_ENABLED = "metrics.cmc.module.enabled";
+        static final String CMC_PARSER_MODULE_ENABLED = "cmc.parser.module.enabled";
         static final String METRICS_BYBIT_MODULE_ENABLED = "metrics.bybit.module.enabled";
         static final String CRYPTO_BYBIT_MODULE_ENABLED = "crypto.bybit.module.enabled";
     }

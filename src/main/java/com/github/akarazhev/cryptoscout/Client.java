@@ -27,7 +27,7 @@ package com.github.akarazhev.cryptoscout;
 import com.github.akarazhev.cryptoscout.module.CryptoBybitModule;
 import com.github.akarazhev.cryptoscout.module.MetricsBybitModule;
 import com.github.akarazhev.cryptoscout.module.ClientModule;
-import com.github.akarazhev.cryptoscout.module.MetricsCmcModule;
+import com.github.akarazhev.cryptoscout.module.CmcParserModule;
 import com.github.akarazhev.cryptoscout.module.CoreModule;
 import com.github.akarazhev.cryptoscout.module.WebModule;
 import com.github.akarazhev.jcryptolib.config.AppConfig;
@@ -38,9 +38,9 @@ import io.activej.service.ServiceGraphModule;
 
 import java.util.LinkedList;
 
+import static com.github.akarazhev.cryptoscout.Constants.Module.CMC_PARSER_MODULE_ENABLED;
 import static com.github.akarazhev.cryptoscout.Constants.Module.CRYPTO_BYBIT_MODULE_ENABLED;
 import static com.github.akarazhev.cryptoscout.Constants.Module.METRICS_BYBIT_MODULE_ENABLED;
-import static com.github.akarazhev.cryptoscout.Constants.Module.METRICS_CMC_MODULE_ENABLED;
 import static io.activej.inject.module.Modules.combine;
 
 final class Client extends Launcher {
@@ -61,8 +61,8 @@ final class Client extends Launcher {
             modules.add(CryptoBybitModule.create());
         }
 
-        if (AppConfig.getAsBoolean(METRICS_CMC_MODULE_ENABLED)) {
-            modules.add(MetricsCmcModule.create());
+        if (AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED)) {
+            modules.add(CmcParserModule.create());
         }
 
         modules.add(WebModule.create());

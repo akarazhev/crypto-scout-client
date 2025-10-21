@@ -55,7 +55,7 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
     - `server.port=8081`
 
 - **Modules**
-    - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`). Set to `false`
+    - `cmc.parser.module.enabled=true` – Enable CoinMarketCap metrics parser (`CmcParserModule`). Set to `false`
       to disable.
     - `metrics.bybit.module.enabled=true` – Enable Bybit programs metrics parser (`MetricsBybitModule`). Set to `false`
       to disable.
@@ -234,7 +234,7 @@ Notes:
     - `amqp.crypto.bybit.stream`
     - `amqp.metrics.bybit.stream`
     - `amqp.metrics.cmc.stream`
-- **Module toggles:** Control active modules with `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`,
+- **Module toggles:** Control active modules with `cmc.parser.module.enabled`, `metrics.bybit.module.enabled`,
   and `crypto.bybit.module.enabled` in `application.properties` (defaults `true`; set to `false` to disable). Evaluated
   in `Client.getModule()` at startup.
 - **DNS resolver:** Configure the DNS client with `dns.address` (resolver address) and `dns.timeout.ms` (milliseconds).

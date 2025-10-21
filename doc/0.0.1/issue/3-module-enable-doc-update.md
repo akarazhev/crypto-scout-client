@@ -6,7 +6,7 @@ production. I splitted project modules into three parts:
 
 - `crypto.bybit.module.enabled`
 - `metrics.bybit.module.enabled`
-- `metrics.cmc.module.enabled`
+- `cmc.parser.module.enabled`
 
 and add possibility to disable modules.
 

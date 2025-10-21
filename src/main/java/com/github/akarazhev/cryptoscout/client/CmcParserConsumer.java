@@ -30,21 +30,18 @@ import io.activej.datastream.consumer.StreamConsumers;
 import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public final class MetricsCmcConsumer extends AbstractReactive implements ReactiveService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsCmcConsumer.class);
+public final class CmcParserConsumer extends AbstractReactive implements ReactiveService {
     private final CmcParser cmcParser;
     private final AmqpPublisher amqpPublisher;
 
-    public static MetricsCmcConsumer create(final NioReactor reactor, final CmcParser cmcParser,
-                                            final AmqpPublisher amqpPublisher) {
-        return new MetricsCmcConsumer(reactor, cmcParser, amqpPublisher);
+    public static CmcParserConsumer create(final NioReactor reactor, final CmcParser cmcParser,
+                                           final AmqpPublisher amqpPublisher) {
+        return new CmcParserConsumer(reactor, cmcParser, amqpPublisher);
     }
 
-    private MetricsCmcConsumer(final NioReactor reactor, final CmcParser cmcParser,
-                               final AmqpPublisher amqpPublisher) {
+    private CmcParserConsumer(final NioReactor reactor, final CmcParser cmcParser,
+                              final AmqpPublisher amqpPublisher) {
         super(reactor);
         this.cmcParser = cmcParser;
         this.amqpPublisher = amqpPublisher;
@@ -52,16 +49,12 @@ public final class MetricsCmcConsumer extends AbstractReactive implements Reacti
 
     @Override
     public Promise<?> start() {
-        cmcParser.start().then(stream ->
+        return cmcParser.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-        LOGGER.info("MetricsCmcConsumer started");
-        return Promise.complete();
     }
 
     @Override
     public Promise<?> stop() {
-        cmcParser.stop();
-        LOGGER.info("MetricsCmcConsumer stopped");
-        return Promise.complete();
+        return cmcParser.stop();
     }
 }

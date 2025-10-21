@@ -38,7 +38,7 @@ production setup guide.
     - `CmcModule` – CMC HTTP parser and consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
-- Consumers: `CryptoBybitConsumer`, `MetricsBybitConsumer`, `MetricsCmcConsumer`.
+- Consumers: `CryptoBybitConsumer`, `MetricsBybitConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
     - `ServerConfig` (server port), `AmqpConfig` (RabbitMQ Streams parameters).
 
@@ -51,7 +51,7 @@ Default properties: `src/main/resources/application.properties`.
       to disable.
     - `metrics.bybit.module.enabled=true` – Enable Bybit programs metrics parser (`MetricsBybitModule`). Set to `false`
       to disable.
-    - `metrics.cmc.module.enabled=true` – Enable CoinMarketCap metrics parser (`MetricsCmcModule`). Set to `false`
+    - `cmc.parser.module.enabled=true` – Enable CoinMarketCap metrics parser (`CmcParserModule`). Set to `false`
       to disable.
 - Server:
     - `server.port=8081`
@@ -168,7 +168,6 @@ Notes on configuration:
     - `AmqpPublisher started`
     - `CryptoBybitConsumer started`
     - `MetricsBybitConsumer started`
-    - `MetricsCmcConsumer started`
 - Liveness: `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
 
 ## Security notes
@@ -183,7 +182,7 @@ Notes on configuration:
   port).
 - DNS resolver and timeout configured (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`) and reachable from the runtime environment.
 - Module flags set per deployment needs (`crypto.bybit.module.enabled`, `metrics.bybit.module.enabled`,
-  `metrics.cmc.module.enabled`).
+  `cmc.parser.module.enabled`).
 - RabbitMQ Streams available and streams pre-created with correct permissions.
 - Outbound connectivity allowed to Bybit and CoinMarketCap endpoints.
 - Container built and started with port `8081` mapped (or custom `server.port`).
@@ -203,7 +202,7 @@ Notes on configuration:
   Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
 - **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitModule`, `CmcModule`, `WebModule` + `JmxModule`,
   `ServiceGraphModule`. Health route `GET /health` -> `ok`.
-- **Module toggles:** `metrics.cmc.module.enabled`, `metrics.bybit.module.enabled`, `crypto.bybit.module.enabled` in
+- **Module toggles:** `cmc.parser.module.enabled`, `metrics.bybit.module.enabled`, `crypto.bybit.module.enabled` in
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.crypto.bybit.stream`,
   `amqp.metrics.bybit.stream`, `amqp.metrics.cmc.stream`; DNS resolver and timeout (`dns.address`, `dns.timeout.ms`);
@@ -222,9 +221,7 @@ Notes on configuration:
     - `docker build -t crypto-scout-client:0.0.1 .`
     - `docker run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
 - RabbitMQ Streams: ensure three streams exist and user can publish to them.
-- Module toggles: set one or more module flags to `false` in `application.properties`, rebuild the image, and verify
-  that corresponding startup log lines are absent (e.g., disabling `metrics.cmc.module.enabled` removes
-  `MetricsCmcConsumer started`).
+- Module toggles: set one or more module flags to `false` in `application.properties`, rebuild the image.
 
 ## Appendix C: Next Steps (merged)
 

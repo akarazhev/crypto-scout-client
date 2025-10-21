@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.MetricsCmcConsumer;
+import com.github.akarazhev.cryptoscout.client.CmcParserConsumer;
 import com.github.akarazhev.jcryptolib.cmc.config.Type;
 import com.github.akarazhev.jcryptolib.cmc.stream.CmcParser;
 import com.github.akarazhev.jcryptolib.cmc.stream.DataConfig;
@@ -37,29 +37,27 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class MetricsCmcModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsCmcModule.class);
+public final class CmcParserModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CmcParserModule.class);
 
-    private MetricsCmcModule() {
+    private CmcParserModule() {
     }
 
-    public static MetricsCmcModule create() {
-        return new MetricsCmcModule();
+    public static CmcParserModule create() {
+        return new CmcParserModule();
     }
 
     @Provides
     private CmcParser cmcParser(final NioReactor reactor, final IHttpClient httpClient) {
-        final var config = new DataConfig.Builder()
-                .type(Type.FGI)
-                .build();
+        final var config = new DataConfig.Builder().type(Type.FGI).build();
         LOGGER.info(config.print());
         return CmcParser.create(reactor, httpClient, config);
     }
 
     @Eager
     @Provides
-    private MetricsCmcConsumer metricsCmcConsumer(final NioReactor reactor, final CmcParser cmcParser,
-                                                  final AmqpPublisher amqpPublisher) {
-        return MetricsCmcConsumer.create(reactor, cmcParser, amqpPublisher);
+    private CmcParserConsumer cmcParserConsumer(final NioReactor reactor, final CmcParser cmcParser,
+                                                final AmqpPublisher amqpPublisher) {
+        return CmcParserConsumer.create(reactor, cmcParser, amqpPublisher);
     }
 }
