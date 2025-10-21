@@ -10,17 +10,17 @@ Streams. Built with ActiveJ.
 This document summarizes the documentation work completed for the `crypto-scout-client` service and provides a
 production setup guide.
 
-- Updated `README.md` with a professional, production-ready overview, architecture, configuration (including
-  module toggles), build/run instructions, Podman usage, health check, and logging details.
-- Added this production setup report to guide deployment and verification, and documented how to enable/disable
-  modules for production scenarios.
+- Updated `README.md` with a professional, production-ready overview, architecture, configuration (including module
+  toggles), build/run instructions, Podman usage, health check, and logging details.
+- Added this production setup report to guide deployment and verification, and documented how to enable/disable modules
+  for production scenarios.
 - Documented DNS resolver configuration keys (`dns.address`, `dns.timeout.ms`) and their environment variable mappings
   (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`).
 
 ## What the service does
 
 - Consumes crypto data from Bybit public streams (linear and spot) for BTCUSDT and ETHUSDT: tickers, 1m klines, and
-  liquidation events.
+  liquidation events; also order book (depth 200) on both spot and linear.
 - Periodically parses Bybit program metrics (Mega Drop, Launch Pool/Pad, ByVotes, ByStarter, Airdrop Hunt).
 - Retrieves CoinMarketCap Fear & Greed Index.
 - Publishes all collected and parsed payloads to RabbitMQ Streams.
@@ -32,23 +32,26 @@ production setup guide.
     - Combines modules and runs until shutdown is requested.
 - Modules (`src/main/java/com/github/akarazhev/cryptoscout/module/`):
     - `CoreModule` – Single-threaded `NioReactor` and virtual-thread `Executor`.
-    - `WebModule` – HTTP server (port from `ServerConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` route.
+    - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` route.
     - `ClientModule` – Lifecycle for `AmqpPublisher`.
-    - `BybitModule` – Bybit WebSocket streams, Bybit HTTP parser, and corresponding consumers.
-    - `CmcModule` – CMC HTTP parser and consumer.
+    - `SpotBybitStreamModule` – Bybit Spot WebSocket streams (PMST): klines(1m), tickers, order book 200 + consumer.
+    - `LinearBybitStreamModule` – Bybit Linear WebSocket streams (PML): klines(1m), tickers, order book 200,
+      all-liquidations + consumer.
+    - `BybitParserModule` – Bybit programs HTTP parser + consumer.
+    - `CmcParserModule` – CMC HTTP parser + consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
 - Consumers: `SpotBybitStreamConsumer`, `LinearBybitStreamConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
-    - `ServerConfig` (server port), `AmqpConfig` (RabbitMQ Streams parameters).
+    - `WebConfig` (server port, DNS), `AmqpConfig` (RabbitMQ Streams parameters).
 
 ## Configuration
 
 Default properties: `src/main/resources/application.properties`.
 
 - Modules (enable/disable at startup via flags read by `AppConfig` in `Client.getModule()`):
-    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
-      to disable.
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`SpotBybitStreamModule` and
+      `LinearBybitStreamModule`). Set to `false` to disable.
     - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to `false`
       to disable.
     - `cmc.parser.module.enabled=true` – Enable CoinMarketCap metrics parser (`CmcParserModule`). Set to `false`
@@ -111,7 +114,7 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 - STOPSIGNAL: `SIGTERM` for graceful termination.
 - Java OOM fast-exit: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"`.
 - OCI labels present: `org.opencontainers.image.*` (title, description, version, license, vendor, source).
-- Pinned base image digest to reduce supply-chain variance: 
+- Pinned base image digest to reduce supply-chain variance:
   `eclipse-temurin:25-jre-alpine@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621`.
 - Build image:
     - `podman build -t crypto-scout-client:0.0.1 .`
@@ -156,10 +159,11 @@ Security hardening in `podman-compose.yml`:
 
 Notes on configuration:
 
-- The app reads defaults via `AppConfig` from `src/main/resources/application.properties`, then applies runtime overrides
-  from environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected.
+- The app reads defaults via `AppConfig` from `src/main/resources/application.properties`, then applies runtime
+  overrides from environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected.
 - No rebuild is required when changing configuration via env vars/system properties; restart the service to apply.
-- Property-to-env examples: `dns.address` → `DNS_ADDRESS`, `dns.timeout.ms` → `DNS_TIMEOUT_MS` (dot → underscore, uppercased).
+- Property-to-env examples: `dns.address` → `DNS_ADDRESS`, `dns.timeout.ms` → `DNS_TIMEOUT_MS` (dot → underscore,
+  uppercased).
 
 ## Observability & operations
 
@@ -196,8 +200,9 @@ Notes on configuration:
 
 - **Tech stack (`pom.xml`):** Java 25 (`java.version`, compiler source/target 25), ActiveJ 6.0-rc2, RabbitMQ Stream
   Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
-- **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitModule`, `CmcModule`, `WebModule` + `JmxModule`,
-  `ServiceGraphModule`. Health route `GET /health` -> `ok`.
+- **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `SpotBybitStreamModule`, `LinearBybitStreamModule`,
+  `BybitParserModule`, `CmcParserModule`, `WebModule` + `JmxModule`, `ServiceGraphModule`. Health route `GET /health` ->
+  `ok`.
 - **Module toggles:** `cmc.parser.module.enabled`, `bybit.parser.module.enabled`, `bybit.stream.module.enabled` in
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.bybit.crypto.stream`,
@@ -217,7 +222,8 @@ Notes on configuration:
     - `docker build -t crypto-scout-client:0.0.1 .`
     - `docker run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
 - RabbitMQ Streams: ensure three streams exist and user can publish to them.
-- Module toggles: set one or more module flags to `false` in `application.properties`, rebuild the image.
+- Module toggles: prefer runtime overrides via env/JVM (e.g., `BYBIT_STREAM_MODULE_ENABLED=false`). Rebuild only if you
+  change the bundled defaults in `src/main/resources/application.properties`.
 
 ## Appendix C: Next Steps (merged)
 

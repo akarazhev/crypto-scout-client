@@ -5,14 +5,13 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 ## Features
 
-- **Bybit streams (public):** Subscribes to linear and spot channels for `BTCUSDT` and `ETHUSDT` (tickers, 1m klines)
-  and liquidation events, via `BybitStream`, and publishes to a crypto stream.
+- **Bybit streams (public):** Spot (PMST) and Linear (PML) channels for `BTCUSDT` and `ETHUSDT`: 1m klines, tickers,
+  order book 200; Linear also includes all-liquidations. Implemented via jcryptolib `BybitStream` and published to
+  `amqp.bybit.crypto.stream`.
 - **Bybit metrics (HTTP):** Periodically parses Bybit programs (Mega Drop, Launch Pool/Pad, ByVotes, ByStarter, Airdrop
-  Hunt) via `BybitParser` and publishes to a metrics stream.
-- **CoinMarketCap metrics:** Retrieves Fear & Greed Index via `CmcParser` and publishes to a metrics stream.
+  Hunt) via `BybitParser` and publishes to `amqp.bybit.parser.stream`.
+- **CoinMarketCap metrics:** Retrieves Fear & Greed Index via `CmcParser` and publishes to `amqp.cmc.parser.stream`.
 - **AMQP (RabbitMQ Streams):** Publishes messages to three streams configured in `application.properties`.
-- **Health endpoint:** `GET /health` returns `ok`.
-- **Async runtime:** Single-threaded reactor (ActiveJ `NioReactor`) with virtual threads for blocking tasks.
 
 ## Architecture
 
@@ -21,8 +20,10 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
     - `CoreModule` – reactor and executor (virtual threads).
     - `WebModule` – HTTP server, HTTP/WebSocket clients, health route, DNS.
     - `ClientModule` – AMQP publisher lifecycle.
-    - `BybitModule` – Bybit streams and parser + consumers.
-    - `CmcModule` – CMC parser + consumer.
+    - `SpotBybitStreamModule` – Bybit Spot WebSocket streams + consumer.
+    - `LinearBybitStreamModule` – Bybit Linear WebSocket streams + consumer.
+    - `BybitParserModule` – Bybit programs HTTP parser + consumer.
+    - `CmcParserModule` – CMC HTTP parser + consumer.
 - **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.
 
 ## Requirements
@@ -35,21 +36,22 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 Defaults are loaded from `src/main/resources/application.properties` via `AppConfig`.
 
-Runtime overrides:
-
 - Environment variables and JVM system properties override the bundled defaults at startup.
 - Podman Compose loads environment variables from `secret/client.env` (see the "Podman Compose (with secrets)" section).
 - No rebuild is required when changing configuration via env vars or `-D` system properties; a restart is sufficient.
 
-Property-to-env mapping (dot to underscore, uppercased) examples:
+  Property-to-env mapping (dot to underscore, uppercased) examples:
 
-- `server.port` → `SERVER_PORT`
-- `amqp.rabbitmq.host` → `AMQP_RABBITMQ_HOST`
-- `amqp.rabbitmq.username` → `AMQP_RABBITMQ_USERNAME`
-- `amqp.rabbitmq.password` → `AMQP_RABBITMQ_PASSWORD`
-- `amqp.stream.port` → `AMQP_STREAM_PORT`
-- `dns.address` → `DNS_ADDRESS`
-- `dns.timeout.ms` → `DNS_TIMEOUT_MS`
+    - `server.port` → `SERVER_PORT`
+    - `amqp.rabbitmq.host` → `AMQP_RABBITMQ_HOST`
+    - `amqp.rabbitmq.username` → `AMQP_RABBITMQ_USERNAME`
+    - `amqp.rabbitmq.password` → `AMQP_RABBITMQ_PASSWORD`
+    - `amqp.stream.port` → `AMQP_STREAM_PORT`
+    - `dns.address` → `DNS_ADDRESS`
+    - `dns.timeout.ms` → `DNS_TIMEOUT_MS`
+    - `bybit.stream.module.enabled` → `BYBIT_STREAM_MODULE_ENABLED`
+    - `bybit.parser.module.enabled` → `BYBIT_PARSER_MODULE_ENABLED`
+    - `cmc.parser.module.enabled` → `CMC_PARSER_MODULE_ENABLED`
 
 - **Server**
     - `server.port=8081`
@@ -59,8 +61,8 @@ Property-to-env mapping (dot to underscore, uppercased) examples:
       to disable.
     - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to `false`
       to disable.
-    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publisher (`CryptoBybitModule`). Set to `false`
-      to disable.
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`SpotBybitStreamModule` and
+      `LinearBybitStreamModule`). Set to `false` to disable both Spot and Linear stream modules.
 
 - **DNS**
     - `dns.address=8.8.8.8`
