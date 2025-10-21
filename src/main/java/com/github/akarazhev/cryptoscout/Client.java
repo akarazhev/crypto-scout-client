@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout;
 
 import com.github.akarazhev.cryptoscout.module.CryptoBybitModule;
-import com.github.akarazhev.cryptoscout.module.MetricsBybitModule;
+import com.github.akarazhev.cryptoscout.module.BybitParserModule;
 import com.github.akarazhev.cryptoscout.module.ClientModule;
 import com.github.akarazhev.cryptoscout.module.CmcParserModule;
 import com.github.akarazhev.cryptoscout.module.CoreModule;
@@ -40,7 +40,7 @@ import java.util.LinkedList;
 
 import static com.github.akarazhev.cryptoscout.Constants.Module.CMC_PARSER_MODULE_ENABLED;
 import static com.github.akarazhev.cryptoscout.Constants.Module.CRYPTO_BYBIT_MODULE_ENABLED;
-import static com.github.akarazhev.cryptoscout.Constants.Module.METRICS_BYBIT_MODULE_ENABLED;
+import static com.github.akarazhev.cryptoscout.Constants.Module.BYBIT_PARSER_MODULE_ENABLED;
 import static io.activej.inject.module.Modules.combine;
 
 final class Client extends Launcher {
@@ -53,8 +53,8 @@ final class Client extends Launcher {
         modules.add(CoreModule.create());
         modules.add(ClientModule.create());
 
-        if (AppConfig.getAsBoolean(METRICS_BYBIT_MODULE_ENABLED)) {
-            modules.add(MetricsBybitModule.create());
+        if (AppConfig.getAsBoolean(BYBIT_PARSER_MODULE_ENABLED)) {
+            modules.add(BybitParserModule.create());
         }
 
         if (AppConfig.getAsBoolean(CRYPTO_BYBIT_MODULE_ENABLED)) {

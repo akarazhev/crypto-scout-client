@@ -30,21 +30,18 @@ import io.activej.datastream.consumer.StreamConsumers;
 import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public final class MetricsBybitConsumer extends AbstractReactive implements ReactiveService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsBybitConsumer.class);
+public final class BybitParserConsumer extends AbstractReactive implements ReactiveService {
     private final BybitParser bybitParser;
     private final AmqpPublisher amqpPublisher;
 
-    public static MetricsBybitConsumer create(final NioReactor reactor, final BybitParser bybitParser,
-                                              final AmqpPublisher amqpPublisher) {
-        return new MetricsBybitConsumer(reactor, bybitParser, amqpPublisher);
+    public static BybitParserConsumer create(final NioReactor reactor, final BybitParser bybitParser,
+                                             final AmqpPublisher amqpPublisher) {
+        return new BybitParserConsumer(reactor, bybitParser, amqpPublisher);
     }
 
-    private MetricsBybitConsumer(final NioReactor reactor, final BybitParser bybitParser,
-                                 final AmqpPublisher amqpPublisher) {
+    private BybitParserConsumer(final NioReactor reactor, final BybitParser bybitParser,
+                                final AmqpPublisher amqpPublisher) {
         super(reactor);
         this.bybitParser = bybitParser;
         this.amqpPublisher = amqpPublisher;
@@ -52,16 +49,12 @@ public final class MetricsBybitConsumer extends AbstractReactive implements Reac
 
     @Override
     public Promise<?> start() {
-        bybitParser.start().then(stream ->
+        return bybitParser.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-        LOGGER.info("MetricsBybitConsumer started");
-        return Promise.complete();
     }
 
     @Override
     public Promise<?> stop() {
-        bybitParser.stop();
-        LOGGER.info("MetricsBybitConsumer stopped");
-        return Promise.complete();
+        return bybitParser.stop();
     }
 }

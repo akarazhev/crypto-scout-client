@@ -5,7 +5,7 @@ So you will need to update professional documentation of the `crypto-scout-clien
 production. I splitted project modules into three parts:
 
 - `crypto.bybit.module.enabled`
-- `metrics.bybit.module.enabled`
+- `bybit.parser.module.enabled`
 - `cmc.parser.module.enabled`
 
 and add possibility to disable modules.

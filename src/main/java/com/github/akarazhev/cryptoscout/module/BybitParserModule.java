@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.MetricsBybitConsumer;
+import com.github.akarazhev.cryptoscout.client.BybitParserConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.Type;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitParser;
 import com.github.akarazhev.jcryptolib.bybit.stream.DataConfig;
@@ -37,14 +37,14 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class MetricsBybitModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetricsBybitModule.class);
+public final class BybitParserModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BybitParserModule.class);
 
-    private MetricsBybitModule() {
+    private BybitParserModule() {
     }
 
-    public static MetricsBybitModule create() {
-        return new MetricsBybitModule();
+    public static BybitParserModule create() {
+        return new BybitParserModule();
     }
 
     @Provides
@@ -63,8 +63,8 @@ public final class MetricsBybitModule extends AbstractModule {
 
     @Eager
     @Provides
-    private MetricsBybitConsumer metricsBybitConsumer(final NioReactor reactor, final BybitParser bybitParser,
-                                                      final AmqpPublisher amqpPublisher) {
-        return MetricsBybitConsumer.create(reactor, bybitParser, amqpPublisher);
+    private BybitParserConsumer bybitParserConsumer(final NioReactor reactor, final BybitParser bybitParser,
+                                                    final AmqpPublisher amqpPublisher) {
+        return BybitParserConsumer.create(reactor, bybitParser, amqpPublisher);
     }
 }
