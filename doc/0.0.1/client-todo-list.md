@@ -4,7 +4,7 @@ The below list of tasks which needs to be completed to release the `0.0.1` versi
 
 - [x] Update queues, exchanges, bindings: `crypto-bybit-stream` -> `bybit-crypto-stream`, 
   `metrics-bybit-stream` -> `bybit-parser-stream`, `metrics-cmc-stream` -> `cmc-parser-stream`.
-- [ ] 6-check-fix-logging
+- [x] 6-check-fix-logging
 - [ ] 7-perform-configuration-review
 - [ ] 8-perform-code-review
 - [ ] 9-perform-solution-review

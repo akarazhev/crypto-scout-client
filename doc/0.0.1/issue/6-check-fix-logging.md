@@ -15,7 +15,6 @@ Take the following roles:
 
 - Use the best practices and design patterns.
 - Use the current technological stack, that's: `ActiveJ 6.0` and `Java 25`.
-- Logback configuration `src/main/resources/logback.xml`.
 - Do not hallucinate.
 
 ## Tasks
