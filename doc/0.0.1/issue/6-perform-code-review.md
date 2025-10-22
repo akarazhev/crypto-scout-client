@@ -15,6 +15,7 @@ Take the following roles:
 
 - Use the best practices and design patterns.
 - Use the current technological stack, that's: `ActiveJ 6.0` and `Java 25`.
+- Package of the project is `com.github.akarazhev.cryptoscout`.
 - Do not hallucinate.
 
 ## Tasks
