@@ -14,8 +14,8 @@ Take the following roles:
 ## Conditions
 
 - Use the best practices and design patterns.
-- Use the current technological stack, that's: `podman 5.6.2`, `podman-compose 1.5.0`.
-- Configuration is `Dockerfile`, `podman-compose.yml`, `secret/client.env.example`, `secret/README.md`.
+- Use the current technological stack, that's: `podman 5.6.2`, `podman-compose 1.5.0`, `maven 3.9.1`.
+- Configuration is `pmon.xml`, `Dockerfile`, `podman-compose.yml`, `secret/client.env.example`, `secret/README.md`.
 - Do not hallucinate.
 
 ## Tasks
@@ -25,5 +25,5 @@ Take the following roles:
   better.
 - As the `expert dev opts engineer` recheck your proposal and make sure that they are correct and haven't missed any
   important points.
-- As the technical writer update the `README.md` and `client-production-setup.md` files with your results.
-- As the technical writer update the `7-perform-configuration-review.md` file with your resolution.
+- As the `expert technical writer` update the `README.md` and `client-production-setup.md` files with your results.
+- As the `expert technical writer` update the `7-perform-configuration-review.md` file with your resolution.

@@ -24,5 +24,5 @@ Take the following roles:
   for production and there are no issues. Check if there is anything that can be optimized and what can be done better.
 - As the `expert java engineer` recheck your proposal and make sure that they are correct and haven't missed any
   important points.
-- As the technical writer update the `README.md` and `client-production-setup.md` files with your results.
-- As the technical writer update the `8-perform-code-review.md` file with your resolution.
+- As the `expert technical writer` update the `README.md` and `client-production-setup.md` files with your results.
+- As the `expert technical writer` update the `8-perform-code-review.md` file with your resolution.

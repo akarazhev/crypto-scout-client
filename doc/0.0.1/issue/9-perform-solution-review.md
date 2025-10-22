@@ -25,5 +25,5 @@ Take the following roles:
   better.
 - As the `expert solution architect` recheck your proposal and make sure that they are correct and haven't missed any
   important points.
-- As the technical writer update the `README.md` and `client-production-setup.md` files with your results.
-- As the technical writer update the `9-perform-solution-review.md` file with your resolution.
+- As the `expert technical writer` update the `README.md` and `client-production-setup.md` files with your results.
+- As the `expert technical writer` update the `9-perform-solution-review.md` file with your resolution.

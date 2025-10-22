@@ -24,5 +24,5 @@ Take the following roles:
   ready for production and there are no issues. 
 - As the `expert java engineer` recheck your proposal and make sure that they are correct and haven't missed any
   important points.
-- As the technical writer update the `README.md` and `client-production-setup.md` files with your results.
-- As the technical writer update the `6-check-fix-logging.md` file with your resolution.
+- As the `expert technical writer` update the `README.md` and `client-production-setup.md` files with your results.
+- As the `expert technical writer` update the `6-check-fix-logging.md` file with your resolution.
