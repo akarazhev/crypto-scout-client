@@ -14,7 +14,7 @@ Take the following roles:
 ## Conditions
 
 - Use the best practices and design patterns.
-- Use the current technological stack.
+- Use the current technological stack, that's: `podman 5.6.2`, `podman-compose 1.5.0`.
 - Configuration is `Dockerfile`, `podman-compose.yml`, `secret/client.env.example`, `secret/README.md`.
 - Do not hallucinate.
 
