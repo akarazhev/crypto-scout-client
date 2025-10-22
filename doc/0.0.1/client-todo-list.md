@@ -2,6 +2,7 @@
 
 The list below shows the tasks that need to be completed to make the project ready for production:
 
-- [ ] Update docs.
+- [ ] Code review
+- [ ] Configuration review
+- [ ] Solution review
 - [ ] Check and fix logging
-- [ ] Review the project to make sure it is ready for production
