@@ -17,6 +17,11 @@ production setup guide.
 - Documented DNS resolver configuration keys (`dns.address`, `dns.timeout.ms`) and their environment variable mappings
   (`DNS_ADDRESS`, `DNS_TIMEOUT_MS`).
 
+## Code review summary (0.0.1)
+
+- **Readiness semantics (validated):** `/ready` depends on `AmqpPublisher.isReady()` (RabbitMQ Streams environment and
+  producers initialized). Keep this for traffic gating in orchestrators.
+
 ## What the service does
 
 - Consumes crypto data from Bybit public streams (linear and spot) for BTCUSDT and ETHUSDT: tickers, 1m klines, and
