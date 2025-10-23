@@ -217,6 +217,8 @@ Notes:
 - If you change the external HTTP port (`SERVER_PORT`), update the `ports` mapping in `podman-compose.yml` accordingly.
 - If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in `secret/client.env` so the
   container can reach the host.
+- Build context optimization: see `.dockerignore` (excludes `.git/`, `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`,
+  `target/*` with `!target/*.jar`).
 
 - Compose hardening in `podman-compose.yml`:
     - `init: true`

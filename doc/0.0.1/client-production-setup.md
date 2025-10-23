@@ -126,6 +126,9 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 - Note: The image contains bundled defaults from `application.properties`. You can override any value at runtime using
   environment variables or JVM system properties (e.g., `-Dserver.port=9090`, `-Damqp.rabbitmq.host=rmq`). No image
   rebuild is required—update your env and restart the container.
+- Build context optimization: repository includes `.dockerignore` to reduce build context size (excludes `.git/`,
+  `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`, `target/*` with `!target/*.jar`, `*.iml`, `.mvn/`, `*.log`, and
+  `dependency-reduced-pom.xml`).
 
 ## Podman Compose (with secrets)
 

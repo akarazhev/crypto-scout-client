@@ -1,0 +1,27 @@
+# Reduce Docker/Podman build context size
+
+# VCS
+.git/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+
+# Maven wrapper & logs
+.mvn/
+*.log
+dependency-reduced-pom.xml
+
+# Build outputs (keep the shaded JARs for Dockerfile COPY)
+target/*
+!target/*.jar
+
+# Secrets and docs (not needed for image build)
+secret/
+doc/
+
+dev/
