@@ -22,6 +22,30 @@ production setup guide.
 - **Readiness semantics (validated):** `/ready` depends on `AmqpPublisher.isReady()` (RabbitMQ Streams environment and
   producers initialized). Keep this for traffic gating in orchestrators.
 
+## Solution review (0.0.1)
+
+- **Ready for production:** Yes, under documented prerequisites (RabbitMQ Streams enabled and reachable; required
+  streams and credentials configured; secrets via env/JVM; outbound network access to Bybit/CMC).
+- **Validated implementation:**
+    - `WebModule` exposes `GET /health` -> `ok`; `GET /ready` -> `ok` only when `AmqpPublisher.isReady()`; else HTTP 503
+      `not-ready`.
+    - Configuration precedence: defaults from `src/main/resources/application.properties` via `AppConfig`, overridden by
+      environment variables and JVM system properties at startup. Podman Compose injects `secret/client.env`.
+    - Container/compose hardening: non-root user, read-only rootfs, `tmpfs` `/tmp` with `nodev,nosuid`, `cap_drop: ALL`,
+      `security_opt: no-new-privileges=true`, resource limits, pinned base image, healthcheck hitting `/ready`.
+    - DNS: `WebConfig` uses `dns.address` and `dns.timeout.ms` to configure ActiveJ `DnsClient`.
+
+## Recommendations for 0.0.2
+
+- **HTTP clients timeouts:** Consider adding read/write/request timeouts to the ActiveJ `HttpClient` builder in
+  `WebModule`, in addition to connect timeout.
+- **AMQP TLS:** Add optional TLS configuration for RabbitMQ Streams connections for environments requiring
+  encryption-in-transit.
+- **Logging (optional):** Logging is provided transitively by `jcryptolib`. If you need custom formatting/levels or a
+  different backend, add an explicit SLF4J binding (e.g., Logback) and a sample `src/main/resources/logback.xml`.
+- **Tests & CI:** Add a smoke test booting the injector and verifying `/health`, plus a publisher test with a mocked
+  `Environment`. Wire into CI (`mvn -B -ntp verify`) and optionally add image build.
+
 ## What the service does
 
 - Consumes crypto data from Bybit public streams (linear and spot) for BTCUSDT and ETHUSDT: tickers, 1m klines, and
@@ -250,3 +274,5 @@ Notes on configuration:
 - Runtime configuration overrides via environment variables and JVM system properties are supported and documented.
   Ensure your deployment passes required values through `secret/client.env` (Podman Compose) or your orchestrator’s
   secret/config mechanism. Rebuilds are not necessary for config changes; restart with updated env.
+- Prepare 0.0.2 changes: extend HTTP client timeouts, add optional AMQP TLS, optionally add an explicit logging
+  binding and sample config if customization is required, and add smoke/unit tests with CI integration.
