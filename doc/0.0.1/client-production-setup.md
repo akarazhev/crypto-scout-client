@@ -156,6 +156,9 @@ Security hardening in `podman-compose.yml`:
 - `pids_limit: 256` and `ulimits.nofile: 4096` to constrain resources.
 - `stop_signal: SIGTERM`, `stop_grace_period: 30s` for graceful shutdown.
 - Healthcheck `start_period: 30s` for safer warm-up time.
+- Resource limits: `cpus: "1.00"`, `memory: 1G`.
+- Restart policy: `restart: unless-stopped`.
+- Timezone: `environment: TZ=UTC`.
 
 Notes on configuration:
 
@@ -167,8 +170,10 @@ Notes on configuration:
 
 ## Observability & operations
 
-- Logging: `src/main/resources/logback.xml` (console, INFO level by default).
-- Liveness: `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
+- **Logging:** Uses the SLF4J API. No backend is bundled. For production logs, add a binding (e.g.,
+  `ch.qos.logback:logback-classic`) and a `src/main/resources/logback.xml` to configure appenders/levels. Without a
+  binding, SLF4J will warn at startup and logging is effectively no-op.
+- **Liveness:** `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
 
 ## Security notes
 

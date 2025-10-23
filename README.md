@@ -228,6 +228,9 @@ Notes:
     - `read_only` rootfs with `tmpfs: /tmp (nodev,nosuid)`
     - `cap_drop: ALL`
     - `security_opt: no-new-privileges=true`
+    - `cpus: 1.00`, `memory: 1G`
+    - `restart: unless-stopped`
+    - `environment: TZ=UTC`
 
 ## Production notes
 
@@ -244,12 +247,14 @@ Notes:
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
   Rebuilds are not required for config/secrets changes—restart with updated env.
 - **Health endpoint:** `GET /health` returns `ok` for liveness checks.
-- **Observability:** Console logging via `src/main/resources/logback.xml` (INFO). JMX is enabled via ActiveJ
-  `JmxModule`.
+- **Observability:** SLF4J API is present; no logging backend is bundled. Add a backend (e.g., Logback) and a
+  `src/main/resources/logback.xml` to emit logs and control levels/format. JMX is enabled via ActiveJ `JmxModule`.
 
 ## Logging
 
-Configured via `src/main/resources/logback.xml` (console, INFO level by default).
+The service uses the SLF4J API. No logging backend is bundled. In production, add a backend
+(for example, `ch.qos.logback:logback-classic`) and a `src/main/resources/logback.xml` to configure
+appenders and levels. Without a binding, SLF4J emits a startup warning and logs are effectively no-op.
 
 ## License
 

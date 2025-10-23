@@ -15,7 +15,7 @@ Take the following roles:
 
 - Use the best practices and design patterns.
 - Use the current technological stack, that's: `podman 5.6.2`, `podman-compose 1.5.0`, `maven 3.9.1`.
-- Configuration is `pmon.xml`, `Dockerfile`, `podman-compose.yml`, `secret/client.env.example`, `secret/README.md`.
+- Configuration is `pom.xml`, `Dockerfile`, `podman-compose.yml`, `secret/client.env.example`, `secret/README.md`.
 - Do not hallucinate.
 
 ## Tasks
@@ -27,3 +27,82 @@ Take the following roles:
   important points.
 - As the `expert technical writer` update the `README.md` and `client-production-setup.md` files with your results.
 - As the `expert technical writer` update the `7-perform-configuration-review.md` file with your resolution.
+
+---
+
+## Resolution – Configuration Review Results
+
+### Scope
+
+- Reviewed `pom.xml`, `Dockerfile`, `podman-compose.yml`, `src/main/resources/application.properties`,
+  `secret/README.md`, `secret/client.env.example`, and documentation.
+
+### Findings
+
+- **Container image (`Dockerfile`)**
+    - Pinned base image digest `eclipse-temurin:25-jre-alpine@sha256:...`.
+    - Non-root user `10001:10001`, `STOPSIGNAL SIGTERM`, `JAVA_TOOL_OPTIONS=-XX:+ExitOnOutOfMemoryError`.
+    - `curl` installed to support container-internal healthcheck.
+    - Exposes `8081`; copies shaded JAR; minimal surface. Production-ready.
+
+- **Compose hardening (`podman-compose.yml`)**
+    - `read_only: true`, `tmpfs: /tmp (nodev,nosuid)`, `cap_drop: ALL`, `security_opt: no-new-privileges=true`.
+    - Resource constraints: `cpus: "1.00"`, `memory: 1G`; `pids_limit: 256`, `ulimits.nofile: 4096`.
+    - Healthcheck using `curl` to `http://localhost:8081/health` with `start_period: 30s`.
+    - `user: "10001:10001"`, `init: true`, `restart: unless-stopped`, `TZ=UTC`. Solid defaults.
+
+- **Secrets & env (`secret/`)**
+    - `client.env.example` covers RabbitMQ creds/port, DNS, API keys. `.gitignore` excludes `secret/*.env`.
+    - Compose injects `env_file: secret/client.env`. Aligns with best practices.
+
+- **Configuration precedence**
+    - Defaults from `src/main/resources/application.properties` with runtime overrides via env vars and JVM system
+      properties (through `AppConfig`).
+    - Documented in `README.md` and `doc/0.0.1/client-production-setup.md`. Clear and correct.
+
+- **Health endpoint**
+    - `WebModule` serves `GET /health` -> `ok` on `server.port` (`WebConfig`). Suitable for liveness.
+
+- **Observability / logging**
+    - Code uses SLF4J API (e.g., `AmqpPublisher`); no logging backend present in repo; no `logback.xml` in
+      `src/main/resources/`.
+    - Documentation previously referenced `logback.xml`; corrected to reflect SLF4J API and how to add a backend.
+      Addressed in docs.
+
+- **Build (`pom.xml`)**
+    - Java 25, pinned plugin versions, shaded JAR with `mainClass` `com.github.akarazhev.cryptoscout.Client`.
+    - Dependencies: ActiveJ, RabbitMQ Stream client, `jcryptolib`. Meets requirements with Maven 3.9.1.
+
+### Optimizations applied in this issue
+
+- **Docs – Logging/Observability:**
+    - Updated `README.md` to state SLF4J API is used; no backend bundled; guidance to add `logback-classic` and
+      `logback.xml` when needed.
+    - Updated `doc/0.0.1/client-production-setup.md` with the same clarification.
+
+- **Docs – Compose details:**
+    - Added explicit notes about `cpus`, `memory`, `restart: unless-stopped`, and `TZ=UTC` to both docs.
+
+### Recommendations (optional, future hardening)
+
+- **.dockerignore:** Add a `.dockerignore` to minimize build context (e.g., `target/`, `.git/`, `secret/`, `doc/`,
+  `dev/`).
+- **Logging backend:** Add a production logging binding (e.g., `logback-classic`) and a `logback.xml` with sane
+  defaults (JSON or pattern layout, INFO by default).
+- **Readiness probe:** Consider a separate readiness endpoint that validates RabbitMQ Streams connectivity before
+  returning 200.
+- **JVM container tuning:** Optionally set `-XX:MaxRAMPercentage=70` and heap dump/location flags via
+  `JAVA_TOOL_OPTIONS` if you want more predictable memory behavior. Ensure `/tmp` size can accommodate dumps if enabled.
+- **TLS to RabbitMQ Streams:** If your environment mandates encryption, add TLS configuration to the Rabbit Streams
+  `Environment` and corresponding cert/key handling via env/secret.
+
+### Re-check summary
+
+- Image and Compose configs align with best practices for Podman 5.6.2 / podman-compose 1.5.0.
+- Secrets and configuration precedence are correctly implemented and documented.
+- Health/liveness is present; readiness and logging backend are the only notable optional improvements.
+
+### Conclusion
+
+`crypto-scout-client` is production-ready with strong defaults. No blocking issues found. Optional improvements are
+documented above.
