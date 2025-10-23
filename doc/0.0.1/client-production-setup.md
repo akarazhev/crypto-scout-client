@@ -147,7 +147,7 @@ Steps:
 4. Start the service:
     - `podman-compose -f podman-compose.yml up -d`
 5. Verify:
-    - Health: `curl -fsS http://localhost:8081/health` -> `ok`
+    - Readiness: `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready` -> `200`
     - Logs: `podman logs -f crypto-scout-client`
 
 Security hardening in `podman-compose.yml`:
@@ -176,7 +176,9 @@ Notes on configuration:
 - **Logging:** Uses the SLF4J API with a binding provided transitively by `jcryptolib`, so logs are emitted by default.
   To change levels/format or switch backend, include your preferred SLF4J binding and its configuration (for example,
   provide `src/main/resources/logback.xml` if using Logback).
-- **Liveness:** `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
+- **Liveness:** `GET /health` returns `ok` and HTTP 200 on the configured `server.port`.
+- **Readiness:** `GET /ready` returns `ok` when RabbitMQ Streams environment and producers are initialized; otherwise
+  HTTP 503 `not-ready`. Use `/health` for liveness and `/ready` for readiness in orchestrators.
 
 ## Security notes
 

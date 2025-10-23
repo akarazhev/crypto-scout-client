@@ -36,7 +36,24 @@ final class Constants {
 
         static final String SPOT_BYBIT_STREAM = "spotBybitStream";
         static final String LINEAR_BYBIT_STREAM = "linearBybitStream";
+    }
+
+    final static class API {
+        private API() {
+            throw new UnsupportedOperationException();
+        }
+
         static final String OK_RESPONSE = "ok";
         static final String HEALTH_API = "/health";
+        static final String NOT_READY_RESPONSE = "not-ready";
+        static final String READY_API = "/ready";
+    }
+
+    final static class HttpCode {
+        private HttpCode() {
+            throw new UnsupportedOperationException();
+        }
+
+        static final int NOT_READY = 503;
     }
 }

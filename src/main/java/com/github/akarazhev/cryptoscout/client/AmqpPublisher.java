@@ -165,4 +165,11 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
             LOGGER.warn("Error closing stream environment", ex);
         }
     }
+
+    public boolean isReady() {
+        return environment != null
+                && bybitStreamProducer != null
+                && bybitParserProducer != null
+                && cmcParserProducer != null;
+    }
 }

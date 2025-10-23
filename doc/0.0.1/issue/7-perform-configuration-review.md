@@ -60,8 +60,10 @@ Take the following roles:
       properties (through `AppConfig`).
     - Documented in `README.md` and `doc/0.0.1/client-production-setup.md`. Clear and correct.
 
-- **Health endpoint**
-    - `WebModule` serves `GET /health` -> `ok` on `server.port` (`WebConfig`). Suitable for liveness.
+- **Health & readiness endpoints**
+    - `WebModule` serves `GET /health` -> `ok` on `server.port` (`WebConfig`) for liveness.
+    - `WebModule` serves `GET /ready` -> `ok` when RabbitMQ Streams environment and producers are initialized; otherwise
+      HTTP 503 `not-ready`.
 
 - **Observability / logging**
     - Code uses SLF4J API (e.g., `AmqpPublisher`) with a logging binding provided transitively by `jcryptolib`; logs
@@ -83,14 +85,17 @@ Take the following roles:
 - **Docs – Compose details:**
     - Added explicit notes about `cpus`, `memory`, `restart: unless-stopped`, and `TZ=UTC` to both docs.
 
+- **Runtime – Readiness endpoint:**
+    - Implemented `/ready` check using `AmqpPublisher.isReady()` and exposed via `WebModule` (200 when ready, 503
+      otherwise).
+
 ### Recommendations (optional, future hardening)
 
 - **.dockerignore:** Add a `.dockerignore` to minimize build context (e.g., `target/`, `.git/`, `secret/`, `doc/`,
   `dev/`).
 - **Logging configuration:** Optionally provide a `logback.xml` (if using Logback) or another backend configuration to
   tune formats/levels beyond defaults.
-- **Readiness probe:** Consider a separate readiness endpoint that validates RabbitMQ Streams connectivity before
-  returning 200.
+- **Orchestrator checks:** Use `GET /ready` for readiness and `GET /health` for liveness in your orchestrator.
 - **JVM container tuning:** Optionally set `-XX:MaxRAMPercentage=70` and heap dump/location flags via
   `JAVA_TOOL_OPTIONS` if you want more predictable memory behavior. Ensure `/tmp` size can accommodate dumps if enabled.
 - **TLS to RabbitMQ Streams:** If your environment mandates encryption, add TLS configuration to the Rabbit Streams
@@ -100,7 +105,7 @@ Take the following roles:
 
 - Image and Compose configs align with best practices for Podman 5.6.2 / podman-compose 1.5.0.
 - Secrets and configuration precedence are correctly implemented and documented.
-- Health/liveness is present; a readiness endpoint is optional; logging customization is optional.
+- Health, liveness, and readiness are present; logging customization is optional.
 
 ### Conclusion
 

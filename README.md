@@ -125,6 +125,13 @@ curl -fsS http://localhost:8081/health
 # ok
 ```
 
+Readiness check:
+
+```bash
+curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready
+# 200 when RabbitMQ Streams is initialized; 503 otherwise
+```
+
 ## Container image (Podman or Docker)
 
 The provided `Dockerfile` uses Temurin JRE 25 and runs the shaded JAR.
@@ -201,10 +208,10 @@ podman-compose -f podman-compose.yml up -d
 podman compose -f podman-compose.yml up -d
 ```
 
-5) Check health and logs:
+5) Check readiness and logs:
 
 ```bash
-curl -fsS http://localhost:8081/health
+curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready
 podman logs -f crypto-scout-client
 ```
 
@@ -248,7 +255,10 @@ Notes:
 - **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely at
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
   Rebuilds are not required for config/secrets changes—restart with updated env.
-- **Health endpoint:** `GET /health` returns `ok` for liveness checks.
+- **Health endpoints:**
+    - `GET /health` returns `ok` for liveness checks.
+    - `GET /ready` returns `ok` when RabbitMQ Streams environment and producers are initialized; otherwise HTTP 503
+      `not-ready`.
 - **Observability:** SLF4J API with a logging binding provided transitively by `jcryptolib`; logs are emitted by
   default. To customize levels/format or switch backend, include your preferred SLF4J binding and configuration on the
   classpath. JMX is enabled via ActiveJ `JmxModule`.

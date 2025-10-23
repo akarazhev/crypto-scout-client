@@ -25,6 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.config.WebConfig;
+import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
 import com.github.akarazhev.jcryptolib.bybit.config.Config;
 import io.activej.dns.DnsClient;
 import io.activej.dns.IDnsClient;
@@ -47,8 +48,11 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 
-import static com.github.akarazhev.cryptoscout.module.Constants.Config.HEALTH_API;
-import static com.github.akarazhev.cryptoscout.module.Constants.Config.OK_RESPONSE;
+import static com.github.akarazhev.cryptoscout.module.Constants.API.HEALTH_API;
+import static com.github.akarazhev.cryptoscout.module.Constants.API.OK_RESPONSE;
+import static com.github.akarazhev.cryptoscout.module.Constants.API.READY_API;
+import static com.github.akarazhev.cryptoscout.module.Constants.API.NOT_READY_RESPONSE;
+import static com.github.akarazhev.cryptoscout.module.Constants.HttpCode.NOT_READY;
 import static io.activej.http.HttpUtils.inetAddress;
 
 /**
@@ -89,10 +93,15 @@ public final class WebModule extends AbstractModule {
     }
 
     @Provides
-    private AsyncServlet servlet(final Reactor reactor) {
+    private AsyncServlet servlet(final Reactor reactor, final AmqpPublisher amqpPublisher) {
         return RoutingServlet.builder(reactor)
-                .with(HttpMethod.GET, HEALTH_API, (request) ->
+                .with(HttpMethod.GET, HEALTH_API, (_) ->
                         HttpResponse.ok200().withPlainText(OK_RESPONSE).toPromise())
+                .with(HttpMethod.GET, READY_API, (_) ->
+                        (amqpPublisher.isReady()
+                                ? HttpResponse.ok200().withPlainText(OK_RESPONSE)
+                                : HttpResponse.ofCode(NOT_READY).withPlainText(NOT_READY_RESPONSE))
+                                .toPromise())
                 .build();
     }
 
