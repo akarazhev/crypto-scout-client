@@ -64,10 +64,10 @@ Take the following roles:
     - `WebModule` serves `GET /health` -> `ok` on `server.port` (`WebConfig`). Suitable for liveness.
 
 - **Observability / logging**
-    - Code uses SLF4J API (e.g., `AmqpPublisher`); no logging backend present in repo; no `logback.xml` in
-      `src/main/resources/`.
-    - Documentation previously referenced `logback.xml`; corrected to reflect SLF4J API and how to add a backend.
-      Addressed in docs.
+    - Code uses SLF4J API (e.g., `AmqpPublisher`) with a logging binding provided transitively by `jcryptolib`; logs
+      are emitted by default.
+    - No `logback.xml` is bundled; customize levels/format or swap backend by adding your preferred SLF4J binding and
+      configuration if desired.
 
 - **Build (`pom.xml`)**
     - Java 25, pinned plugin versions, shaded JAR with `mainClass` `com.github.akarazhev.cryptoscout.Client`.
@@ -76,9 +76,9 @@ Take the following roles:
 ### Optimizations applied in this issue
 
 - **Docs – Logging/Observability:**
-    - Updated `README.md` to state SLF4J API is used; no backend bundled; guidance to add `logback-classic` and
-      `logback.xml` when needed.
-    - Updated `doc/0.0.1/client-production-setup.md` with the same clarification.
+    - Updated `README.md` to reflect that `jcryptolib` provides a logging binding; added guidance on customizing levels,
+      formats, or switching backend (e.g., providing `logback.xml` when using Logback).
+    - Updated `doc/0.0.1/client-production-setup.md` accordingly.
 
 - **Docs – Compose details:**
     - Added explicit notes about `cpus`, `memory`, `restart: unless-stopped`, and `TZ=UTC` to both docs.
@@ -87,8 +87,8 @@ Take the following roles:
 
 - **.dockerignore:** Add a `.dockerignore` to minimize build context (e.g., `target/`, `.git/`, `secret/`, `doc/`,
   `dev/`).
-- **Logging backend:** Add a production logging binding (e.g., `logback-classic`) and a `logback.xml` with sane
-  defaults (JSON or pattern layout, INFO by default).
+- **Logging configuration:** Optionally provide a `logback.xml` (if using Logback) or another backend configuration to
+  tune formats/levels beyond defaults.
 - **Readiness probe:** Consider a separate readiness endpoint that validates RabbitMQ Streams connectivity before
   returning 200.
 - **JVM container tuning:** Optionally set `-XX:MaxRAMPercentage=70` and heap dump/location flags via
@@ -100,7 +100,7 @@ Take the following roles:
 
 - Image and Compose configs align with best practices for Podman 5.6.2 / podman-compose 1.5.0.
 - Secrets and configuration precedence are correctly implemented and documented.
-- Health/liveness is present; readiness and logging backend are the only notable optional improvements.
+- Health/liveness is present; a readiness endpoint is optional; logging customization is optional.
 
 ### Conclusion
 

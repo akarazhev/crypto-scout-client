@@ -173,9 +173,9 @@ Notes on configuration:
 
 ## Observability & operations
 
-- **Logging:** Uses the SLF4J API. No backend is bundled. For production logs, add a binding (e.g.,
-  `ch.qos.logback:logback-classic`) and a `src/main/resources/logback.xml` to configure appenders/levels. Without a
-  binding, SLF4J will warn at startup and logging is effectively no-op.
+- **Logging:** Uses the SLF4J API with a binding provided transitively by `jcryptolib`, so logs are emitted by default.
+  To change levels/format or switch backend, include your preferred SLF4J binding and its configuration (for example,
+  provide `src/main/resources/logback.xml` if using Logback).
 - **Liveness:** `GET /health` should return `ok` and HTTP 200 on the configured `server.port`.
 
 ## Security notes

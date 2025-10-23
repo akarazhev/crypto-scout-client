@@ -249,14 +249,15 @@ Notes:
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
   Rebuilds are not required for config/secrets changes—restart with updated env.
 - **Health endpoint:** `GET /health` returns `ok` for liveness checks.
-- **Observability:** SLF4J API is present; no logging backend is bundled. Add a backend (e.g., Logback) and a
-  `src/main/resources/logback.xml` to emit logs and control levels/format. JMX is enabled via ActiveJ `JmxModule`.
+- **Observability:** SLF4J API with a logging binding provided transitively by `jcryptolib`; logs are emitted by
+  default. To customize levels/format or switch backend, include your preferred SLF4J binding and configuration on the
+  classpath. JMX is enabled via ActiveJ `JmxModule`.
 
 ## Logging
 
-The service uses the SLF4J API. No logging backend is bundled. In production, add a backend
-(for example, `ch.qos.logback:logback-classic`) and a `src/main/resources/logback.xml` to configure
-appenders and levels. Without a binding, SLF4J emits a startup warning and logs are effectively no-op.
+The service uses the SLF4J API with a binding provided transitively by `jcryptolib`, so logs are emitted by default.
+If you need different formatting/levels or a different backend, include your preferred SLF4J binding and its
+configuration on the classpath (for example, provide `src/main/resources/logback.xml` if using Logback).
 
 ## License
 
