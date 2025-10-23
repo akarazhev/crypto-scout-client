@@ -68,8 +68,7 @@ final class Client extends Launcher {
         }
 
         modules.add(WebModule.create());
-        modules.toArray(new Module[0]);
-        return combine(modules.toArray(new Module[0]));
+        return combine(modules);
     }
 
     @Override
