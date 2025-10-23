@@ -214,8 +214,9 @@ Notes on configuration:
 - **Tech stack (`pom.xml`):** Java 25 (`java.version`, compiler source/target 25), ActiveJ 6.0-rc2, RabbitMQ Stream
   Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
 - **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `SpotBybitStreamModule`, `LinearBybitStreamModule`,
-  `BybitParserModule`, `CmcParserModule`, `WebModule` + `JmxModule`, `ServiceGraphModule`. Health route `GET /health` ->
-  `ok`.
+  `BybitParserModule`, `CmcParserModule`, `WebModule` + `JmxModule`, `ServiceGraphModule`.
+  Endpoints: liveness `GET /health` -> `ok`; readiness `GET /ready` -> `ok` when RabbitMQ Streams environment and
+  producers are initialized; otherwise HTTP 503 `not-ready`.
 - **Module toggles:** `cmc.parser.module.enabled`, `bybit.parser.module.enabled`, `bybit.stream.module.enabled` in
   `application.properties` (default `true`). Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.bybit.crypto.stream`,
@@ -228,6 +229,7 @@ Notes on configuration:
 - Build: `mvn clean package -DskipTests`
 - Run locally: `java -jar target/crypto-scout-client-0.0.1.jar`
 - Health check: `curl -fsS http://localhost:8081/health` -> `ok`
+- Readiness check: `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready` -> `200`
 - Container (Podman):
     - `podman build -t crypto-scout-client:0.0.1 .`
     - `podman run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`
