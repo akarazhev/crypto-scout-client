@@ -19,7 +19,8 @@ services:
       - no-new-privileges=true
     read_only: true
     tmpfs:
-      - /tmp:rw,size=64m,mode=1777,nodev,nosuid
+      # Increase if enabling JVM heap dumps (e.g., size=1g)
+      - /tmp:rw,size=512m,mode=1777,nodev,nosuid
     cap_drop:
       - ALL
     user: "10001:10001"

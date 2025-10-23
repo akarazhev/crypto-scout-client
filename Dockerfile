@@ -27,7 +27,7 @@ LABEL org.opencontainers.image.title="crypto-scout-client" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.vendor="Andrey Karazhev" \
       org.opencontainers.image.source="https://github.com/akarazhev/crypto-scout-client"
-ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"
+ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=70"
 WORKDIR /opt/crypto-scout
 RUN addgroup -S app -g 10001 && adduser -S -G app -u 10001 app
 COPY --chown=10001:app target/crypto-scout-client-0.0.1.jar crypto-scout-client.jar

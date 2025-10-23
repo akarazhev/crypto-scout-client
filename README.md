@@ -138,7 +138,7 @@ The provided `Dockerfile` uses Temurin JRE 25 and runs the shaded JAR.
 
 - Non-root user: UID/GID `10001` (user `app`).
 - STOPSIGNAL: `SIGTERM` for graceful shutdown.
-- Java OOM fast-exit: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"`.
+- JVM options: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=70"`.
 - OCI labels: `org.opencontainers.image.*` (title, description, version, license, vendor, source).
 - Pinned base image:
   `eclipse-temurin:25-jre-alpine@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621`.
@@ -234,7 +234,7 @@ Notes:
     - `stop_signal: SIGTERM`
     - `stop_grace_period: 30s`
     - healthcheck `start_period: 30s`
-    - `read_only` rootfs with `tmpfs: /tmp (nodev,nosuid)`
+    - `read_only` rootfs with `tmpfs: /tmp size=512m (nodev,nosuid)` (increase if enabling JVM heap dumps)
     - `cap_drop: ALL`
     - `security_opt: no-new-privileges=true`
     - `cpus: 1.00`, `memory: 1G`
@@ -262,12 +262,15 @@ Notes:
 - **Observability:** SLF4J API with a logging binding provided transitively by `jcryptolib`; logs are emitted by
   default. To customize levels/format or switch backend, include your preferred SLF4J binding and configuration on the
   classpath. JMX is enabled via ActiveJ `JmxModule`.
+- **JVM tuning:** Image sets `-XX:MaxRAMPercentage=70`. To enable heap dumps on OOM, add
+  `-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp` to `JAVA_TOOL_OPTIONS`. Ensure `/tmp` tmpfs in
+  `podman-compose.yml` is large enough (for example, `size=1g`).
 
 ## Logging
 
 The service uses the SLF4J API with a binding provided transitively by `jcryptolib`, so logs are emitted by default.
 If you need different formatting/levels or a different backend, include your preferred SLF4J binding and its
-configuration on the classpath (for example, provide `src/main/resources/logback.xml` if using Logback).
+configuration on the classpath. JMX is enabled via ActiveJ `JmxModule`.
 
 ## License
 

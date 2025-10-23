@@ -179,6 +179,9 @@ Notes on configuration:
 - **Liveness:** `GET /health` returns `ok` and HTTP 200 on the configured `server.port`.
 - **Readiness:** `GET /ready` returns `ok` when RabbitMQ Streams environment and producers are initialized; otherwise
   HTTP 503 `not-ready`. Use `/health` for liveness and `/ready` for readiness in orchestrators.
+- **JVM tuning:** Image sets `-XX:MaxRAMPercentage=70` by default. To enable heap dumps on OOM, add
+  `-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp` to `JAVA_TOOL_OPTIONS` via env. Ensure `/tmp` tmpfs in
+  `podman-compose.yml` is large enough (e.g., bump to `size=1g`).
 
 ## Security notes
 
