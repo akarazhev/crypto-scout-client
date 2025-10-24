@@ -56,8 +56,8 @@ public final class LinearBybitStreamModule extends AbstractModule {
     private BybitStream linearBybitStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
-                .topic(Topic.KLINE_D_BTC_USDT) // kline.D.BTCUSDT
-                .topic(Topic.KLINE_D_ETH_USDT) // kline.D.ETHUSDT
+                .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
+                .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
                 .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
 //                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
