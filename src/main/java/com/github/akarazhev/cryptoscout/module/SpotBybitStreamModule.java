@@ -56,8 +56,14 @@ public final class SpotBybitStreamModule extends AbstractModule {
     private BybitStream spotBybitStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PMST) // Public Mainnet Spot
-                .topic(Topic.KLINE_1_BTC_USDT) // kline.1.BTCUSDT
-                .topic(Topic.KLINE_1_ETH_USDT) // kline.1.ETHUSDT
+                .topic(Topic.KLINE_15_BTC_USDT) // kline.15.BTCUSDT
+                .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
+                .topic(Topic.KLINE_240_BTC_USDT) // kline.240.BTCUSDT
+                .topic(Topic.KLINE_D_BTC_USDT) // kline.D.BTCUSDT
+                .topic(Topic.KLINE_15_ETH_USDT) // kline.15.ETHUSDT
+                .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT
+                .topic(Topic.KLINE_240_ETH_USDT) // kline.240.ETHUSDT
+                .topic(Topic.KLINE_D_ETH_USDT) // kline.D.ETHUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
                 .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
 //                .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
