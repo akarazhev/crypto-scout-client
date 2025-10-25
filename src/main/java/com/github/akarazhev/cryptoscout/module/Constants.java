@@ -34,8 +34,8 @@ final class Constants {
             throw new UnsupportedOperationException();
         }
 
-        static final String SPOT_BYBIT_STREAM = "spotBybitStream";
-        static final String LINEAR_BYBIT_STREAM = "linearBybitStream";
+        static final String BYBIT_SPOT_STREAM = "bybitSpotStream";
+        static final String BYBIT_LINEAR_STREAM = "BybitLinearStream";
     }
 
     final static class API {

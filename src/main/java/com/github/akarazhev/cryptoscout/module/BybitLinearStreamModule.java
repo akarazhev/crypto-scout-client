@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.LinearBybitStreamConsumer;
+import com.github.akarazhev.cryptoscout.client.BybitLinearStreamConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
@@ -39,21 +39,21 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.github.akarazhev.cryptoscout.module.Constants.Config.LINEAR_BYBIT_STREAM;
+import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_LINEAR_STREAM;
 
-public final class LinearBybitStreamModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearBybitStreamModule.class);
+public final class BybitLinearStreamModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BybitLinearStreamModule.class);
 
-    private LinearBybitStreamModule() {
+    private BybitLinearStreamModule() {
     }
 
-    public static LinearBybitStreamModule create() {
-        return new LinearBybitStreamModule();
+    public static BybitLinearStreamModule create() {
+        return new BybitLinearStreamModule();
     }
 
     @Provides
-    @Named(LINEAR_BYBIT_STREAM)
-    private BybitStream linearBybitStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
+    @Named(BYBIT_LINEAR_STREAM)
+    private BybitStream bybitLinearStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
                 .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
@@ -73,9 +73,9 @@ public final class LinearBybitStreamModule extends AbstractModule {
 
     @Eager
     @Provides
-    private LinearBybitStreamConsumer linearBybitStreamConsumer(final NioReactor reactor,
-                                                                @Named(LINEAR_BYBIT_STREAM) final BybitStream linearBybitStream,
+    private BybitLinearStreamConsumer bybitLinearStreamConsumer(final NioReactor reactor,
+                                                                @Named(BYBIT_LINEAR_STREAM) final BybitStream bybitLinearStream,
                                                                 final AmqpPublisher amqpPublisher) {
-        return LinearBybitStreamConsumer.create(reactor, linearBybitStream, amqpPublisher);
+        return BybitLinearStreamConsumer.create(reactor, bybitLinearStream, amqpPublisher);
     }
 }

@@ -24,8 +24,8 @@
 
 package com.github.akarazhev.cryptoscout;
 
-import com.github.akarazhev.cryptoscout.module.LinearBybitStreamModule;
-import com.github.akarazhev.cryptoscout.module.SpotBybitStreamModule;
+import com.github.akarazhev.cryptoscout.module.BybitLinearStreamModule;
+import com.github.akarazhev.cryptoscout.module.BybitSpotStreamModule;
 import com.github.akarazhev.cryptoscout.module.BybitParserModule;
 import com.github.akarazhev.cryptoscout.module.ClientModule;
 import com.github.akarazhev.cryptoscout.module.CmcParserModule;
@@ -59,8 +59,8 @@ final class Client extends Launcher {
         }
 
         if (AppConfig.getAsBoolean(BYBIT_STREAM_MODULE_ENABLED)) {
-            modules.add(SpotBybitStreamModule.create());
-            modules.add(LinearBybitStreamModule.create());
+            modules.add(BybitSpotStreamModule.create());
+            modules.add(BybitLinearStreamModule.create());
         }
 
         if (AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED)) {

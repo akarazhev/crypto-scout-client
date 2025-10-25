@@ -31,30 +31,30 @@ import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class SpotBybitStreamConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitStream spotBybitStream;
+public final class BybitSpotStreamConsumer extends AbstractReactive implements ReactiveService {
+    private final BybitStream bybitSpotStream;
     private final AmqpPublisher amqpPublisher;
 
-    public static SpotBybitStreamConsumer create(final NioReactor reactor, final BybitStream spotBybitStream,
+    public static BybitSpotStreamConsumer create(final NioReactor reactor, final BybitStream spotBybitStream,
                                                  final AmqpPublisher amqpPublisher) {
-        return new SpotBybitStreamConsumer(reactor, spotBybitStream, amqpPublisher);
+        return new BybitSpotStreamConsumer(reactor, spotBybitStream, amqpPublisher);
     }
 
-    private SpotBybitStreamConsumer(final NioReactor reactor, final BybitStream spotBybitStream,
+    private BybitSpotStreamConsumer(final NioReactor reactor, final BybitStream bybitSpotStream,
                                     final AmqpPublisher amqpPublisher) {
         super(reactor);
-        this.spotBybitStream = spotBybitStream;
+        this.bybitSpotStream = bybitSpotStream;
         this.amqpPublisher = amqpPublisher;
     }
 
     @Override
     public Promise<?> start() {
-        return spotBybitStream.start().then(stream ->
+        return bybitSpotStream.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
     }
 
     @Override
     public Promise<?> stop() {
-        return spotBybitStream.stop();
+        return bybitSpotStream.stop();
     }
 }

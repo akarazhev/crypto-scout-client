@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.SpotBybitStreamConsumer;
+import com.github.akarazhev.cryptoscout.client.BybitSpotStreamConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
@@ -39,21 +39,21 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.github.akarazhev.cryptoscout.module.Constants.Config.SPOT_BYBIT_STREAM;
+import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_SPOT_STREAM;
 
-public final class SpotBybitStreamModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpotBybitStreamModule.class);
+public final class BybitSpotStreamModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BybitSpotStreamModule.class);
 
-    private SpotBybitStreamModule() {
+    private BybitSpotStreamModule() {
     }
 
-    public static SpotBybitStreamModule create() {
-        return new SpotBybitStreamModule();
+    public static BybitSpotStreamModule create() {
+        return new BybitSpotStreamModule();
     }
 
     @Provides
-    @Named(SPOT_BYBIT_STREAM)
-    private BybitStream spotBybitStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
+    @Named(BYBIT_SPOT_STREAM)
+    private BybitStream bybitSpotStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PMST) // Public Mainnet Spot
                 .topic(Topic.KLINE_15_BTC_USDT) // kline.15.BTCUSDT
@@ -77,9 +77,9 @@ public final class SpotBybitStreamModule extends AbstractModule {
 
     @Eager
     @Provides
-    private SpotBybitStreamConsumer spotBybitStreamConsumer(final NioReactor reactor,
-                                                            @Named(SPOT_BYBIT_STREAM) final BybitStream spotBybitStream,
+    private BybitSpotStreamConsumer bybitSpotStreamConsumer(final NioReactor reactor,
+                                                            @Named(BYBIT_SPOT_STREAM) final BybitStream bybitSpotStream,
                                                             final AmqpPublisher amqpPublisher) {
-        return SpotBybitStreamConsumer.create(reactor, spotBybitStream, amqpPublisher);
+        return BybitSpotStreamConsumer.create(reactor, bybitSpotStream, amqpPublisher);
     }
 }
