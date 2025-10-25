@@ -35,7 +35,7 @@ final class Constants {
         }
 
         static final String BYBIT_SPOT_STREAM = "bybitSpotStream";
-        static final String BYBIT_LINEAR_STREAM = "BybitLinearStream";
+        static final String BYBIT_LINEAR_STREAM = "bybitLinearStream";
     }
 
     final static class API {
