@@ -20,8 +20,10 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
     - `CoreModule` – reactor and executor (virtual threads).
     - `WebModule` – HTTP server, HTTP/WebSocket clients, health route, DNS.
     - `ClientModule` – AMQP publisher lifecycle.
-    - `SpotBybitStreamModule` – Bybit Spot WebSocket streams + consumer.
-    - `LinearBybitStreamModule` – Bybit Linear WebSocket streams + consumer.
+    - `BybitSpotStreamModule` – Bybit Spot WebSocket streams (`@Named("bybitSpotStream")`) + consumer
+      `BybitSpotStreamConsumer`.
+    - `BybitLinearStreamModule` – Bybit Linear WebSocket streams (`@Named("bybitLinearStream")`) + consumer
+      `BybitLinearStreamConsumer`.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.
@@ -30,7 +32,6 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 - Java 25 JDK (Temurin recommended) to build
 - Maven
-- RabbitMQ with Streams enabled and reachable at the configured host/port
 
 ## Configuration
 
@@ -59,10 +60,10 @@ Defaults are loaded from `src/main/resources/application.properties` via `AppCon
 - **Modules**
     - `cmc.parser.module.enabled=true` – Enable CoinMarketCap metrics parser (`CmcParserModule`). Set to `false`
       to disable.
-    - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to `false`
-      to disable.
-    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`SpotBybitStreamModule` and
-      `LinearBybitStreamModule`). Set to `false` to disable both Spot and Linear stream modules.
+    - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to
+      `false` to disable.
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`BybitSpotStreamModule` and
+      `BybitLinearStreamModule`). Set to `false` to disable both Spot and Linear stream modules.
 
 - **DNS**
     - `dns.address=8.8.8.8`

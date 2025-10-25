@@ -63,14 +63,14 @@ production setup guide.
     - `CoreModule` – Single-threaded `NioReactor` and virtual-thread `Executor`.
     - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` route.
     - `ClientModule` – Lifecycle for `AmqpPublisher`.
-    - `SpotBybitStreamModule` – Bybit Spot WebSocket streams (PMST): klines(1m), tickers, order book 200 + consumer.
-    - `LinearBybitStreamModule` – Bybit Linear WebSocket streams (PML): klines(1m), tickers, order book 200,
+    - `BybitSpotStreamModule` – Bybit Spot WebSocket streams (PMST): klines(1m), tickers, order book 200 + consumer.
+    - `BybitLinearStreamModule` – Bybit Linear WebSocket streams (PML): klines(1m), tickers, order book 200,
       all-liquidations + consumer.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
-- Consumers: `SpotBybitStreamConsumer`, `LinearBybitStreamConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
+- Consumers: `BybitSpotStreamConsumer`, `BybitLinearStreamConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
     - `WebConfig` (server port, DNS), `AmqpConfig` (RabbitMQ Streams parameters).
 
@@ -79,8 +79,8 @@ production setup guide.
 Default properties: `src/main/resources/application.properties`.
 
 - Modules (enable/disable at startup via flags read by `AppConfig` in `Client.getModule()`):
-    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`SpotBybitStreamModule` and
-      `LinearBybitStreamModule`). Set to `false` to disable.
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`BybitSpotStreamModule` and
+      `BybitLinearStreamModule`). Set to `false` to disable.
     - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to `false`
       to disable.
     - `cmc.parser.module.enabled=true` – Enable CoinMarketCap metrics parser (`CmcParserModule`). Set to `false`
@@ -242,7 +242,7 @@ Notes on configuration:
 
 - **Tech stack (`pom.xml`):** Java 25 (`java.version`, compiler source/target 25), ActiveJ 6.0-rc2, RabbitMQ Stream
   Client 1.2.0, `jcryptolib` 0.0.2, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
-- **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `SpotBybitStreamModule`, `LinearBybitStreamModule`,
+- **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitSpotStreamModule`, `BybitLinearStreamModule`,
   `BybitParserModule`, `CmcParserModule`, `WebModule` + `JmxModule`, `ServiceGraphModule`.
   Endpoints: liveness `GET /health` -> `ok`; readiness `GET /ready` -> `ok` when RabbitMQ Streams environment and
   producers are initialized; otherwise HTTP 503 `not-ready`.
