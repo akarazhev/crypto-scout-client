@@ -8,4 +8,4 @@ The below list of tasks which needs to be completed to release the `0.0.1` versi
 - [x] 7-perform-configuration-review
 - [x] 8-perform-code-review
 - [x] 9-perform-solution-review
-- [ ] Define what to read from CMC and Bybit
+- [ ] Define what to read from CMC and Bybit, split services by currencies, update documentation.
