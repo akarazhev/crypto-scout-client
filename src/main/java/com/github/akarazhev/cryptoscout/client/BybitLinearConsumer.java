@@ -31,17 +31,17 @@ import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class BybitLinearStreamConsumer extends AbstractReactive implements ReactiveService {
+public final class BybitLinearConsumer extends AbstractReactive implements ReactiveService {
     private final BybitStream bybitLinearStream;
     private final AmqpPublisher amqpPublisher;
 
-    public static BybitLinearStreamConsumer create(final NioReactor reactor, final BybitStream bybitLinearStream,
-                                                   final AmqpPublisher amqpPublisher) {
-        return new BybitLinearStreamConsumer(reactor, bybitLinearStream, amqpPublisher);
+    public static BybitLinearConsumer create(final NioReactor reactor, final BybitStream bybitLinearStream,
+                                             final AmqpPublisher amqpPublisher) {
+        return new BybitLinearConsumer(reactor, bybitLinearStream, amqpPublisher);
     }
 
-    private BybitLinearStreamConsumer(final NioReactor reactor, final BybitStream bybitLinearStream,
-                                      final AmqpPublisher amqpPublisher) {
+    private BybitLinearConsumer(final NioReactor reactor, final BybitStream bybitLinearStream,
+                                final AmqpPublisher amqpPublisher) {
         super(reactor);
         this.bybitLinearStream = bybitLinearStream;
         this.amqpPublisher = amqpPublisher;

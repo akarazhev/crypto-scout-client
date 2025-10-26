@@ -21,9 +21,9 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
     - `WebModule` – HTTP server, HTTP/WebSocket clients, health route, DNS.
     - `ClientModule` – AMQP publisher lifecycle.
     - `BybitSpotModule` – Bybit Spot WebSocket streams (`@Named("bybitSpotStream")`) + consumer
-      `BybitSpotStreamConsumer`.
+      `BybitSpotConsumer`.
     - `BybitLinearModule` – Bybit Linear WebSocket streams (`@Named("bybitLinearStream")`) + consumer
-      `BybitLinearStreamConsumer`.
+      `BybitLinearConsumer`.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.

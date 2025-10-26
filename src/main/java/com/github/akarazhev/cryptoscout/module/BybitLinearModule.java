@@ -25,7 +25,7 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.BybitLinearStreamConsumer;
+import com.github.akarazhev.cryptoscout.client.BybitLinearConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
@@ -73,9 +73,9 @@ public final class BybitLinearModule extends AbstractModule {
 
     @Eager
     @Provides
-    private BybitLinearStreamConsumer bybitLinearStreamConsumer(final NioReactor reactor,
-                                                                @Named(BYBIT_LINEAR_STREAM) final BybitStream bybitLinearStream,
-                                                                final AmqpPublisher amqpPublisher) {
-        return BybitLinearStreamConsumer.create(reactor, bybitLinearStream, amqpPublisher);
+    private BybitLinearConsumer bybitLinearConsumer(final NioReactor reactor,
+                                                    @Named(BYBIT_LINEAR_STREAM) final BybitStream bybitLinearStream,
+                                                    final AmqpPublisher amqpPublisher) {
+        return BybitLinearConsumer.create(reactor, bybitLinearStream, amqpPublisher);
     }
 }

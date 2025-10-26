@@ -70,7 +70,7 @@ production setup guide.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
-- Consumers: `BybitSpotStreamConsumer`, `BybitLinearStreamConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
+- Consumers: `BybitSpotConsumer`, `BybitLinearConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
     - `WebConfig` (server port, DNS), `AmqpConfig` (RabbitMQ Streams parameters).
 
