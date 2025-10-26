@@ -5,9 +5,9 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 ## Features
 
-- **Bybit streams (public):** Spot (PMST) and Linear (PML) channels for `BTCUSDT` and `ETHUSDT`: 1m klines, tickers,
-  order book 200; Linear also includes all-liquidations. Implemented via jcryptolib `BybitStream` and published to
-  `amqp.bybit.crypto.stream`.
+- **Bybit streams (public):** Spot (PMST) and Linear (PML) channels for `BTCUSDT` and `ETHUSDT` with tickers, public
+  trades, and order book 200. Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to 60m klines and
+  all-liquidations. Implemented via jcryptolib `BybitStream` and published to `amqp.bybit.crypto.stream`.
 - **Bybit metrics (HTTP):** Periodically parses Bybit programs (Mega Drop, Launch Pool/Pad, ByVotes, ByStarter, Airdrop
   Hunt) via `BybitParser` and publishes to `amqp.bybit.parser.stream`.
 - **CoinMarketCap metrics:** Retrieves Fear & Greed Index via `CmcParser` and publishes to `amqp.cmc.parser.stream`.
@@ -20,10 +20,10 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
     - `CoreModule` – reactor and executor (virtual threads).
     - `WebModule` – HTTP server, HTTP/WebSocket clients, health route, DNS.
     - `ClientModule` – AMQP publisher lifecycle.
-    - `BybitSpotModule` – Bybit Spot WebSocket streams (`@Named("bybitSpotStream")`) + consumer
-      `BybitSpotConsumer`.
-    - `BybitLinearModule` – Bybit Linear WebSocket streams (`@Named("bybitLinearStream")`) + consumer
-      `BybitLinearConsumer`.
+    - `BybitSpotModule` – provides two Spot `BybitStream` beans `@Named("bybitSpotBtcUsdtStream")`,
+      `@Named("bybitSpotEthUsdtStream")` + consumers `BybitSpotBtcUsdtConsumer`, `BybitSpotEthUsdtConsumer`.
+    - `BybitLinearModule` – provides two Linear `BybitStream` beans `@Named("bybitLinearBtcUsdtStream")`,
+      `@Named("bybitLinearEthUsdtStream")` + consumers `BybitLinearBtcUsdtConsumer`, `BybitLinearEthUsdtConsumer`.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.
@@ -226,7 +226,7 @@ Notes:
 - If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in `secret/client.env` so the
   container can reach the host.
 - Build context optimization: see `.dockerignore` (excludes `.git/`, `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`,
-  `target/*` with `!target/*.jar`).
+  `*.iml`, `.mvn/`, `*.log`, `dependency-reduced-pom.xml`, `target/*` with `!target/*.jar`).
 
 - Compose hardening in `podman-compose.yml`:
     - `init: true`

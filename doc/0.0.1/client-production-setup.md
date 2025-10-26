@@ -48,8 +48,9 @@ production setup guide.
 
 ## What the service does
 
-- Consumes crypto data from Bybit public streams (linear and spot) for BTCUSDT and ETHUSDT: tickers, 1m klines, and
-  liquidation events; also order book (depth 200) on both spot and linear.
+- Consumes crypto data from Bybit public streams (Spot PMST and Linear PML) for BTCUSDT and ETHUSDT: tickers, public
+  trades, and order book (depth 200). Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to 60m klines and
+  all-liquidations.
 - Periodically parses Bybit program metrics (Mega Drop, Launch Pool/Pad, ByVotes, ByStarter, Airdrop Hunt).
 - Retrieves CoinMarketCap Fear & Greed Index.
 - Publishes all collected and parsed payloads to RabbitMQ Streams.
@@ -63,14 +64,16 @@ production setup guide.
     - `CoreModule` – Single-threaded `NioReactor` and virtual-thread `Executor`.
     - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` route.
     - `ClientModule` – Lifecycle for `AmqpPublisher`.
-    - `BybitSpotModule` – Bybit Spot WebSocket streams (PMST): klines(1m), tickers, order book 200 + consumer.
-    - `BybitLinearModule` – Bybit Linear WebSocket streams (PML): klines(1m), tickers, order book 200,
-      all-liquidations + consumer.
+    - `BybitSpotModule` – provides two Spot streams for BTCUSDT/ETHUSDT (PMST): klines 15m/60m/240m/D, tickers,
+      public trades, order book 200 + consumers.
+    - `BybitLinearModule` – provides two Linear streams for BTCUSDT/ETHUSDT (PML): kline 60m, tickers, public trades,
+      order book 200, all-liquidations + consumers.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
-- Consumers: `BybitSpotConsumer`, `BybitLinearConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
+- Consumers: `BybitSpotBtcUsdtConsumer`, `BybitSpotEthUsdtConsumer`, `BybitLinearBtcUsdtConsumer`,
+  `BybitLinearEthUsdtConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
     - `WebConfig` (server port, DNS), `AmqpConfig` (RabbitMQ Streams parameters).
 
@@ -141,7 +144,7 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 - The `Dockerfile` copies the shaded JAR and runs it on `eclipse-temurin:25-jre-alpine`.
 - Non-root user: UID/GID `10001` (user `app`).
 - STOPSIGNAL: `SIGTERM` for graceful termination.
-- Java OOM fast-exit: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError"`.
+- Java OOM fast-exit and memory limits: `ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=70"`.
 - OCI labels present: `org.opencontainers.image.*` (title, description, version, license, vendor, source).
 - Pinned base image digest to reduce supply-chain variance:
   `eclipse-temurin:25-jre-alpine@sha256:bf9c91071c4f90afebb31d735f111735975d6fe2b668a82339f8204202203621`.
@@ -156,8 +159,8 @@ No rebuild is required for config changes applied via env or `-D` properties—r
   environment variables or JVM system properties (e.g., `-Dserver.port=9090`, `-Damqp.rabbitmq.host=rmq`). No image
   rebuild is required—update your env and restart the container.
 - Build context optimization: repository includes `.dockerignore` to reduce build context size (excludes `.git/`,
-  `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`, `target/*` with `!target/*.jar`, `*.iml`, `.mvn/`, `*.log`, and
-  `dependency-reduced-pom.xml`).
+  `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`, `*.iml`, `.mvn/`, `*.log`, `dependency-reduced-pom.xml`,
+  `target/*` with `!target/*.jar`).
 
 ## Podman Compose (with secrets)
 
