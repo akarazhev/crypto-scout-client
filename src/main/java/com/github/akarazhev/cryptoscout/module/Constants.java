@@ -34,8 +34,10 @@ final class Constants {
             throw new UnsupportedOperationException();
         }
 
-        static final String BYBIT_SPOT_STREAM = "bybitSpotStream";
-        static final String BYBIT_LINEAR_STREAM = "bybitLinearStream";
+        static final String BYBIT_SPOT_BTC_USDT_STREAM = "bybitSpotBtcUsdtStream";
+        static final String BYBIT_SPOT_ETH_USDT_STREAM = "bybitSpotEthUsdtStream";
+        static final String BYBIT_LINEAR_BTC_USDT_STREAM = "bybitLinearBtcUsdtStream";
+        static final String BYBIT_LINEAR_ETH_USDT_STREAM = "bybitLinearEthUsdtStream";
     }
 
     final static class API {

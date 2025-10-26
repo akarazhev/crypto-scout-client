@@ -31,30 +31,30 @@ import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class BybitLinearConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitStream bybitLinearStream;
+public final class BybitLinearBtcUsdtConsumer extends AbstractReactive implements ReactiveService {
+    private final BybitStream bybitLinearBtcUsdtStream;
     private final AmqpPublisher amqpPublisher;
 
-    public static BybitLinearConsumer create(final NioReactor reactor, final BybitStream bybitLinearStream,
-                                             final AmqpPublisher amqpPublisher) {
-        return new BybitLinearConsumer(reactor, bybitLinearStream, amqpPublisher);
+    public static BybitLinearBtcUsdtConsumer create(final NioReactor reactor, final BybitStream bybitLinearBtcUsdtStream,
+                                                    final AmqpPublisher amqpPublisher) {
+        return new BybitLinearBtcUsdtConsumer(reactor, bybitLinearBtcUsdtStream, amqpPublisher);
     }
 
-    private BybitLinearConsumer(final NioReactor reactor, final BybitStream bybitLinearStream,
-                                final AmqpPublisher amqpPublisher) {
+    private BybitLinearBtcUsdtConsumer(final NioReactor reactor, final BybitStream bybitLinearBtcUsdtStream,
+                                       final AmqpPublisher amqpPublisher) {
         super(reactor);
-        this.bybitLinearStream = bybitLinearStream;
+        this.bybitLinearBtcUsdtStream = bybitLinearBtcUsdtStream;
         this.amqpPublisher = amqpPublisher;
     }
 
     @Override
     public Promise<?> start() {
-        return bybitLinearStream.start().then(stream ->
+        return bybitLinearBtcUsdtStream.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
     }
 
     @Override
     public Promise<?> stop() {
-        return bybitLinearStream.stop();
+        return bybitLinearBtcUsdtStream.stop();
     }
 }

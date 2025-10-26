@@ -25,7 +25,8 @@
 package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
-import com.github.akarazhev.cryptoscout.client.BybitLinearConsumer;
+import com.github.akarazhev.cryptoscout.client.BybitLinearBtcUsdtConsumer;
+import com.github.akarazhev.cryptoscout.client.BybitLinearEthUsdtConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
@@ -39,7 +40,8 @@ import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_LINEAR_STREAM;
+import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_LINEAR_BTC_USDT_STREAM;
+import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_LINEAR_ETH_USDT_STREAM;
 
 public final class BybitLinearModule extends AbstractModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(BybitLinearModule.class);
@@ -52,19 +54,29 @@ public final class BybitLinearModule extends AbstractModule {
     }
 
     @Provides
-    @Named(BYBIT_LINEAR_STREAM)
-    private BybitStream bybitLinearStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
+    @Named(BYBIT_LINEAR_BTC_USDT_STREAM)
+    private BybitStream bybitLinearBtcUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
                 .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
-                .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
-                .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
                 .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
-                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
                 .topic(Topic.ORDER_BOOK_200_BTC_USDT) // orderbook.200.BTCUSDT
-                .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
                 .topic(Topic.ALL_LIQUIDATION_BTC_USDT) // allLiquidation.BTCUSDT
+                .build();
+        LOGGER.info(config.print());
+        return BybitStream.create(reactor, webSocketClient, config);
+    }
+
+    @Provides
+    @Named(BYBIT_LINEAR_ETH_USDT_STREAM)
+    private BybitStream bybitLinearEthUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
+        final var config = new DataConfig.Builder()
+                .streamType(StreamType.PML) // Public Mainnet Linear
+                .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT
+                .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
+                .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
+                .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
                 .topic(Topic.ALL_LIQUIDATION_ETH_USDT) // allLiquidation.ETHUSDT
                 .build();
         LOGGER.info(config.print());
@@ -73,9 +85,19 @@ public final class BybitLinearModule extends AbstractModule {
 
     @Eager
     @Provides
-    private BybitLinearConsumer bybitLinearConsumer(final NioReactor reactor,
-                                                    @Named(BYBIT_LINEAR_STREAM) final BybitStream bybitLinearStream,
-                                                    final AmqpPublisher amqpPublisher) {
-        return BybitLinearConsumer.create(reactor, bybitLinearStream, amqpPublisher);
+    private BybitLinearBtcUsdtConsumer bybitLinearBtcUsdtConsumer(final NioReactor reactor,
+                                                                  @Named(BYBIT_LINEAR_BTC_USDT_STREAM)
+                                                                  final BybitStream bybitLinearBtcUsdtStream,
+                                                                  final AmqpPublisher amqpPublisher) {
+        return BybitLinearBtcUsdtConsumer.create(reactor, bybitLinearBtcUsdtStream, amqpPublisher);
+    }
+
+    @Eager
+    @Provides
+    private BybitLinearEthUsdtConsumer bybitLinearEthUsdtConsumer(final NioReactor reactor,
+                                                                  @Named(BYBIT_LINEAR_ETH_USDT_STREAM)
+                                                                  final BybitStream bybitLinearEthUsdtStream,
+                                                                  final AmqpPublisher amqpPublisher) {
+        return BybitLinearEthUsdtConsumer.create(reactor, bybitLinearEthUsdtStream, amqpPublisher);
     }
 }
