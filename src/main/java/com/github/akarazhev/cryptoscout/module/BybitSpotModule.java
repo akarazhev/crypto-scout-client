@@ -41,14 +41,14 @@ import org.slf4j.LoggerFactory;
 
 import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_SPOT_STREAM;
 
-public final class BybitSpotStreamModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BybitSpotStreamModule.class);
+public final class BybitSpotModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BybitSpotModule.class);
 
-    private BybitSpotStreamModule() {
+    private BybitSpotModule() {
     }
 
-    public static BybitSpotStreamModule create() {
-        return new BybitSpotStreamModule();
+    public static BybitSpotModule create() {
+        return new BybitSpotModule();
     }
 
     @Provides

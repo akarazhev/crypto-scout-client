@@ -20,9 +20,9 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
     - `CoreModule` – reactor and executor (virtual threads).
     - `WebModule` – HTTP server, HTTP/WebSocket clients, health route, DNS.
     - `ClientModule` – AMQP publisher lifecycle.
-    - `BybitSpotStreamModule` – Bybit Spot WebSocket streams (`@Named("bybitSpotStream")`) + consumer
+    - `BybitSpotModule` – Bybit Spot WebSocket streams (`@Named("bybitSpotStream")`) + consumer
       `BybitSpotStreamConsumer`.
-    - `BybitLinearStreamModule` – Bybit Linear WebSocket streams (`@Named("bybitLinearStream")`) + consumer
+    - `BybitLinearModule` – Bybit Linear WebSocket streams (`@Named("bybitLinearStream")`) + consumer
       `BybitLinearStreamConsumer`.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
@@ -62,8 +62,8 @@ Defaults are loaded from `src/main/resources/application.properties` via `AppCon
       to disable.
     - `bybit.parser.module.enabled=true` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to
       `false` to disable.
-    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`BybitSpotStreamModule` and
-      `BybitLinearStreamModule`). Set to `false` to disable both Spot and Linear stream modules.
+    - `bybit.stream.module.enabled=true` – Enable Bybit public streams publishers (`BybitSpotModule` and
+      `BybitLinearModule`). Set to `false` to disable both Spot and Linear stream modules.
 
 - **DNS**
     - `dns.address=8.8.8.8`

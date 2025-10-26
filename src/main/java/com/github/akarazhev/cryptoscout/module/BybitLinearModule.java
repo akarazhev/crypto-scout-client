@@ -41,14 +41,14 @@ import org.slf4j.LoggerFactory;
 
 import static com.github.akarazhev.cryptoscout.module.Constants.Config.BYBIT_LINEAR_STREAM;
 
-public final class BybitLinearStreamModule extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BybitLinearStreamModule.class);
+public final class BybitLinearModule extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BybitLinearModule.class);
 
-    private BybitLinearStreamModule() {
+    private BybitLinearModule() {
     }
 
-    public static BybitLinearStreamModule create() {
-        return new BybitLinearStreamModule();
+    public static BybitLinearModule create() {
+        return new BybitLinearModule();
     }
 
     @Provides
