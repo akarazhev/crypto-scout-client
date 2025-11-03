@@ -64,7 +64,9 @@ public final class BybitSpotModule extends AbstractModule {
                 .topic(Topic.KLINE_D_BTC_USDT) // kline.D.BTCUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
                 .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
+                .topic(Topic.ORDER_BOOK_50_BTC_USDT) // orderbook.50.BTCUSDT
                 .topic(Topic.ORDER_BOOK_200_BTC_USDT) // orderbook.200.BTCUSDT
+                .topic(Topic.ORDER_BOOK_1000_BTC_USDT) // orderbook.1000.BTCUSDT
                 .build();
         LOGGER.info(config.print());
         return BybitStream.create(reactor, webSocketClient, config);
@@ -81,7 +83,9 @@ public final class BybitSpotModule extends AbstractModule {
                 .topic(Topic.KLINE_D_ETH_USDT) // kline.D.ETHUSDT
                 .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
                 .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
+                .topic(Topic.ORDER_BOOK_50_ETH_USDT) // orderbook.50.ETHUSDT
                 .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
+                .topic(Topic.ORDER_BOOK_1000_ETH_USDT) // orderbook.1000.ETHUSDT
                 .build();
         LOGGER.info(config.print());
         return BybitStream.create(reactor, webSocketClient, config);
