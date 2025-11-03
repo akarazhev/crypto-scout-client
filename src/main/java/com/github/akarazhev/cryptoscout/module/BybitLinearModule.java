@@ -58,10 +58,15 @@ public final class BybitLinearModule extends AbstractModule {
     private BybitStream bybitLinearBtcUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
+                .topic(Topic.KLINE_15_BTC_USDT) // kline.15.BTCUSDT
                 .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
+                .topic(Topic.KLINE_240_BTC_USDT) // kline.240.BTCUSDT
+                .topic(Topic.KLINE_D_BTC_USDT) // kline.D.BTCUSDT
                 .topic(Topic.TICKERS_BTC_USDT) // tickers.BTCUSDT
                 .topic(Topic.PUBLIC_TRADE_BTC_USDT) // publicTrade.BTCUSDT
+                .topic(Topic.ORDER_BOOK_50_BTC_USDT) // orderbook.50.BTCUSDT
                 .topic(Topic.ORDER_BOOK_200_BTC_USDT) // orderbook.200.BTCUSDT
+                .topic(Topic.ORDER_BOOK_1000_BTC_USDT) // orderbook.1000.BTCUSDT
                 .topic(Topic.ALL_LIQUIDATION_BTC_USDT) // allLiquidation.BTCUSDT
                 .build();
         LOGGER.info(config.print());
@@ -73,10 +78,15 @@ public final class BybitLinearModule extends AbstractModule {
     private BybitStream bybitLinearEthUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
         final var config = new DataConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
+                .topic(Topic.KLINE_15_ETH_USDT) // kline.15.ETHUSDT
                 .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT
+                .topic(Topic.KLINE_240_ETH_USDT) // kline.240.ETHUSDT
+                .topic(Topic.KLINE_D_ETH_USDT) // kline.D.ETHUSDT
                 .topic(Topic.TICKERS_ETH_USDT) // tickers.ETHUSDT
                 .topic(Topic.PUBLIC_TRADE_ETH_USDT) // publicTrade.ETHUSDT
+                .topic(Topic.ORDER_BOOK_50_ETH_USDT) // orderbook.50.ETHUSDT
                 .topic(Topic.ORDER_BOOK_200_ETH_USDT) // orderbook.200.ETHUSDT
+                .topic(Topic.ORDER_BOOK_1000_ETH_USDT) // orderbook.1000.ETHUSDT
                 .topic(Topic.ALL_LIQUIDATION_ETH_USDT) // allLiquidation.ETHUSDT
                 .build();
         LOGGER.info(config.print());
