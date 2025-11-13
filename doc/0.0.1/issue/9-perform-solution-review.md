@@ -42,7 +42,8 @@ Take the following roles:
 - AMQP publisher readiness: `AmqpPublisher` initializes RabbitMQ Streams `Environment` and three producers; `isReady()`
   checks all are non-null.
 - Configuration precedence: Defaults in `src/main/resources/application.properties` are read via `AppConfig`;
-  environment variables and JVM system properties override at runtime. `podman-compose.yml` injects `secret/client.env`.
+  environment variables and JVM system properties override at runtime. `podman-compose.yml` injects env files per
+  service: `secret/bybit-client.env` (Bybit streams) and `secret/parser-client.env` (parser).
 - DNS configuration: `WebConfig` uses `dns.address` and `dns.timeout.ms` to configure `DnsClient`.
 - Containerization: `Dockerfile` uses Temurin JRE 25, non-root user, pinned base digest, `JAVA_TOOL_OPTIONS` with OOM
   fast-exit; compose hardens with `read_only`, `tmpfs /tmp` (nodev,nosuid), `cap_drop: ALL`, `no-new-privileges`,

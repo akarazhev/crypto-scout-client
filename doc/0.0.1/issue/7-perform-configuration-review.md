@@ -48,18 +48,18 @@ Take the following roles:
 - **Compose hardening (`podman-compose.yml`)**
     - `read_only: true`, `tmpfs: /tmp (nodev,nosuid)`, `cap_drop: ALL`, `security_opt: no-new-privileges=true`.
     - Resource constraints: `cpus: "1.00"`, `memory: 1G`; `pids_limit: 256`, `ulimits.nofile: 4096`.
-    - Healthcheck using `curl` to `http://localhost:8081/health` with `start_period: 30s`.
+    - Healthcheck using `curl` to the readiness endpoint (`/ready`) with `start_period: 30s`.
     - `user: "10001:10001"`, `init: true`, `restart: unless-stopped`, `TZ=UTC`. Solid defaults.
 
 - **Secrets & env (`secret/`)**
     - `client.env.example` covers RabbitMQ creds/port, DNS, API keys. `.gitignore` excludes `secret/*.env`.
-    - Compose injects `env_file: secret/client.env`. Aligns with best practices.
+    - Compose injects env files per service: `env_file: secret/bybit-client.env` (Bybit streams service) and
+      `env_file: secret/parser-client.env` (parser service). Aligns with best practices.
 
 - **Configuration precedence**
     - Defaults from `src/main/resources/application.properties` with runtime overrides via env vars and JVM system
       properties (through `AppConfig`).
     - Documented in `README.md` and `doc/0.0.1/client-production-setup.md`. Clear and correct.
-
 - **Health & readiness endpoints**
     - `WebModule` serves `GET /health` -> `ok` on `server.port` (`WebConfig`) for liveness.
     - `WebModule` serves `GET /ready` -> `ok` when RabbitMQ Streams environment and producers are initialized; otherwise
@@ -91,8 +91,8 @@ Take the following roles:
 
 ### Recommendations (optional, future hardening)
 
-- **.dockerignore:** Add a `.dockerignore` to minimize build context (e.g., `target/`, `.git/`, `secret/`, `doc/`,
-  `dev/`).
+- **.dockerignore:** Already implemented at project root to minimize build context (excludes `target/*` with
+  `!target/*.jar`, `.git/`, `secret/`, `doc/`, `dev/`, IDE files). Keep it updated as the repo evolves.
 - **Logging configuration:** Optionally provide a `logback.xml` (if using Logback) or another backend configuration to
   tune formats/levels beyond defaults.
 - **Orchestrator checks:** Use `GET /ready` for readiness and `GET /health` for liveness in your orchestrator.
