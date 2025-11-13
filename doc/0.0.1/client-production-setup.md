@@ -10,6 +10,8 @@ Streams. Built with ActiveJ.
 This document summarizes the documentation work completed for the `crypto-scout-client` service and provides a
 production setup guide.
 
+This project and its documentation were authored using AI-driven tools and curated by the maintainer.
+
 - Updated `README.md` with a professional, production-ready overview, architecture, configuration (including module
   toggles), build/run instructions, Podman usage, health check, and logging details.
 - Added this production setup report to guide deployment and verification, and documented how to enable/disable modules
@@ -30,7 +32,8 @@ production setup guide.
     - `WebModule` exposes `GET /health` -> `ok`; `GET /ready` -> `ok` only when `AmqpPublisher.isReady()`; else HTTP 503
       `not-ready`.
     - Configuration precedence: defaults from `src/main/resources/application.properties` via `AppConfig`, overridden by
-      environment variables and JVM system properties at startup. Podman Compose injects `secret/client.env`.
+      environment variables and JVM system properties at startup. Podman Compose injects per-service env files:
+      `secret/bybit-client.env` (Bybit streams) and `secret/parser-client.env` (parser).
     - Container/compose hardening: non-root user, read-only rootfs, `tmpfs` `/tmp` with `nodev,nosuid`, `cap_drop: ALL`,
       `security_opt: no-new-privileges=true`, resource limits, pinned base image, healthcheck hitting `/ready`.
     - DNS: `WebConfig` uses `dns.address` and `dns.timeout.ms` to configure ActiveJ `DnsClient`.
@@ -49,8 +52,8 @@ production setup guide.
 ## What the service does
 
 - Consumes crypto data from Bybit public streams (Spot PMST and Linear PML) for BTCUSDT and ETHUSDT: tickers, public
-  trades, and order book (depth 200). Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to 60m klines and
-  all-liquidations.
+  trades, and order book (depth 200). Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to 15m/60m/240m/D
+  klines and all-liquidations.
 - Periodically parses Bybit program metrics (Mega Drop, Launch Pool/Pad, ByVotes, ByStarter, Airdrop Hunt).
 - Retrieves CoinMarketCap Fear & Greed Index.
 - Publishes all collected and parsed payloads to RabbitMQ Streams.
@@ -62,12 +65,13 @@ production setup guide.
     - Combines modules and runs until shutdown is requested.
 - Modules (`src/main/java/com/github/akarazhev/cryptoscout/module/`):
     - `CoreModule` – Single-threaded `NioReactor` and virtual-thread `Executor`.
-    - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` route.
+    - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` and
+      `GET /ready` routes.
     - `ClientModule` – Lifecycle for `AmqpPublisher`.
     - `BybitSpotModule` – provides two Spot streams for BTCUSDT/ETHUSDT (PMST): klines 15m/60m/240m/D, tickers,
       public trades, order book 200 + consumers.
-    - `BybitLinearModule` – provides two Linear streams for BTCUSDT/ETHUSDT (PML): kline 60m, tickers, public trades,
-      order book 200, all-liquidations + consumers.
+    - `BybitLinearModule` – provides two Linear streams for BTCUSDT/ETHUSDT (PML): klines 15m/60m/240m/D, tickers,
+      public trades, order book 200, all-liquidations + consumers.
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
@@ -114,8 +118,9 @@ Default properties: `src/main/resources/application.properties`.
     - `cmc.api.key` (empty by default)
 
 Note: Defaults are read via `AppConfig` from `src/main/resources/application.properties`. Environment variables and JVM
-system properties override these defaults at runtime. With Podman Compose, `secret/client.env` is injected as env vars.
-No rebuild is required for config changes applied via env or `-D` properties—restart the application to apply updates.
+system properties override these defaults at runtime. With Podman Compose, `secret/bybit-client.env` and
+`secret/parser-client.env` are injected as env vars. No rebuild is required for config changes applied via env or `-D`
+properties—restart the application to apply updates.
 
 ## Build
 
@@ -164,7 +169,7 @@ No rebuild is required for config changes applied via env or `-D` properties—r
 
 ## Podman Compose (with secrets)
 
-Use `podman-compose.yml` and `secret/client.env` for a production-like run with secrets separated.
+Use `podman-compose.yml` with two env files for a production-like run with secrets separated.
 
 Steps:
 
@@ -172,15 +177,19 @@ Steps:
     - `podman build -t crypto-scout-client:0.0.1 .`
 2. Create external network (once):
     - `podman network create crypto-scout-bridge`
-3. Prepare secrets:
-    - `cp secret/client.env.example secret/client.env`
-    - Edit `secret/client.env` and set RabbitMQ host/credentials, stream port/names, and API keys (`BYBIT_API_KEY`,
-      `BYBIT_API_SECRET`, `CMC_API_KEY`). Optionally set `SERVER_PORT`.
+3. Prepare env files:
+    - `cp secret/client.env.example secret/bybit-client.env`
+    - `cp secret/client.env.example secret/parser-client.env`
+    - Edit `secret/bybit-client.env` and set RabbitMQ host/credentials, stream port/names, and API keys as needed.
+      Keep `SERVER_PORT=8081` unless you change compose mapping. Set module toggles to run streams only.
+    - Edit `secret/parser-client.env` similarly; set `SERVER_PORT=8082` to match compose. Set module toggles to run
+      parsers only (e.g., `BYBIT_PARSER_MODULE_ENABLED=true`, `BYBIT_STREAM_MODULE_ENABLED=false`).
 4. Start the service:
     - `podman-compose -f podman-compose.yml up -d`
 5. Verify:
-    - Readiness: `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready` -> `200`
-    - Logs: `podman logs -f crypto-scout-client`
+    - Readiness (streams): `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready` -> `200`
+    - Readiness (parser): `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8082/ready` -> `200`
+    - Logs: `podman logs -f crypto-scout-bybit-client` and `podman logs -f crypto-scout-parser-client`
 
 Security hardening in `podman-compose.yml`:
 
@@ -198,7 +207,8 @@ Security hardening in `podman-compose.yml`:
 Notes on configuration:
 
 - The app reads defaults via `AppConfig` from `src/main/resources/application.properties`, then applies runtime
-  overrides from environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected.
+  overrides from environment variables and JVM system properties. With Podman Compose, `secret/bybit-client.env` and
+  `secret/parser-client.env` are injected for their respective services.
 - No rebuild is required when changing configuration via env vars/system properties; restart the service to apply.
 - Property-to-env examples: `dns.address` → `DNS_ADDRESS`, `dns.timeout.ms` → `DNS_TIMEOUT_MS` (dot → underscore,
   uppercased).
@@ -275,7 +285,8 @@ Notes on configuration:
 ## Appendix C: Next Steps (merged)
 
 - Runtime configuration overrides via environment variables and JVM system properties are supported and documented.
-  Ensure your deployment passes required values through `secret/client.env` (Podman Compose) or your orchestrator’s
-  secret/config mechanism. Rebuilds are not necessary for config changes; restart with updated env.
+  Ensure your deployment passes required values through the per-service env files (`secret/bybit-client.env` and
+  `secret/parser-client.env`) in Podman Compose, or your Orchestrator’s secret/config mechanism. Rebuilds are not
+  necessary for config changes; restart with updated env.
 - Prepare 0.0.2 changes: extend HTTP client timeouts, add optional AMQP TLS, optionally add an explicit logging
   binding and sample config if customization is required, and add smoke/unit tests with CI integration.
