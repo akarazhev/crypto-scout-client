@@ -12,6 +12,7 @@ Take the following roles:
 
 ## Conditions
 
+- Mention that the project has been written with AI-driven tools.
 - Use the best practices and patterns.
 - Do not hallucinate.
 
