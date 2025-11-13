@@ -3,13 +3,16 @@
 Production-ready Java microservice that collects crypto market data from Bybit and metrics from CoinMarketCap, then
 publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully async I/O.
 
+Note: This project was authored using AI-driven tools and curated by the maintainer.
+
 ## Features
 
 - **Bybit streams (public):** Spot (PMST) and Linear (PML) channels for `BTCUSDT` and `ETHUSDT` with tickers, public
-  trades, and order book 200. Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to 60m klines and
+  trades, and order book 200. Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to 15m/60m/240m/D klines and
   all-liquidations. Implemented via jcryptolib `BybitStream` and published to `amqp.bybit.crypto.stream`.
-- **Bybit metrics (HTTP):** Periodically parses Bybit programs (Mega Drop, Launch Pool/Pad, ByVotes, ByStarter, Airdrop
-  Hunt) via `BybitParser` and publishes to `amqp.bybit.parser.stream`.
+- **Bybit metrics (HTTP):** Launch Pool (LPL) parser enabled via `BybitParser` and published to
+  `amqp.bybit.parser.stream`. Other program parsers (Mega Drop, Launchpad, ByVotes, ByStarter, Airdrop Hunt) are
+  available in the library but disabled by default.
 - **CoinMarketCap metrics:** Retrieves Fear & Greed Index via `CmcParser` and publishes to `amqp.cmc.parser.stream`.
 - **AMQP (RabbitMQ Streams):** Publishes messages to three streams configured in `application.properties`.
 
@@ -18,7 +21,7 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 - **Launcher:** `com.github.akarazhev.cryptoscout.Client` wires modules and awaits shutdown.
 - **Modules:**
     - `CoreModule` – reactor and executor (virtual threads).
-    - `WebModule` – HTTP server, HTTP/WebSocket clients, health route, DNS.
+    - `WebModule` – HTTP server, HTTP/WebSocket clients, health and readiness routes, DNS.
     - `ClientModule` – AMQP publisher lifecycle.
     - `BybitSpotModule` – provides two Spot `BybitStream` beans `@Named("bybitSpotBtcUsdtStream")`,
       `@Named("bybitSpotEthUsdtStream")` + consumers `BybitSpotBtcUsdtConsumer`, `BybitSpotEthUsdtConsumer`.
@@ -38,7 +41,8 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 Defaults are loaded from `src/main/resources/application.properties` via `AppConfig`.
 
 - Environment variables and JVM system properties override the bundled defaults at startup.
-- Podman Compose loads environment variables from `secret/client.env` (see the "Podman Compose (with secrets)" section).
+- Podman Compose loads environment variables from env_file entries. This repository's compose uses two files:
+  `secret/bybit-client.env` and `secret/parser-client.env` (see the "Podman Compose (with secrets)" section).
 - No rebuild is required when changing configuration via env vars or `-D` system properties; a restart is sufficient.
 
   Property-to-env mapping (dot to underscore, uppercased) examples:
@@ -194,11 +198,13 @@ podman build -t crypto-scout-client:0.0.1 .
 podman network create crypto-scout-bridge
 ```
 
-3) Create and populate secrets:
+3) Create and populate env files (Compose uses two services):
 
 ```bash
-cp secret/client.env.example secret/client.env
-$EDITOR secret/client.env
+cp secret/client.env.example secret/bybit-client.env
+cp secret/client.env.example secret/parser-client.env
+$EDITOR secret/bybit-client.env
+$EDITOR secret/parser-client.env
 ```
 
 4) Start with compose:
@@ -212,19 +218,27 @@ podman compose -f podman-compose.yml up -d
 5) Check readiness and logs:
 
 ```bash
+# bybit streams client
 curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready
-podman logs -f crypto-scout-client
+podman logs -f crypto-scout-bybit-client
+
+# parser client
+curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8082/ready
+podman logs -f crypto-scout-parser-client
 ```
 
 Notes:
 
 - The app reads defaults from `src/main/resources/application.properties`, then applies runtime overrides from
-  environment variables and JVM system properties. With Podman Compose, `secret/client.env` is injected as env vars.
-- Real secrets should be placed in `secret/client.env` (ignored by Git). Never commit real credentials.
-- To apply config changes, edit `secret/client.env` and restart: `podman compose -f podman-compose.yml up -d`.
-- If you change the external HTTP port (`SERVER_PORT`), update the `ports` mapping in `podman-compose.yml` accordingly.
-- If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in `secret/client.env` so the
-  container can reach the host.
+  environment variables and JVM system properties. With Podman Compose, `secret/bybit-client.env` and
+  `secret/parser-client.env` are injected as env vars.
+- Real secrets should be placed in `secret/bybit-client.env` and `secret/parser-client.env` (ignored by Git). Never
+  commit real credentials.
+- To apply config changes, edit the env files and restart: `podman compose -f podman-compose.yml up -d`.
+- If you change an external HTTP port (`SERVER_PORT`), update the corresponding `ports` mapping in
+  `podman-compose.yml` accordingly.
+- If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in both env files so the
+  containers can reach the host.
 - Build context optimization: see `.dockerignore` (excludes `.git/`, `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`,
   `*.iml`, `.mvn/`, `*.log`, `dependency-reduced-pom.xml`, `target/*` with `!target/*.jar`).
 
