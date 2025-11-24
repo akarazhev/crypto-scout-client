@@ -52,6 +52,7 @@ public final class CmcParserModule extends AbstractModule {
     private CmcParser cmcParser(final NioReactor reactor, final IHttpClient httpClient) {
         final var config = new DataConfig.Builder()
                 .type(Type.FGI_API_PRO_L)
+                .type(Type.CCR)
                 .apiKey(CmcConfig.getCmcApiKey())
                 .build();
         LOGGER.info(config.print());
