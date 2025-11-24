@@ -52,4 +52,12 @@ final class Constants {
         static final String DNS_ADDRESS = "dns.address";
         static final String DNS_TIMEOUT_MS = "dns.timeout.ms";
     }
+
+    final static class CmcConfig {
+        private CmcConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        static final String CMC_API_KEY = "cmc.api.key";
+    }
 }

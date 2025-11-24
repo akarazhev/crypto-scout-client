@@ -26,6 +26,7 @@ package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
 import com.github.akarazhev.cryptoscout.client.CmcParserConsumer;
+import com.github.akarazhev.cryptoscout.config.CmcConfig;
 import com.github.akarazhev.jcryptolib.cmc.config.Type;
 import com.github.akarazhev.jcryptolib.cmc.stream.CmcParser;
 import com.github.akarazhev.jcryptolib.cmc.stream.DataConfig;
@@ -49,7 +50,10 @@ public final class CmcParserModule extends AbstractModule {
 
     @Provides
     private CmcParser cmcParser(final NioReactor reactor, final IHttpClient httpClient) {
-        final var config = new DataConfig.Builder().type(Type.FGI).build();
+        final var config = new DataConfig.Builder()
+                .type(Type.FGI_API_PRO_L)
+                .apiKey(CmcConfig.getCmcApiKey())
+                .build();
         LOGGER.info(config.print());
         return CmcParser.create(reactor, httpClient, config);
     }
