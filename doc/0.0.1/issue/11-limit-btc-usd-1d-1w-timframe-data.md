@@ -27,7 +27,8 @@ Take the following roles:
 - As the expert java developer update the `CmcParserConsumer.java` service by implementing the filter and limit
   mechanism for the latest `Payload` data that represents as `BTC/USD` pairs of 1D and 1W timeframes. Filter the latest
   `Payload` data that represents as `BTC/USD` pairs of 1D and 1W timeframes by `"source": "BTC_USD_1W"` and 
-  `"source": "BTC_USD_1D"`. Check samples below.
+  `"source": "BTC_USD_1D"`. Address the `"timestamp"` field of the `Payload` data to identify the latest data. 
+  Check samples below.
 - As the `expert java engineer` double-check your proposal and make sure that they are correct and haven't missed any
   important points.
 
