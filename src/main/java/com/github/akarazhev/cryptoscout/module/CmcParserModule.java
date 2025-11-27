@@ -52,7 +52,8 @@ public final class CmcParserModule extends AbstractModule {
     private CmcParser cmcParser(final NioReactor reactor, final IHttpClient httpClient) {
         final var config = new DataConfig.Builder()
                 .type(Type.FGI_API_PRO_L)
-                .type(Type.CCR)
+                .type(Type.BTC_USD_1D)
+                .type(Type.BTC_USD_1W)
                 .apiKey(CmcConfig.getCmcApiKey())
                 .build();
         LOGGER.info(config.print());
