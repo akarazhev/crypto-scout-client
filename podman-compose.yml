@@ -14,8 +14,6 @@ services:
       TZ: UTC
     networks:
       - crypto-scout-bridge
-    ports:
-      - "8082:8082"
     security_opt:
       - no-new-privileges=true
     read_only: true
