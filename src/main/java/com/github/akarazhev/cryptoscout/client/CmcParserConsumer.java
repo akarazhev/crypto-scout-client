@@ -63,7 +63,7 @@ public final class CmcParserConsumer extends AbstractReactive implements Reactiv
     }
 
     @Override
-    public Promise<?> start() {
+    public Promise<Void> start() {
         return cmcParser.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer((Payload<Map<String, Object>> payload) -> {
                     if (payload != null) {
@@ -78,7 +78,7 @@ public final class CmcParserConsumer extends AbstractReactive implements Reactiv
     }
 
     @Override
-    public Promise<?> stop() {
+    public Promise<Void> stop() {
         return cmcParser.stop();
     }
 

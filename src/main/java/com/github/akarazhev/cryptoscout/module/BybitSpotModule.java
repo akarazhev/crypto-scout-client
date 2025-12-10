@@ -94,16 +94,16 @@ public final class BybitSpotModule extends AbstractModule {
     @Eager
     @Provides
     private BybitSpotBtcUsdtConsumer bybitSpotBtcUsdtConsumer(final NioReactor reactor,
-                                                              @Named(BYBIT_SPOT_BTC_USDT_STREAM) final BybitStream bybitSpotBtcUsdtStream,
+                                                              @Named(BYBIT_SPOT_BTC_USDT_STREAM) final BybitStream bybitStream,
                                                               final AmqpPublisher amqpPublisher) {
-        return BybitSpotBtcUsdtConsumer.create(reactor, bybitSpotBtcUsdtStream, amqpPublisher);
+        return BybitSpotBtcUsdtConsumer.create(reactor, bybitStream, amqpPublisher);
     }
 
     @Eager
     @Provides
     private BybitSpotEthUsdtConsumer bybitSpotEthUsdtConsumer(final NioReactor reactor,
-                                                              @Named(BYBIT_SPOT_ETH_USDT_STREAM) final BybitStream bybitSpotEthUsdtStream,
+                                                              @Named(BYBIT_SPOT_ETH_USDT_STREAM) final BybitStream bybitStream,
                                                               final AmqpPublisher amqpPublisher) {
-        return BybitSpotEthUsdtConsumer.create(reactor, bybitSpotEthUsdtStream, amqpPublisher);
+        return BybitSpotEthUsdtConsumer.create(reactor, bybitStream, amqpPublisher);
     }
 }

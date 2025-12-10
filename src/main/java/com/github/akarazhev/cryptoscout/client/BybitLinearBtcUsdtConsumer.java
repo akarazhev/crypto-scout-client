@@ -32,29 +32,29 @@ import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
 public final class BybitLinearBtcUsdtConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitStream bybitLinearBtcUsdtStream;
+    private final BybitStream bybitStream;
     private final AmqpPublisher amqpPublisher;
 
-    public static BybitLinearBtcUsdtConsumer create(final NioReactor reactor, final BybitStream bybitLinearBtcUsdtStream,
+    public static BybitLinearBtcUsdtConsumer create(final NioReactor reactor, final BybitStream bybitStream,
                                                     final AmqpPublisher amqpPublisher) {
-        return new BybitLinearBtcUsdtConsumer(reactor, bybitLinearBtcUsdtStream, amqpPublisher);
+        return new BybitLinearBtcUsdtConsumer(reactor, bybitStream, amqpPublisher);
     }
 
-    private BybitLinearBtcUsdtConsumer(final NioReactor reactor, final BybitStream bybitLinearBtcUsdtStream,
+    private BybitLinearBtcUsdtConsumer(final NioReactor reactor, final BybitStream bybitStream,
                                        final AmqpPublisher amqpPublisher) {
         super(reactor);
-        this.bybitLinearBtcUsdtStream = bybitLinearBtcUsdtStream;
+        this.bybitStream = bybitStream;
         this.amqpPublisher = amqpPublisher;
     }
 
     @Override
-    public Promise<?> start() {
-        return bybitLinearBtcUsdtStream.start().then(stream ->
+    public Promise<Void> start() {
+        return bybitStream.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
     }
 
     @Override
-    public Promise<?> stop() {
-        return bybitLinearBtcUsdtStream.stop();
+    public Promise<Void> stop() {
+        return bybitStream.stop();
     }
 }

@@ -37,7 +37,7 @@ Take the following roles:
 ```java
 
 @Override
-public Promise<?> start() {
+public Promise<Void> start() {
     return cmcParser.start().then(stream ->
             stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
 }

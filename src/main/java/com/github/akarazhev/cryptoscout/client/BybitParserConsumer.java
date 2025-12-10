@@ -48,13 +48,13 @@ public final class BybitParserConsumer extends AbstractReactive implements React
     }
 
     @Override
-    public Promise<?> start() {
+    public Promise<Void> start() {
         return bybitParser.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
     }
 
     @Override
-    public Promise<?> stop() {
+    public Promise<Void> stop() {
         return bybitParser.stop();
     }
 }

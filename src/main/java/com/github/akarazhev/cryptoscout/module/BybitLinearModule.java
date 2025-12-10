@@ -96,18 +96,16 @@ public final class BybitLinearModule extends AbstractModule {
     @Eager
     @Provides
     private BybitLinearBtcUsdtConsumer bybitLinearBtcUsdtConsumer(final NioReactor reactor,
-                                                                  @Named(BYBIT_LINEAR_BTC_USDT_STREAM)
-                                                                  final BybitStream bybitLinearBtcUsdtStream,
+                                                                  @Named(BYBIT_LINEAR_BTC_USDT_STREAM) final BybitStream bybitStream,
                                                                   final AmqpPublisher amqpPublisher) {
-        return BybitLinearBtcUsdtConsumer.create(reactor, bybitLinearBtcUsdtStream, amqpPublisher);
+        return BybitLinearBtcUsdtConsumer.create(reactor, bybitStream, amqpPublisher);
     }
 
     @Eager
     @Provides
     private BybitLinearEthUsdtConsumer bybitLinearEthUsdtConsumer(final NioReactor reactor,
-                                                                  @Named(BYBIT_LINEAR_ETH_USDT_STREAM)
-                                                                  final BybitStream bybitLinearEthUsdtStream,
+                                                                  @Named(BYBIT_LINEAR_ETH_USDT_STREAM) final BybitStream bybitStream,
                                                                   final AmqpPublisher amqpPublisher) {
-        return BybitLinearEthUsdtConsumer.create(reactor, bybitLinearEthUsdtStream, amqpPublisher);
+        return BybitLinearEthUsdtConsumer.create(reactor, bybitStream, amqpPublisher);
     }
 }
