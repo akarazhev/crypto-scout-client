@@ -179,13 +179,15 @@ Steps:
 3. Prepare env file:
     - `cp secret/client.env.example secret/parser-client.env`
     - Edit `secret/parser-client.env` and set RabbitMQ host/credentials, stream port, and API keys as needed.
-      Set `SERVER_PORT=8082` to match compose mapping. Set module toggles as needed
+      Set `SERVER_PORT=8082` for the internal server port. Set module toggles as needed
       (e.g., `CMC_PARSER_MODULE_ENABLED=true`, `BYBIT_PARSER_MODULE_ENABLED=true`).
 4. Start the service:
     - `podman-compose -f podman-compose.yml up -d`
 5. Verify:
-    - Readiness (parser): `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8082/ready` -> `200`
+    - Readiness (parser): `podman inspect --format='{{.State.Health.Status}}' crypto-scout-parser-client` -> `healthy`
     - Logs: `podman logs -f crypto-scout-parser-client`
+    - Note: Port 8082 is not exposed to the host; the service is accessible only within the `crypto-scout-bridge`
+      network.
 
 Security hardening in `podman-compose.yml`:
 

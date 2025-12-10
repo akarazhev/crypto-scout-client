@@ -26,7 +26,7 @@ deployments.
         - `BYBIT_API_KEY`, `BYBIT_API_SECRET` (optional if you do not use authenticated flows)
         - `CMC_API_KEY` (if CMC metrics are enabled)
     - Server port:
-        - Set `SERVER_PORT=8082` to match `podman-compose.yml`
+        - Set `SERVER_PORT=8082` for the internal server port (not exposed to host)
     - Module toggles:
         - `CMC_PARSER_MODULE_ENABLED=true` (default) – enable CMC parser
         - `BYBIT_PARSER_MODULE_ENABLED=true` – enable Bybit programs parser
@@ -48,11 +48,11 @@ deployments.
   podman compose -f podman-compose.yml up -d
   ```
 
-- Verify health endpoint:
+- Verify health via container healthcheck (port 8082 is internal-only, not exposed to host):
 
   ```bash
-  curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8082/ready
-  # 200 when ready; 503 otherwise
+  podman inspect --format='{{.State.Health.Status}}' crypto-scout-parser-client
+  # 'healthy' when ready
   ```
 
 - View logs:

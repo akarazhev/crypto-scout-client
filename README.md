@@ -222,8 +222,9 @@ podman compose -f podman-compose.yml up -d
 5) Check readiness and logs:
 
 ```bash
-curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8082/ready
+# Readiness is verified via container healthcheck (no host port exposed)
 podman logs -f crypto-scout-parser-client
+podman inspect --format='{{.State.Health.Status}}' crypto-scout-parser-client
 ```
 
 Notes:
@@ -233,8 +234,8 @@ Notes:
   env vars.
 - Real secrets should be placed in `secret/parser-client.env` (ignored by Git). Never commit real credentials.
 - To apply config changes, edit the env files and restart: `podman compose -f podman-compose.yml up -d`.
-- If you change an external HTTP port (`SERVER_PORT`), update the corresponding `ports` mapping in
-  `podman-compose.yml` accordingly.
+- The service does not expose ports to the host; it is accessible only within the `crypto-scout-bridge` network.
+  Other containers on the same network can reach it via `crypto-scout-parser-client:8082`.
 - If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in the env file so the
   container can reach the host.
 - Build context optimization: see `.dockerignore` (excludes `.git/`, `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`,
