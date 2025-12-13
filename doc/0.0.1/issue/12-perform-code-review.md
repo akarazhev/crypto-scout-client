@@ -59,12 +59,6 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 - **Single-threaded reactor:** `CoreModule` provides a single `NioReactor` with virtual thread executor for blocking
   operations—aligns with ActiveJ best practices.
 
-**Observations:**
-
-- Consumer classes (`BybitSpotBtcUsdtConsumer`, `BybitSpotEthUsdtConsumer`, `BybitLinearBtcUsdtConsumer`,
-  `BybitLinearEthUsdtConsumer`) share identical logic. Consider extracting a generic base class or factory in future
-  versions to reduce duplication (not critical for 0.0.1).
-
 #### 2. Error Handling & Resilience (Rating: Good)
 
 **Strengths:**
@@ -189,12 +183,11 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 
 ### Recommendations for Future Versions (0.0.2+)
 
-1. **Consumer abstraction:** Extract common consumer logic to reduce duplication across Bybit stream consumers.
-2. **Metrics:** Consider adding Micrometer or similar for runtime metrics beyond JMX.
-3. **AMQP TLS:** Add optional TLS support for RabbitMQ Streams connections.
-4. **HTTP client timeouts:** Expose read/write timeouts for HTTP clients (currently only connect timeout configured).
-5. **ActiveJ GA:** Update to ActiveJ 6.0 GA when released.
-6. **CI/CD:** Add GitHub Actions or similar for automated build/test on push.
+1. **Metrics:** Consider adding Micrometer or similar for runtime metrics beyond JMX.
+2. **AMQP TLS:** Add optional TLS support for RabbitMQ Streams connections.
+3. **HTTP client timeouts:** Expose read/write timeouts for HTTP clients (currently only connect timeout configured).
+4. **ActiveJ GA:** Update to ActiveJ 6.0 GA when released.
+5. **CI/CD:** Add GitHub Actions or similar for automated build/test on push.
 
 ### Conclusion
 

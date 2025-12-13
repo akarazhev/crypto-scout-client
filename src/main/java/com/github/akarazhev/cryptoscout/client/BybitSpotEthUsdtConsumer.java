@@ -25,15 +25,9 @@
 package com.github.akarazhev.cryptoscout.client;
 
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
-import io.activej.async.service.ReactiveService;
-import io.activej.datastream.consumer.StreamConsumers;
-import io.activej.promise.Promise;
-import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class BybitSpotEthUsdtConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitStream bybitStream;
-    private final AmqpPublisher amqpPublisher;
+public final class BybitSpotEthUsdtConsumer extends AbstractBybitStreamConsumer {
 
     public static BybitSpotEthUsdtConsumer create(final NioReactor reactor, final BybitStream bybitStream,
                                                   final AmqpPublisher amqpPublisher) {
@@ -42,19 +36,6 @@ public final class BybitSpotEthUsdtConsumer extends AbstractReactive implements 
 
     private BybitSpotEthUsdtConsumer(final NioReactor reactor, final BybitStream bybitStream,
                                      final AmqpPublisher amqpPublisher) {
-        super(reactor);
-        this.bybitStream = bybitStream;
-        this.amqpPublisher = amqpPublisher;
-    }
-
-    @Override
-    public Promise<Void> start() {
-        return bybitStream.start().then(stream ->
-                stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-    }
-
-    @Override
-    public Promise<Void> stop() {
-        return bybitStream.stop();
+        super(reactor, bybitStream, amqpPublisher);
     }
 }
