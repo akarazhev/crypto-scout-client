@@ -32,26 +32,26 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("WebConfig Tests")
-class WebConfigTest {
+final class WebConfigTest {
 
     @Test
     @DisplayName("getServerPort returns configured port")
     void getServerPort_returnsConfiguredPort() {
-        final int port = WebConfig.getServerPort();
+        final var port = WebConfig.getServerPort();
         assertTrue(port > 0 && port <= 65535, "Port should be in valid range");
     }
 
     @Test
     @DisplayName("getDnsAddress returns non-null address")
     void getDnsAddress_returnsNonNullAddress() {
-        final String address = WebConfig.getDnsAddress();
+        final var address = WebConfig.getDnsAddress();
         assertNotNull(address, "DNS address should not be null");
     }
 
     @Test
     @DisplayName("getDnsTimeoutMs returns positive timeout")
     void getDnsTimeoutMs_returnsPositiveTimeout() {
-        final int timeout = WebConfig.getDnsTimeoutMs();
+        final var timeout = WebConfig.getDnsTimeoutMs();
         assertTrue(timeout > 0, "DNS timeout should be positive");
     }
 

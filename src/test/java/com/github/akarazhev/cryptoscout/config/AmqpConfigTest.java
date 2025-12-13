@@ -31,12 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("AmqpConfig Tests")
-class AmqpConfigTest {
+final class AmqpConfigTest {
 
     @Test
     @DisplayName("getAmqpBybitStream returns configured stream name")
     void getAmqpBybitStream_returnsConfiguredStreamName() {
-        final String streamName = AmqpConfig.getAmqpBybitStream();
+        final var streamName = AmqpConfig.getAmqpBybitStream();
         assertNotNull(streamName, "Bybit stream name should not be null");
         assertEquals("bybit-stream", streamName);
     }
@@ -44,7 +44,7 @@ class AmqpConfigTest {
     @Test
     @DisplayName("getAmqpCryptoScoutStream returns configured stream name")
     void getAmqpCryptoScoutStream_returnsConfiguredStreamName() {
-        final String streamName = AmqpConfig.getAmqpCryptoScoutStream();
+        final var streamName = AmqpConfig.getAmqpCryptoScoutStream();
         assertNotNull(streamName, "Crypto Scout stream name should not be null");
         assertEquals("crypto-scout-stream", streamName);
     }

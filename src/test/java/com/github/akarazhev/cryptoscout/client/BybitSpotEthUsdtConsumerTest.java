@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @DisplayName("BybitSpotEthUsdtConsumer Tests")
-class BybitSpotEthUsdtConsumerTest {
+final class BybitSpotEthUsdtConsumerTest {
 
     @Test
     @DisplayName("BybitSpotEthUsdtConsumer class is loadable")

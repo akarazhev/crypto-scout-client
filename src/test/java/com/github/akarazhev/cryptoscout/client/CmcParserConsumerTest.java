@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @DisplayName("CmcParserConsumer Tests")
-class CmcParserConsumerTest {
+final class CmcParserConsumerTest {
 
     @Test
     @DisplayName("CmcParserConsumer class is loadable")

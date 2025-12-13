@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("AmqpPublisher Tests")
-class AmqpPublisherTest {
+final class AmqpPublisherTest {
     private NioReactor reactor;
     private AmqpPublisher amqpPublisher;
 
