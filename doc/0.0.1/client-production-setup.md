@@ -46,8 +46,7 @@ This project and its documentation were authored using AI-driven tools and curat
   encryption-in-transit.
 - **Logging (optional):** Logging is provided transitively by `jcryptolib`. If you need custom formatting/levels or a
   different backend, add an explicit SLF4J binding (e.g., Logback) and a sample `src/main/resources/logback.xml`.
-- **Tests & CI:** Add a smoke test booting the injector and verifying `/health`, plus a publisher test with a mocked
-  `Environment`. Wire into CI (`mvn -B -ntp verify`) and optionally add image build.
+- **CI:** Wire tests into CI (`mvn -B -ntp verify`) and optionally add image build.
 
 ## What the service does
 
@@ -77,8 +76,10 @@ This project and its documentation were authored using AI-driven tools and curat
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - AMQP publisher: `src/main/java/com/github/akarazhev/cryptoscout/client/AmqpPublisher.java`
     - Routes messages to streams based on provider/source.
+- Consumer base class: `AbstractBybitStreamConsumer` – provides common lifecycle logic (`start()`/`stop()`) for Bybit
+  stream consumers.
 - Consumers: `BybitSpotBtcUsdtConsumer`, `BybitSpotEthUsdtConsumer`, `BybitLinearBtcUsdtConsumer`,
-  `BybitLinearEthUsdtConsumer`, `BybitParserConsumer`, `CmcParserConsumer`.
+  `BybitLinearEthUsdtConsumer` (extend `AbstractBybitStreamConsumer`), `BybitParserConsumer`, `CmcParserConsumer`.
 - Configuration readers: `src/main/java/com/github/akarazhev/cryptoscout/config/*`
     - `WebConfig` (server port, DNS), `AmqpConfig` (RabbitMQ Streams parameters).
 
@@ -267,6 +268,7 @@ Notes on configuration:
 
 ## Appendix B: Validation Checklist (merged)
 
+- Test: `mvn test`
 - Build: `mvn clean package -DskipTests`
 - Run locally: `java -jar target/crypto-scout-client-0.0.1.jar`
 - Health check: `curl -fsS http://localhost:8081/health` -> `ok`
@@ -288,4 +290,4 @@ Notes on configuration:
   or your Orchestrator's secret/config mechanism. Rebuilds are not
   necessary for config changes; restart with updated env.
 - Prepare 0.0.2 changes: extend HTTP client timeouts, add optional AMQP TLS, optionally add an explicit logging
-  binding and sample config if customization is required, and add smoke/unit tests with CI integration.
+  binding and sample config if customization is required, and add CI integration for automated testing.

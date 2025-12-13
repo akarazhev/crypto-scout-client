@@ -31,6 +31,8 @@ Note: This project was authored using AI-driven tools and curated by the maintai
     - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.
+- **Consumer abstraction:** `AbstractBybitStreamConsumer` base class provides common lifecycle logic for all Bybit
+  stream consumers.
 
 ## Requirements
 
@@ -122,6 +124,21 @@ mvn clean package -DskipTests
 ```
 
 This produces a shaded JAR at `target/crypto-scout-client-0.0.1.jar`.
+
+## Testing
+
+Run unit tests:
+
+```bash
+mvn test
+```
+
+The test suite includes:
+
+- **Config tests:** `AmqpConfigTest`, `CmcConfigTest`, `WebConfigTest` – verify configuration loading.
+- **Publisher tests:** `AmqpPublisherTest` – verify creation, readiness state, and publish routing.
+- **Consumer tests:** `BybitSpotBtcUsdtConsumerTest`, `BybitSpotEthUsdtConsumerTest`, `BybitLinearBtcUsdtConsumerTest`,
+  `BybitLinearEthUsdtConsumerTest`, `BybitParserConsumerTest`, `CmcParserConsumerTest` – verify class loadability.
 
 ## Run (local)
 
