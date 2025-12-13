@@ -28,13 +28,14 @@ import com.github.akarazhev.jcryptolib.stream.Payload;
 import com.github.akarazhev.jcryptolib.stream.Provider;
 import com.github.akarazhev.jcryptolib.stream.Source;
 import io.activej.eventloop.Eventloop;
-import io.activej.reactor.nio.NioReactor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -42,15 +43,25 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("AmqpPublisher Tests")
 final class AmqpPublisherTest {
-    private NioReactor reactor;
+    private ExecutorService executor;
+    private Eventloop reactor;
     private AmqpPublisher amqpPublisher;
 
     @BeforeEach
     void setUp() {
+        executor = Executors.newVirtualThreadPerTaskExecutor();
         reactor = Eventloop.builder()
                 .withCurrentThread()
                 .build();
         amqpPublisher = AmqpPublisher.create(reactor, Executors.newVirtualThreadPerTaskExecutor());
+    }
+
+    @AfterEach
+    void tearDown() {
+        reactor.post(() -> amqpPublisher.stop()
+                .whenComplete(() -> reactor.breakEventloop()));
+        reactor.run();
+        executor.shutdown();
     }
 
     @Test
