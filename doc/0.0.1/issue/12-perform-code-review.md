@@ -142,8 +142,6 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 **Observations:**
 
 - ActiveJ version `6.0-rc2` is a release candidate. Monitor for GA release and update when available.
-- No test dependencies or test sources present. Recommend adding unit/integration tests in future versions (documented
-  in prior reviews).
 
 #### 6. Code Quality & Style (Rating: Excellent)
 
@@ -191,13 +189,12 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 
 ### Recommendations for Future Versions (0.0.2+)
 
-1. **Unit/Integration tests:** Add tests for `AmqpPublisher`, consumers, and config classes.
-2. **Consumer abstraction:** Extract common consumer logic to reduce duplication across Bybit stream consumers.
-3. **Metrics:** Consider adding Micrometer or similar for runtime metrics beyond JMX.
-4. **AMQP TLS:** Add optional TLS support for RabbitMQ Streams connections.
-5. **HTTP client timeouts:** Expose read/write timeouts for HTTP clients (currently only connect timeout configured).
-6. **ActiveJ GA:** Update to ActiveJ 6.0 GA when released.
-7. **CI/CD:** Add GitHub Actions or similar for automated build/test on push.
+1. **Consumer abstraction:** Extract common consumer logic to reduce duplication across Bybit stream consumers.
+2. **Metrics:** Consider adding Micrometer or similar for runtime metrics beyond JMX.
+3. **AMQP TLS:** Add optional TLS support for RabbitMQ Streams connections.
+4. **HTTP client timeouts:** Expose read/write timeouts for HTTP clients (currently only connect timeout configured).
+5. **ActiveJ GA:** Update to ActiveJ 6.0 GA when released.
+6. **CI/CD:** Add GitHub Actions or similar for automated build/test on push.
 
 ### Conclusion
 

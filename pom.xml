@@ -37,7 +37,10 @@
         <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
         <jcryptolib.version>0.0.3</jcryptolib.version>
         <activej.version>6.0-rc2</activej.version>
+        <junit-jupiter.version>5.13.4</junit-jupiter.version>
+        <mockito.version>5.19.0</mockito.version>
         <stream-client.version>1.4.0</stream-client.version>
+        <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -62,6 +65,28 @@
             <groupId>com.rabbitmq</groupId>
             <artifactId>stream-client</artifactId>
             <version>${stream-client.version}</version>
+        </dependency>
+        <!-- Test dependencies -->
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -98,6 +123,12 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Surefire plugin for running tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
             </plugin>
         </plugins>
     </build>
