@@ -32,7 +32,7 @@ Take the following roles:
   better.
 - As the `expert devops engineer` recheck your proposal and make sure that they are correct and haven't missed any
   important points.
-- As the `expert technical writer` update the `13-perform-configuration-review.md` file with your resolution.
+- As the `expert technical writer` update the `13-perform-config-review.md` file with your resolution.
 
 ---
 
