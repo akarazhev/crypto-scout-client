@@ -52,11 +52,11 @@ Take the following roles:
 - No image rebuild is required for configuration changes applied via env vars or `-D` properties—restart the containers.
 - Networking: The parser client does not expose ports to the host; it is accessible only within the
   `crypto-scout-bridge`
-  network. Other containers on the same network can reach it via `crypto-scout-parser-client:8082`.
+  network. Other containers on the same network can reach it via `crypto-scout-parser-client:8081`.
 
 ### Secrets schema (`secret/client.env.example`)
 
-- `SERVER_PORT` (use `8081` for Bybit client, `8082` for parser client)
+- `SERVER_PORT` (default `8081`, matches Dockerfile EXPOSE and compose healthcheck)
 - `AMQP_RABBITMQ_HOST`, `AMQP_RABBITMQ_USERNAME`, `AMQP_RABBITMQ_PASSWORD`
 - `AMQP_STREAM_PORT=5552`
 - `BYBIT_API_KEY`, `BYBIT_API_SECRET`

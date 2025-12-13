@@ -119,9 +119,8 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 
 **Observations:**
 
-- Healthcheck in `podman-compose.yml` uses port `8082` but Dockerfile exposes `8081`. This is intentional per
-  `client.env.example` which recommends `SERVER_PORT=8082` for `parser-client.env`. Ensure env file sets the correct
-  port to match healthcheck.
+- Healthcheck in `podman-compose.yml` uses port `8081`, aligned with Dockerfile EXPOSE directive and default
+  `server.port` in `application.properties`.
 
 #### 5. Build Configuration (Rating: Good)
 

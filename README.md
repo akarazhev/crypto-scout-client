@@ -252,7 +252,7 @@ Notes:
 - Real secrets should be placed in `secret/parser-client.env` (ignored by Git). Never commit real credentials.
 - To apply config changes, edit the env files and restart: `podman compose -f podman-compose.yml up -d`.
 - The service does not expose ports to the host; it is accessible only within the `crypto-scout-bridge` network.
-  Other containers on the same network can reach it via `crypto-scout-parser-client:8082`.
+  Other containers on the same network can reach it via `crypto-scout-parser-client:8081`.
 - If RabbitMQ runs on your host machine, set `AMQP_RABBITMQ_HOST=host.containers.internal` in the env file so the
   container can reach the host.
 - Build context optimization: see `.dockerignore` (excludes `.git/`, `.idea/`, `.vscode/`, `secret/`, `doc/`, `dev/`,
