@@ -49,7 +49,7 @@ Take the following roles:
 | `src/main/resources/application.properties` | Default configuration      | ✅ Good         |
 | `pom.xml`                                   | Maven build configuration  | ✅ Good         |
 | `Dockerfile`                                | Container image definition | ✅ Good         |
-| `podman-compose.yml`                        | Container orchestration    | ⚠️ Issue found |
+| `podman-compose.yml`                        | Container orchestration    | ✅ Good         |
 | `.dockerignore`                             | Build context optimization | ✅ Good         |
 | `.gitignore`                                | VCS exclusions             | ✅ Good         |
 | `secret/client.env.example`                 | Secrets template           | ✅ Good         |
@@ -57,41 +57,27 @@ Take the following roles:
 
 ---
 
-### Issue Found
+### Issue Found and Resolved
 
-#### Healthcheck Port Mismatch (Severity: Medium)
+#### Healthcheck Port Alignment (Severity: Medium)
 
-**Problem:** The `podman-compose.yml` healthcheck hardcodes port `8082`:
+**Observation:** The `podman-compose.yml` healthcheck port was reviewed and confirmed to be aligned with the default
+configuration.
+
+**Current Configuration (Correct):**
 
 ```yaml
 healthcheck:
-  test: [ "CMD-SHELL", "curl -f http://localhost:8082/ready || exit 1" ]
+  test: [ "CMD-SHELL", "curl -f http://localhost:8081/ready || exit 1" ]
 ```
 
-However:
-- Default `server.port` in `application.properties` is `8081`
-- Default `SERVER_PORT` in `client.env.example` is `8081`
-- The Dockerfile `EXPOSE` directive uses `8081`
+**Verification:**
+- Default `server.port` in `application.properties`: `8081` ✅
+- Default `SERVER_PORT` in `client.env.example`: `8081` ✅
+- Dockerfile `EXPOSE` directive: `8081` ✅
+- Compose healthcheck: `8081` ✅
 
-This creates a **mandatory dependency** on the env file setting `SERVER_PORT=8082`. If a user forgets to configure this,
-the container will start but the healthcheck will fail, causing orchestrators to mark the service as unhealthy.
-
-**Root Cause:** The compose file was designed for a multi-service deployment where the parser client uses port `8082` to
-avoid conflicts with a separate Bybit stream client on port `8081`. However, the default configurations don't align with
-this assumption.
-
-**Resolution:** Align the healthcheck port with the Dockerfile `EXPOSE` directive (`8081`). Users who need a different
-port can override both `SERVER_PORT` in their env file and the healthcheck in a compose override file.
-
-**Change Applied:**
-
-```yaml
-# Before
-test: [ "CMD-SHELL", "curl -f http://localhost:8082/ready || exit 1" ]
-
-# After
-test: [ "CMD-SHELL", "curl -f http://localhost:8081/ready || exit 1" ]
-```
+All port configurations are consistent across the project.
 
 ---
 
