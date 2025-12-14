@@ -29,7 +29,6 @@ deployments.
         - `SERVER_PORT=8081` (default, matches Dockerfile EXPOSE and compose healthcheck)
     - Module toggles:
         - `CMC_PARSER_MODULE_ENABLED=true` (default) – enable CMC parser
-        - `BYBIT_PARSER_MODULE_ENABLED=true` – enable Bybit programs parser
         - `BYBIT_STREAM_MODULE_ENABLED=false` (default) – set to `true` to enable Bybit streams
 
 ## Using with Podman Compose

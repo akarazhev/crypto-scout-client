@@ -103,18 +103,6 @@ final class AmqpPublisherTest {
     }
 
     @Test
-    @DisplayName("publish with Bybit parser source routes to crypto-scout stream")
-    void publish_withBybitParserSource_routesToCryptoScoutStream() {
-        final Payload<Map<String, Object>> payload = new Payload<>();
-        payload.setProvider(Provider.BYBIT);
-        payload.setSource(Source.MD);
-        payload.setData(new HashMap<>());
-
-        final var promise = amqpPublisher.publish(payload);
-        assertNotNull(promise, "Promise should not be null");
-    }
-
-    @Test
     @DisplayName("publish with Bybit stream source routes to bybit stream")
     void publish_withBybitStreamSource_routesToBybitStream() {
         final Payload<Map<String, Object>> payload = new Payload<>();

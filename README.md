@@ -11,8 +11,6 @@ Note: This project was authored using AI-driven tools and curated by the maintai
   trades, and order books (depths 50, 200, 1000). Spot subscribes to 15m/60m/240m/D klines; Linear subscribes to
   15m/60m/240m/D klines and all-liquidations. Implemented via jcryptolib `BybitStream` and published to
   `amqp.bybit.stream`.
-- **Bybit metrics (HTTP):** Bybit programs parser (Mega Drop, Launch Pool, Launchpad, ByVotes, ByStarter, Airdrop Hunt)
-  via `BybitParser` and published to `amqp.crypto.scout.stream`.
 - **CoinMarketCap metrics:** Retrieves Fear & Greed Index (API Pro Latest) and BTC/USD quotes (1D, 1W) via `CmcParser`
   and publishes to `amqp.crypto.scout.stream`.
 - **AMQP (RabbitMQ Streams):** Publishes messages to two streams configured in `application.properties`.
@@ -28,7 +26,6 @@ Note: This project was authored using AI-driven tools and curated by the maintai
       `@Named("bybitSpotEthUsdtStream")` + consumers `BybitSpotBtcUsdtConsumer`, `BybitSpotEthUsdtConsumer`.
     - `BybitLinearModule` – provides two Linear `BybitStream` beans `@Named("bybitLinearBtcUsdtStream")`,
       `@Named("bybitLinearEthUsdtStream")` + consumers `BybitLinearBtcUsdtConsumer`, `BybitLinearEthUsdtConsumer`.
-    - `BybitParserModule` – Bybit programs HTTP parser + consumer.
     - `CmcParserModule` – CMC HTTP parser + consumer.
 - **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.
 - **Consumer abstraction:** `AbstractBybitStreamConsumer` base class provides common lifecycle logic for all Bybit
@@ -58,7 +55,6 @@ Defaults are loaded from `src/main/resources/application.properties` via `AppCon
     - `dns.address` → `DNS_ADDRESS`
     - `dns.timeout.ms` → `DNS_TIMEOUT_MS`
     - `bybit.stream.module.enabled` → `BYBIT_STREAM_MODULE_ENABLED`
-    - `bybit.parser.module.enabled` → `BYBIT_PARSER_MODULE_ENABLED`
     - `cmc.parser.module.enabled` → `CMC_PARSER_MODULE_ENABLED`
 
 - **Server**
@@ -67,8 +63,6 @@ Defaults are loaded from `src/main/resources/application.properties` via `AppCon
 - **Modules**
     - `cmc.parser.module.enabled=true` – Enable CoinMarketCap metrics parser (`CmcParserModule`). Set to `false`
       to disable.
-    - `bybit.parser.module.enabled=false` – Enable Bybit programs metrics parser (`BybitParserModule`). Set to
-      `true` to enable.
     - `bybit.stream.module.enabled=false` – Enable Bybit public streams publishers (`BybitSpotModule` and
       `BybitLinearModule`). Set to `true` to enable both Spot and Linear stream modules.
 
@@ -81,7 +75,7 @@ Defaults are loaded from `src/main/resources/application.properties` via `AppCon
     - `amqp.rabbitmq.password=`
     - `amqp.stream.port=5552`
     - `amqp.bybit.stream=bybit-stream` (Bybit WebSocket stream data)
-    - `amqp.crypto.scout.stream=crypto-scout-stream` (parser data: Bybit programs + CMC)
+    - `amqp.crypto.scout.stream=crypto-scout-stream` (CMC parser data)
 - **Bybit connection**
     - `bybit.connect.timeout.ms=10000`
     - `bybit.initial.reconnect.interval.ms=100`
@@ -138,7 +132,7 @@ The test suite includes:
 - **Config tests:** `AmqpConfigTest`, `CmcConfigTest`, `WebConfigTest` – verify configuration loading.
 - **Publisher tests:** `AmqpPublisherTest` – verify creation, readiness state, and publish routing.
 - **Consumer tests:** `BybitSpotBtcUsdtConsumerTest`, `BybitSpotEthUsdtConsumerTest`, `BybitLinearBtcUsdtConsumerTest`,
-  `BybitLinearEthUsdtConsumerTest`, `BybitParserConsumerTest`, `CmcParserConsumerTest` – verify class loadability.
+  `BybitLinearEthUsdtConsumerTest`, `CmcParserConsumerTest` – verify class loadability.
 
 ## Run (local)
 
@@ -277,10 +271,10 @@ Notes:
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
 - **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
     - `amqp.bybit.stream` (Bybit WebSocket stream data)
-    - `amqp.crypto.scout.stream` (parser data: Bybit programs + CMC)
-- **Module toggles:** Control active modules with `cmc.parser.module.enabled` (default `true`),
-  `bybit.parser.module.enabled` (default `false`), and `bybit.stream.module.enabled` (default `false`) in
-  `application.properties`. Evaluated in `Client.getModule()` at startup.
+    - `amqp.crypto.scout.stream` (CMC parser data)
+- **Module toggles:** Control active modules with `cmc.parser.module.enabled` (default `true`) and
+  `bybit.stream.module.enabled` (default `false`) in `application.properties`. Evaluated in `Client.getModule()`
+  at startup.
 - **DNS resolver:** Configure the DNS client with `dns.address` (resolver address) and `dns.timeout.ms` (milliseconds).
 - **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely at
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).

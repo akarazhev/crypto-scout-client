@@ -122,16 +122,11 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     }
 
     private Producer getProducer(final Provider provider, final Source source) {
-        return Provider.CMC.equals(provider) || (Provider.BYBIT.equals(provider) && isBybitParser(source)) ?
+        return Provider.CMC.equals(provider) ?
                 cryptoScoutStream :
                 Provider.BYBIT.equals(provider) && isBybitStream(source) ?
                         bybitStream :
                         null;
-    }
-
-    private boolean isBybitParser(final Source source) {
-        return Source.MD.equals(source) || Source.LPL.equals(source) || Source.LPD.equals(source) ||
-                Source.BYV.equals(source) || Source.BYS.equals(source) || Source.ADH.equals(source);
     }
 
     private boolean isBybitStream(final Source source) {
