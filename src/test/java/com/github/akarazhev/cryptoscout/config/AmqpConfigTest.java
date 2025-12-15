@@ -35,7 +35,7 @@ final class AmqpConfigTest {
 
     @Test
     @DisplayName("getAmqpBybitStream returns configured stream name")
-    void getAmqpBybitStream_returnsConfiguredStreamName() {
+    void getAmqpBybitStreamReturnsConfiguredStreamName() {
         final var streamName = AmqpConfig.getAmqpBybitStream();
         assertNotNull(streamName, "Bybit stream name should not be null");
         assertEquals("bybit-stream", streamName);
@@ -43,7 +43,7 @@ final class AmqpConfigTest {
 
     @Test
     @DisplayName("getAmqpCryptoScoutStream returns configured stream name")
-    void getAmqpCryptoScoutStream_returnsConfiguredStreamName() {
+    void getAmqpCryptoScoutStreamReturnsConfiguredStreamName() {
         final var streamName = AmqpConfig.getAmqpCryptoScoutStream();
         assertNotNull(streamName, "Crypto Scout stream name should not be null");
         assertEquals("crypto-scout-stream", streamName);

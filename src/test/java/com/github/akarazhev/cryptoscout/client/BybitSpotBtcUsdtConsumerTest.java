@@ -24,17 +24,34 @@
 
 package com.github.akarazhev.cryptoscout.client;
 
+import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
+import io.activej.reactor.nio.NioReactor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("BybitSpotBtcUsdtConsumer Tests")
 final class BybitSpotBtcUsdtConsumerTest {
 
     @Test
-    @DisplayName("BybitSpotBtcUsdtConsumer class is loadable")
+    @DisplayName("class is loadable")
     void classIsLoadable() {
         assertDoesNotThrow(() -> Class.forName("com.github.akarazhev.cryptoscout.client.BybitSpotBtcUsdtConsumer"));
+    }
+
+    @Test
+    @DisplayName("create factory method exists and is accessible")
+    void createFactoryMethodExists() throws NoSuchMethodException {
+        final var method = BybitSpotBtcUsdtConsumer.class.getMethod("create", NioReactor.class, BybitStream.class,
+                AmqpPublisher.class);
+        assertNotNull(method, "Factory method should exist");
+    }
+
+    @Test
+    @DisplayName("create with null arguments does not throw")
+    void createWithNullArgumentsDoesNotThrow() {
+        assertDoesNotThrow(() -> BybitSpotBtcUsdtConsumer.create(null, null, null));
     }
 }

@@ -28,13 +28,31 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("CmcParserConsumer Tests")
 final class CmcParserConsumerTest {
 
     @Test
-    @DisplayName("CmcParserConsumer class is loadable")
+    @DisplayName("class is loadable")
     void classIsLoadable() {
         assertDoesNotThrow(() -> Class.forName("com.github.akarazhev.cryptoscout.client.CmcParserConsumer"));
+    }
+
+    @Test
+    @DisplayName("create factory method exists and is accessible")
+    void createFactoryMethodExists() throws NoSuchMethodException {
+        final var method = CmcParserConsumer.class.getMethod("create",
+                io.activej.reactor.nio.NioReactor.class,
+                com.github.akarazhev.jcryptolib.cmc.stream.CmcParser.class,
+                AmqpPublisher.class);
+        assertNotNull(method, "Factory method should exist");
+    }
+
+    @Test
+    @DisplayName("create with null arguments does not throw")
+    void createWithNullArgumentsDoesNotThrow() {
+        assertDoesNotThrow(() ->
+                CmcParserConsumer.create(null, null, null));
     }
 }

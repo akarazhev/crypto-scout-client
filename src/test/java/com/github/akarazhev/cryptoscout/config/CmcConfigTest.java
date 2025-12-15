@@ -27,6 +27,7 @@ package com.github.akarazhev.cryptoscout.config;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("CmcConfig Tests")
@@ -34,16 +35,15 @@ final class CmcConfigTest {
 
     @Test
     @DisplayName("getCmcApiKey returns non-null value")
-    void getCmcApiKey_returnsNonNullValue() {
+    void getCmcApiKeyReturnsNonNullValue() {
         final var apiKey = CmcConfig.getCmcApiKey();
         assertNotNull(apiKey, "CMC API key should not be null (may be empty string)");
     }
 
     @Test
     @DisplayName("getCmcApiKey returns empty string by default")
-    void getCmcApiKey_returnsEmptyStringByDefault() {
+    void getCmcApiKeyReturnsEmptyStringByDefault() {
         final var apiKey = CmcConfig.getCmcApiKey();
-        // Default in application.properties is empty
-        assertNotNull(apiKey);
+        assertEquals("", apiKey, "Default CMC API key should be empty string");
     }
 }

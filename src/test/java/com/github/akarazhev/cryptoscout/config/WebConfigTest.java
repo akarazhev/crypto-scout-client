@@ -36,28 +36,28 @@ final class WebConfigTest {
 
     @Test
     @DisplayName("getServerPort returns configured port")
-    void getServerPort_returnsConfiguredPort() {
+    void getServerPortReturnsConfiguredPort() {
         final var port = WebConfig.getServerPort();
         assertTrue(port > 0 && port <= 65535, "Port should be in valid range");
     }
 
     @Test
     @DisplayName("getDnsAddress returns non-null address")
-    void getDnsAddress_returnsNonNullAddress() {
+    void getDnsAddressReturnsNonNullAddress() {
         final var address = WebConfig.getDnsAddress();
         assertNotNull(address, "DNS address should not be null");
     }
 
     @Test
     @DisplayName("getDnsTimeoutMs returns positive timeout")
-    void getDnsTimeoutMs_returnsPositiveTimeout() {
+    void getDnsTimeoutMsReturnsPositiveTimeout() {
         final var timeout = WebConfig.getDnsTimeoutMs();
         assertTrue(timeout > 0, "DNS timeout should be positive");
     }
 
     @Test
     @DisplayName("default values match application.properties")
-    void defaultValues_matchApplicationProperties() {
+    void defaultValuesMatchApplicationProperties() {
         assertEquals(8081, WebConfig.getServerPort());
         assertEquals("8.8.8.8", WebConfig.getDnsAddress());
         assertEquals(10000, WebConfig.getDnsTimeoutMs());
