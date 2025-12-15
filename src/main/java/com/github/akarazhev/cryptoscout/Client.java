@@ -24,6 +24,7 @@
 
 package com.github.akarazhev.cryptoscout;
 
+import com.github.akarazhev.cryptoscout.config.ConfigValidator;
 import com.github.akarazhev.cryptoscout.module.BybitLinearModule;
 import com.github.akarazhev.cryptoscout.module.BybitSpotModule;
 import com.github.akarazhev.cryptoscout.module.ClientModule;
@@ -43,6 +44,14 @@ import static com.github.akarazhev.cryptoscout.Constants.Module.BYBIT_STREAM_MOD
 import static io.activej.inject.module.Modules.combine;
 
 final class Client extends Launcher {
+
+    @Override
+    protected void onStart() throws Exception {
+        ConfigValidator.validate(
+                AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED),
+                AppConfig.getAsBoolean(BYBIT_STREAM_MODULE_ENABLED)
+        );
+    }
 
     @Override
     protected Module getModule() {
