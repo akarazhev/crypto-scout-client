@@ -37,6 +37,8 @@ import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_RABBITMQ_PASSWORD;
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_RABBITMQ_USERNAME;
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_STREAM_PORT;
+import static com.github.akarazhev.cryptoscout.config.Constants.BybitConfig.BYBIT_API_KEY;
+import static com.github.akarazhev.cryptoscout.config.Constants.BybitConfig.BYBIT_API_SECRET;
 import static com.github.akarazhev.cryptoscout.config.Constants.CmcConfig.CMC_API_KEY;
 import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.DNS_ADDRESS;
 import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.DNS_TIMEOUT_MS;
@@ -92,8 +94,8 @@ public final class ConfigValidator {
     }
 
     private static void validateBybitConfig(final List<String> missing) {
-        validateRequired("bybit.api.key", missing);
-        validateRequired("bybit.api.secret", missing);
+        validateRequired(BYBIT_API_KEY, missing);
+        validateRequired(BYBIT_API_SECRET, missing);
     }
 
     private static void validateRequired(final String key, final List<String> missing) {

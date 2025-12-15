@@ -59,4 +59,13 @@ final class Constants {
 
         static final String CMC_API_KEY = "cmc.api.key";
     }
+
+    final static class BybitConfig {
+        private BybitConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        static final String BYBIT_API_KEY = "bybit.api.key";
+        static final String BYBIT_API_SECRET = "bybit.api.secret";
+    }
 }
