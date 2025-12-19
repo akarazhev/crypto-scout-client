@@ -6,8 +6,6 @@ deployments.
 ## Files
 
 - `client.env.example` – Template with all required keys. Copy this to the env file and fill real values.
-- `parser-client.env` – Env file for the parser service (NOT committed). Contains RabbitMQ credentials, API keys,
-  and optional overrides.
 
 ## How to create env file
 
