@@ -47,10 +47,7 @@ final class Client extends Launcher {
 
     @Override
     protected void onStart() throws Exception {
-        ConfigValidator.validate(
-                AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED),
-                AppConfig.getAsBoolean(BYBIT_STREAM_MODULE_ENABLED)
-        );
+        ConfigValidator.validate(AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED));
     }
 
     @Override
