@@ -37,8 +37,8 @@ Take the following roles:
 
 ## Findings
 
-- Health and readiness: `WebModule` serves `GET /health` -> `ok` and `GET /ready` -> `ok` only when
-  `AmqpPublisher.isReady()` is true; otherwise HTTP 503 `not-ready`.
+- Health and readiness: `WebModule` serves `GET /health` -> `ok` when `AmqpPublisher.isReady()` is true; otherwise
+  HTTP 503 `not-ready`. Use for both liveness and readiness checks.
 - AMQP publisher readiness: `AmqpPublisher` initializes RabbitMQ Streams `Environment` and three producers; `isReady()`
   checks all are non-null.
 - Configuration precedence: Defaults in `src/main/resources/application.properties` are read via `AppConfig`;
@@ -47,7 +47,7 @@ Take the following roles:
 - DNS configuration: `WebConfig` uses `dns.address` and `dns.timeout.ms` to configure `DnsClient`.
 - Containerization: `Dockerfile` uses Temurin JRE 25, non-root user, pinned base digest, `JAVA_TOOL_OPTIONS` with OOM
   fast-exit; compose hardens with `read_only`, `tmpfs /tmp` (nodev,nosuid), `cap_drop: ALL`, `no-new-privileges`,
-  healthcheck to `/ready`, resource limits.
+  healthcheck to `/health`, resource limits.
 - Entry point visibility: `Client` and `main` are not declared `public` (package-private). This is acceptable because
   the app launches via a shaded JAR manifest; no change required.
 - Logging: Provided transitively by `jcryptolib`; explicit SLF4J binding is optional if customization is needed.

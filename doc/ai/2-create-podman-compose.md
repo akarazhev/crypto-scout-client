@@ -81,7 +81,7 @@ podman logs -f crypto-scout-parser-client
 ### Verification checklist
 
 - Image builds and runs on Java 25.
-- Readiness endpoint `GET /ready` returns `200` when ready (verified via container healthcheck; port not exposed to
+- Health endpoint `GET /health` returns `200` when ready (verified via container healthcheck; port not exposed to
   host).
 - RabbitMQ Streams host/port reachable; three streams pre-created and user has publish permissions.
 - Secrets not committed to VCS (env files under `secret/*.env` ignored).

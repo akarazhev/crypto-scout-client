@@ -68,7 +68,7 @@ configuration.
 
 ```yaml
 healthcheck:
-  test: [ "CMD-SHELL", "curl -f http://localhost:8081/ready || exit 1" ]
+  test: [ "CMD-SHELL", "curl -f http://localhost:8081/health || exit 1" ]
 ```
 
 **Verification:**
@@ -128,7 +128,7 @@ All port configurations are consistent across the project.
 | Tmpfs              | ✅      | `/tmp` with `nodev,nosuid`, size `512m`                                |
 | Init process       | ✅      | `init: true` for zombie reaping                                        |
 | Graceful shutdown  | ✅      | `stop_signal: SIGTERM`, `stop_grace_period: 30s`                       |
-| Healthcheck        | ✅      | `/ready` endpoint, `start_period: 30s`                                 |
+| Healthcheck        | ✅      | `/health` endpoint, `start_period: 30s`                                |
 | Restart policy     | ✅      | `unless-stopped`                                                       |
 | Timezone           | ✅      | `TZ=UTC`                                                               |
 | Secrets injection  | ✅      | `env_file: secret/parser-client.env`                                   |

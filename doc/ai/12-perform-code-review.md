@@ -155,9 +155,8 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 
 **Strengths:**
 
-- **Health endpoint:** `GET /health` returns `ok` (liveness).
-- **Readiness endpoint:** `GET /ready` returns `ok` when AMQP environment and producers are initialized; HTTP 503
-  otherwise.
+- **Health endpoint:** `GET /health` returns `ok` when AMQP environment and producers are initialized; HTTP 503
+  otherwise. Use for both liveness and readiness checks.
 - **JMX:** Enabled via `JmxModule`.
 - **Logging:** SLF4J API with binding from `jcryptolib`; configurable via classpath.
 
@@ -174,7 +173,7 @@ architectural decisions, proper use of ActiveJ's reactive patterns, and producti
 | Secret handling        | ✅      | No hardcoded secrets; env injection documented       |
 | Container security     | ✅      | Non-root, read-only, cap_drop ALL, no-new-privileges |
 | Graceful shutdown      | ✅      | SIGTERM, ReactiveService stop(), producer close()    |
-| Health/readiness       | ✅      | /health and /ready endpoints implemented             |
+| Health/readiness       | ✅      | /health endpoint implemented                         |
 | Configuration override | ✅      | Env vars override bundled defaults                   |
 | Documentation          | ✅      | README.md comprehensive; secret/README.md present    |
 | Code style consistency | ✅      | Uniform across all source files                      |

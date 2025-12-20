@@ -21,21 +21,20 @@ This project and its documentation were authored using AI-driven tools and curat
 
 ## Code review summary (0.0.1)
 
-- **Readiness semantics (validated):** `/ready` depends on `AmqpPublisher.isReady()` (RabbitMQ Streams environment and
-  producers initialized). Keep this for traffic gating in orchestrators.
+- **Readiness semantics (validated):** `/health` depends on `AmqpPublisher.isReady()` (RabbitMQ Streams environment and
+  producers initialized). Use for traffic gating in orchestrators.
 
 ## Solution review (0.0.1)
 
 - **Ready for production:** Yes, under documented prerequisites (RabbitMQ Streams enabled and reachable; required
   streams and credentials configured; secrets via env/JVM; outbound network access to Bybit/CMC).
 - **Validated implementation:**
-    - `WebModule` exposes `GET /health` -> `ok`; `GET /ready` -> `ok` only when `AmqpPublisher.isReady()`; else HTTP 503
-      `not-ready`.
+    - `WebModule` exposes `GET /health` -> `ok` when `AmqpPublisher.isReady()`; else HTTP 503 `not-ready`.
     - Configuration precedence: defaults from `src/main/resources/application.properties` via `AppConfig`, overridden by
       environment variables and JVM system properties at startup. Podman Compose injects env file:
       `secret/parser-client.env` (parser).
     - Container/compose hardening: non-root user, read-only rootfs, `tmpfs` `/tmp` with `nodev,nosuid`, `cap_drop: ALL`,
-      `security_opt: no-new-privileges=true`, resource limits, pinned base image, healthcheck hitting `/ready`.
+      `security_opt: no-new-privileges=true`, resource limits, pinned base image, healthcheck hitting `/health`.
     - DNS: `WebConfig` uses `dns.address` and `dns.timeout.ms` to configure ActiveJ `DnsClient`.
 
 ## Recommendations for 0.0.2
@@ -64,8 +63,7 @@ This project and its documentation were authored using AI-driven tools and curat
     - Combines modules and runs until shutdown is requested.
 - Modules (`src/main/java/com/github/akarazhev/cryptoscout/module/`):
     - `CoreModule` – Single-threaded `NioReactor` and virtual-thread `Executor`.
-    - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` and
-      `GET /ready` routes.
+    - `WebModule` – HTTP server (port from `WebConfig`), ActiveJ HTTP/WebSocket clients, DNS, `GET /health` route.
     - `ClientModule` – Lifecycle for `AmqpPublisher`.
     - `BybitSpotModule` – provides two Spot streams for BTCUSDT/ETHUSDT (PMST): klines 15m/60m/240m/D, tickers,
       public trades, order books 50/200/1000 + consumers.
@@ -213,9 +211,8 @@ Notes on configuration:
 - **Logging:** Uses the SLF4J API with a binding provided transitively by `jcryptolib`, so logs are emitted by default.
   To change levels/format or switch backend, include your preferred SLF4J binding and its configuration (for example,
   provide `src/main/resources/logback.xml` if using Logback).
-- **Liveness:** `GET /health` returns `ok` and HTTP 200 on the configured `server.port`.
-- **Readiness:** `GET /ready` returns `ok` when RabbitMQ Streams environment and producers are initialized; otherwise
-  HTTP 503 `not-ready`. Use `/health` for liveness and `/ready` for readiness in orchestrators.
+- **Health/Readiness:** `GET /health` returns `ok` when RabbitMQ Streams environment and producers are initialized;
+  otherwise HTTP 503 `not-ready`. Use for both liveness and readiness checks in orchestrators.
 - **JVM tuning:** Image sets `-XX:MaxRAMPercentage=70` by default. To enable heap dumps on OOM, add
   `-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp` to `JAVA_TOOL_OPTIONS` via env. Ensure `/tmp` tmpfs in
   `podman-compose.yml` is large enough (e.g., bump to `size=1g`).
@@ -251,8 +248,8 @@ Notes on configuration:
   Client 1.4.0, `jcryptolib` 0.0.3, shaded JAR main `com.github.akarazhev.cryptoscout.Client`.
 - **Runtime architecture:** Modules `CoreModule`, `ClientModule`, `BybitSpotModule`, `BybitLinearModule`,
   `CmcParserModule`, `WebModule` + `JmxModule`, `ServiceGraphModule`.
-  Endpoints: liveness `GET /health` -> `ok`; readiness `GET /ready` -> `ok` when RabbitMQ Streams environment and
-  producers are initialized; otherwise HTTP 503 `not-ready`.
+  Endpoint: `GET /health` -> `ok` when RabbitMQ Streams environment and producers are initialized; otherwise HTTP 503
+  `not-ready`.
 - **Module toggles:** `cmc.parser.module.enabled` (default `true`), `bybit.stream.module.enabled` (default `false`)
   in `application.properties`. Evaluated by `Client.getModule()` via `AppConfig.getAsBoolean(...)`.
 - **Configuration:** `server.port`, RabbitMQ Streams host/credentials/port and stream names `amqp.bybit.stream`,
@@ -266,7 +263,7 @@ Notes on configuration:
 - Build: `mvn clean package -DskipTests`
 - Run locally: `java -jar target/crypto-scout-client-0.0.1.jar`
 - Health check: `curl -fsS http://localhost:8081/health` -> `ok`
-- Readiness check: `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready` -> `200`
+- Readiness check: `curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/health` -> `200`
 - Container (Podman):
     - `podman build -t crypto-scout-client:0.0.1 .`
     - `podman run --rm -p 8081:8081 --name crypto-scout-client crypto-scout-client:0.0.1`

@@ -150,7 +150,7 @@ curl -fsS http://localhost:8081/health
 Readiness check:
 
 ```bash
-curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready
+curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/health
 # 200 when RabbitMQ Streams is initialized; 503 otherwise
 ```
 
@@ -279,10 +279,8 @@ Notes:
 - **Secrets:** Do not commit secrets. Keep API keys/passwords empty in the repository and inject values securely at
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
   Rebuilds are not required for config/secrets changes—restart with updated env.
-- **Health endpoints:**
-    - `GET /health` returns `ok` for liveness checks.
-    - `GET /ready` returns `ok` when RabbitMQ Streams environment and producers are initialized; otherwise HTTP 503
-      `not-ready`.
+- **Health endpoint:** `GET /health` returns `ok` when RabbitMQ Streams environment and producers are initialized;
+  otherwise HTTP 503 `not-ready`. Use for both liveness and readiness checks.
 - **Observability:** SLF4J API with a logging binding provided transitively by `jcryptolib`; logs are emitted by
   default. To customize levels/format or switch backend, include your preferred SLF4J binding and configuration on the
   classpath. JMX is enabled via ActiveJ `JmxModule`.
