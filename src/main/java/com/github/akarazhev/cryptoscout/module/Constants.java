@@ -48,7 +48,6 @@ final class Constants {
         static final String OK_RESPONSE = "ok";
         static final String HEALTH_API = "/health";
         static final String NOT_READY_RESPONSE = "not-ready";
-        static final String READY_API = "/ready";
     }
 
     final static class HttpCode {
