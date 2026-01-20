@@ -1,88 +1,4 @@
 services:
-#  crypto-scout-bybit-client:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    image: crypto-scout-client:0.0.1
-#    container_name: crypto-scout-bybit-client
-#    cpus: "1.0"
-#    mem_limit: "512m"
-#    mem_reservation: "256m"
-#    env_file:
-#      - secret/bybit-client.env
-#    environment:
-#      TZ: UTC
-#    networks:
-#      - crypto-scout-bridge
-#    ports:
-#      - "8081:8081"
-#    security_opt:
-#      - no-new-privileges=true
-#    read_only: true
-#    tmpfs:
-#      # Increase if enabling JVM heap dumps (e.g., size=1g)
-#      - /tmp:rw,size=512m,mode=1777,nodev,nosuid
-#    cap_drop:
-#      - ALL
-#    user: "10001:10001"
-#    init: true
-#    pids_limit: 256
-#    ulimits:
-#      nofile:
-#        soft: 4096
-#        hard: 4096
-#    restart: unless-stopped
-#    stop_signal: SIGTERM
-#    stop_grace_period: 30s
-#    healthcheck:
-#      test: [ "CMD-SHELL", "curl -f http://localhost:8081/ready || exit 1" ]
-#      interval: 10s
-#      timeout: 3s
-#      retries: 5
-#      start_period: 30s
-
-#  crypto-scout-parser-client:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    image: crypto-scout-client:0.0.1
-#    container_name: crypto-scout-parser-client
-#    cpus: "0.5"
-#    mem_limit: "256m"
-#    mem_reservation: "128m"
-#    env_file:
-#      - secret/parser-client.env
-#    environment:
-#      TZ: UTC
-#    networks:
-#      - crypto-scout-bridge
-#    ports:
-#      - "8082:8082"
-#    security_opt:
-#      - no-new-privileges=true
-#    read_only: true
-#    tmpfs:
-#      # Increase if enabling JVM heap dumps (e.g., size=1g)
-#      - /tmp:rw,size=512m,mode=1777,nodev,nosuid
-#    cap_drop:
-#      - ALL
-#    user: "10001:10001"
-#    init: true
-#    pids_limit: 256
-#    ulimits:
-#      nofile:
-#        soft: 4096
-#        hard: 4096
-#    restart: unless-stopped
-#    stop_signal: SIGTERM
-#    stop_grace_period: 30s
-#    healthcheck:
-#      test: [ "CMD-SHELL", "curl -f http://localhost:8082/ready || exit 1" ]
-#      interval: 10s
-#      timeout: 3s
-#      retries: 5
-#      start_period: 30s
-
   crypto-scout-parser-client:
     build:
       context: .
@@ -98,8 +14,6 @@ services:
       TZ: UTC
     networks:
       - crypto-scout-bridge
-    ports:
-      - "8082:8082"
     security_opt:
       - no-new-privileges=true
     read_only: true
@@ -119,7 +33,7 @@ services:
     stop_signal: SIGTERM
     stop_grace_period: 30s
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8082/ready || exit 1" ]
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/health || exit 1" ]
       interval: 10s
       timeout: 3s
       retries: 5

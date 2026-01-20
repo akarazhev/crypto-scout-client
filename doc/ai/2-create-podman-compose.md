@@ -20,8 +20,9 @@ Take the following roles:
 ## Tasks
 
 - As the expert dev-opts engineer create `podman-compose.yml` in the root directory for the `crypto-scout-client`
-  project. Define everything that is needed in the file to run the service in a container and to be ready for production.
-- As the expert dev-opts engineer create `secret/client.env.example` file for the `crypto-scout-client` project. 
+  project. Define everything that is needed in the file to run the service in a container and to be ready for
+  production.
+- As the expert dev-opts engineer create `secret/client.env.example` file for the `crypto-scout-client` project.
   Define everything that is needed in the file to run the service in a container and to be ready for production.
 - As the expert dev-opts engineer recheck your proposal and make sure that they are correct and haven't missed any
   important points.
@@ -49,12 +50,13 @@ Take the following roles:
 - Podman Compose injects environment variables from `secret/bybit-client.env` and `secret/parser-client.env` into their
   respective containers.
 - No image rebuild is required for configuration changes applied via env vars or `-D` properties—restart the containers.
-- Ports: `8081:8081` (Bybit streams client), `8082:8082` (parser client). If you change `SERVER_PORT` in an env file,
-  adjust the corresponding compose `ports` mapping.
+- Networking: The parser client does not expose ports to the host; it is accessible only within the
+  `crypto-scout-bridge`
+  network. Other containers on the same network can reach it via `crypto-scout-parser-client:8081`.
 
 ### Secrets schema (`secret/client.env.example`)
 
-- `SERVER_PORT` (use `8081` for Bybit client, `8082` for parser client)
+- `SERVER_PORT` (default `8081`, matches Dockerfile EXPOSE and compose healthcheck)
 - `AMQP_RABBITMQ_HOST`, `AMQP_RABBITMQ_USERNAME`, `AMQP_RABBITMQ_PASSWORD`
 - `AMQP_STREAM_PORT=5552`
 - `BYBIT_API_KEY`, `BYBIT_API_SECRET`
@@ -70,8 +72,8 @@ cp secret/client.env.example secret/parser-client.env
 $EDITOR secret/bybit-client.env
 $EDITOR secret/parser-client.env
 podman-compose -f podman-compose.yml up -d
-curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8081/ready
-curl -fsS -o /dev/null -w "%{http_code}\n" http://localhost:8082/ready
+# Verify via container healthcheck (no host port exposed)
+podman inspect --format='{{.State.Health.Status}}' crypto-scout-parser-client
 podman logs -f crypto-scout-bybit-client
 podman logs -f crypto-scout-parser-client
 ```
@@ -79,6 +81,7 @@ podman logs -f crypto-scout-parser-client
 ### Verification checklist
 
 - Image builds and runs on Java 25.
-- Readiness endpoint `GET /ready` returns `200` when ready on each service port (8081 and 8082).
+- Health endpoint `GET /health` returns `200` when ready (verified via container healthcheck; port not exposed to
+  host).
 - RabbitMQ Streams host/port reachable; three streams pre-created and user has publish permissions.
 - Secrets not committed to VCS (env files under `secret/*.env` ignored).

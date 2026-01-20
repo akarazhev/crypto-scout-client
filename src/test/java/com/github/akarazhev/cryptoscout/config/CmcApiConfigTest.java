@@ -22,39 +22,28 @@
  * SOFTWARE.
  */
 
-package com.github.akarazhev.cryptoscout.module;
+package com.github.akarazhev.cryptoscout.config;
 
-final class Constants {
-    private Constants() {
-        throw new UnsupportedOperationException();
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@DisplayName("CmcConfig Tests")
+final class CmcApiConfigTest {
+
+    @Test
+    @DisplayName("getCmcApiKey returns non-null value")
+    void getCmcApiKeyReturnsNonNullValue() {
+        final var apiKey = CmcApiConfig.getCmcApiKey();
+        assertNotNull(apiKey, "CMC API key should not be null (may be empty string)");
     }
 
-    final static class Config {
-        private Config() {
-            throw new UnsupportedOperationException();
-        }
-
-        static final String BYBIT_SPOT_BTC_USDT_STREAM = "bybitSpotBtcUsdtStream";
-        static final String BYBIT_SPOT_ETH_USDT_STREAM = "bybitSpotEthUsdtStream";
-        static final String BYBIT_LINEAR_BTC_USDT_STREAM = "bybitLinearBtcUsdtStream";
-        static final String BYBIT_LINEAR_ETH_USDT_STREAM = "bybitLinearEthUsdtStream";
-    }
-
-    final static class API {
-        private API() {
-            throw new UnsupportedOperationException();
-        }
-
-        static final String OK_RESPONSE = "ok";
-        static final String HEALTH_API = "/health";
-        static final String NOT_READY_RESPONSE = "not-ready";
-    }
-
-    final static class HttpCode {
-        private HttpCode() {
-            throw new UnsupportedOperationException();
-        }
-
-        static final int NOT_READY = 503;
+    @Test
+    @DisplayName("getCmcApiKey returns empty string by default")
+    void getCmcApiKeyReturnsEmptyStringByDefault() {
+        final var apiKey = CmcApiConfig.getCmcApiKey();
+        assertEquals("", apiKey, "Default CMC API key should be empty string");
     }
 }

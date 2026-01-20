@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,32 @@
 
 package com.github.akarazhev.cryptoscout.client;
 
-import com.github.akarazhev.jcryptolib.bybit.stream.BybitParser;
+import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
 import io.activej.async.service.ReactiveService;
 import io.activej.datastream.consumer.StreamConsumers;
 import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class BybitParserConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitParser bybitParser;
+public abstract class AbstractBybitStreamConsumer extends AbstractReactive implements ReactiveService {
+    private final BybitStream bybitStream;
     private final AmqpPublisher amqpPublisher;
 
-    public static BybitParserConsumer create(final NioReactor reactor, final BybitParser bybitParser,
-                                             final AmqpPublisher amqpPublisher) {
-        return new BybitParserConsumer(reactor, bybitParser, amqpPublisher);
-    }
-
-    private BybitParserConsumer(final NioReactor reactor, final BybitParser bybitParser,
-                                final AmqpPublisher amqpPublisher) {
+    protected AbstractBybitStreamConsumer(final NioReactor reactor, final BybitStream bybitStream,
+                                          final AmqpPublisher amqpPublisher) {
         super(reactor);
-        this.bybitParser = bybitParser;
+        this.bybitStream = bybitStream;
         this.amqpPublisher = amqpPublisher;
     }
 
     @Override
-    public Promise<?> start() {
-        return bybitParser.start().then(stream ->
+    public Promise<Void> start() {
+        return bybitStream.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
     }
 
     @Override
-    public Promise<?> stop() {
-        return bybitParser.stop();
+    public Promise<Void> stop() {
+        return bybitStream.stop();
     }
 }

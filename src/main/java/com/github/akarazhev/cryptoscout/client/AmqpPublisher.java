@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,9 +47,8 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     private final static Logger LOGGER = LoggerFactory.getLogger(AmqpPublisher.class);
     private final Executor executor;
     private volatile Environment environment;
-    private volatile Producer bybitStreamProducer;
-    private volatile Producer bybitParserProducer;
-    private volatile Producer cmcParserProducer;
+    private volatile Producer bybitStream;
+    private volatile Producer cryptoScoutStream;
 
     public static AmqpPublisher create(final NioReactor reactor, final Executor executor) {
         return new AmqpPublisher(reactor, executor);
@@ -61,21 +60,17 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     }
 
     @Override
-    public Promise<?> start() {
+    public Promise<Void> start() {
         return Promise.ofBlocking(executor, () -> {
             try {
                 environment = AmqpConfig.getEnvironment();
-                bybitStreamProducer = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpBybitCryptoStream())
-                        .stream(AmqpConfig.getAmqpBybitCryptoStream())
+                bybitStream = environment.producerBuilder()
+                        .name(AmqpConfig.getAmqpBybitStream())
+                        .stream(AmqpConfig.getAmqpBybitStream())
                         .build();
-                bybitParserProducer = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpBybitParserStream())
-                        .stream(AmqpConfig.getAmqpBybitParserStream())
-                        .build();
-                cmcParserProducer = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpCmcParserStream())
-                        .stream(AmqpConfig.getAmqpCmcParserStream())
+                cryptoScoutStream = environment.producerBuilder()
+                        .name(AmqpConfig.getAmqpCryptoScoutStream())
+                        .stream(AmqpConfig.getAmqpCryptoScoutStream())
                         .build();
             } catch (final Exception ex) {
                 LOGGER.error("Failed to start AmqpPublisher", ex);
@@ -85,19 +80,17 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     }
 
     @Override
-    public Promise<?> stop() {
+    public Promise<Void> stop() {
         return Promise.ofBlocking(executor, () -> {
-            closeProducer(bybitStreamProducer);
-            bybitStreamProducer = null;
-            closeProducer(bybitParserProducer);
-            bybitParserProducer = null;
-            closeProducer(cmcParserProducer);
-            cmcParserProducer = null;
+            close(bybitStream);
+            bybitStream = null;
+            close(cryptoScoutStream);
+            cryptoScoutStream = null;
             closeEnvironment();
         });
     }
 
-    public Promise<?> publish(final Payload<Map<String, Object>> payload) {
+    public Promise<Void> publish(final Payload<Map<String, Object>> payload) {
         final var provider = payload.getProvider();
         final var source = payload.getSource();
         final var producer = getProducer(provider, source);
@@ -111,13 +104,12 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
             final var message = producer.messageBuilder()
                     .addData(JsonUtils.object2Bytes(payload))
                     .build();
-            producer.send(message, confirmationStatus ->
+            producer.send(message, status ->
                     reactor.execute(() -> {
-                        if (confirmationStatus.isConfirmed()) {
+                        if (status.isConfirmed()) {
                             settablePromise.set(null);
                         } else {
-                            settablePromise.setException(new RuntimeException("Stream publish not confirmed: " +
-                                    confirmationStatus));
+                            settablePromise.setException(new RuntimeException("Stream publish not confirmed: " + status));
                         }
                     })
             );
@@ -130,22 +122,18 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     }
 
     private Producer getProducer(final Provider provider, final Source source) {
-        return Provider.CMC.equals(provider) ? cmcParserProducer :
-                Provider.BYBIT.equals(provider) && isBybitParserSource(source) ? bybitParserProducer :
-                        Provider.BYBIT.equals(provider) && isBybitStreamSource(source) ? bybitStreamProducer :
-                                null;
+        return Provider.CMC.equals(provider) ?
+                cryptoScoutStream :
+                Provider.BYBIT.equals(provider) && isBybitStream(source) ?
+                        bybitStream :
+                        null;
     }
 
-    private boolean isBybitParserSource(final Source source) {
-        return Source.MD.equals(source) || Source.LPL.equals(source) || Source.LPD.equals(source) ||
-                Source.BYV.equals(source) || Source.BYS.equals(source) || Source.ADH.equals(source);
-    }
-
-    private boolean isBybitStreamSource(final Source source) {
+    private boolean isBybitStream(final Source source) {
         return Source.PMST.equals(source) || Source.PML.equals(source);
     }
 
-    private void closeProducer(final Producer producer) {
+    private void close(final Producer producer) {
         try {
             if (producer != null) {
                 producer.close();
@@ -167,9 +155,6 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     }
 
     public boolean isReady() {
-        return environment != null
-                && bybitStreamProducer != null
-                && bybitParserProducer != null
-                && cmcParserProducer != null;
+        return environment != null && bybitStream != null && cryptoScoutStream != null;
     }
 }

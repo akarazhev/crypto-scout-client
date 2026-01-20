@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,8 @@ package com.github.akarazhev.cryptoscout.config;
 
 import com.github.akarazhev.jcryptolib.config.AppConfig;
 
-public final class CmcConfig {
-    private CmcConfig() {
+public final class CmcApiConfig {
+    private CmcApiConfig() {
         throw new UnsupportedOperationException();
     }
 

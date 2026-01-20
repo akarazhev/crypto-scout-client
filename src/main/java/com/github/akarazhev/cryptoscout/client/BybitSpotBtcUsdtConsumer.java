@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,36 +25,17 @@
 package com.github.akarazhev.cryptoscout.client;
 
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
-import io.activej.async.service.ReactiveService;
-import io.activej.datastream.consumer.StreamConsumers;
-import io.activej.promise.Promise;
-import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class BybitSpotBtcUsdtConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitStream bybitSpotBtcUsdtStream;
-    private final AmqpPublisher amqpPublisher;
+public final class BybitSpotBtcUsdtConsumer extends AbstractBybitStreamConsumer {
 
-    public static BybitSpotBtcUsdtConsumer create(final NioReactor reactor, final BybitStream bybitSpotBtcUsdtStream,
+    public static BybitSpotBtcUsdtConsumer create(final NioReactor reactor, final BybitStream bybitStream,
                                                   final AmqpPublisher amqpPublisher) {
-        return new BybitSpotBtcUsdtConsumer(reactor, bybitSpotBtcUsdtStream, amqpPublisher);
+        return new BybitSpotBtcUsdtConsumer(reactor, bybitStream, amqpPublisher);
     }
 
-    private BybitSpotBtcUsdtConsumer(final NioReactor reactor, final BybitStream bybitSpotBtcUsdtStream,
+    private BybitSpotBtcUsdtConsumer(final NioReactor reactor, final BybitStream bybitStream,
                                      final AmqpPublisher amqpPublisher) {
-        super(reactor);
-        this.bybitSpotBtcUsdtStream = bybitSpotBtcUsdtStream;
-        this.amqpPublisher = amqpPublisher;
-    }
-
-    @Override
-    public Promise<?> start() {
-        return bybitSpotBtcUsdtStream.start().then(stream ->
-                stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-    }
-
-    @Override
-    public Promise<?> stop() {
-        return bybitSpotBtcUsdtStream.stop();
+        super(reactor, bybitStream, amqpPublisher);
     }
 }

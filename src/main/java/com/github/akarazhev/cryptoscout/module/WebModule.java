@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,6 @@ import java.util.concurrent.Executor;
 
 import static com.github.akarazhev.cryptoscout.module.Constants.API.HEALTH_API;
 import static com.github.akarazhev.cryptoscout.module.Constants.API.OK_RESPONSE;
-import static com.github.akarazhev.cryptoscout.module.Constants.API.READY_API;
 import static com.github.akarazhev.cryptoscout.module.Constants.API.NOT_READY_RESPONSE;
 import static com.github.akarazhev.cryptoscout.module.Constants.HttpCode.NOT_READY;
 import static io.activej.http.HttpUtils.inetAddress;
@@ -96,8 +95,6 @@ public final class WebModule extends AbstractModule {
     private AsyncServlet servlet(final Reactor reactor, final AmqpPublisher amqpPublisher) {
         return RoutingServlet.builder(reactor)
                 .with(HttpMethod.GET, HEALTH_API, (_) ->
-                        HttpResponse.ok200().withPlainText(OK_RESPONSE).toPromise())
-                .with(HttpMethod.GET, READY_API, (_) ->
                         (amqpPublisher.isReady()
                                 ? HttpResponse.ok200().withPlainText(OK_RESPONSE)
                                 : HttpResponse.ofCode(NOT_READY).withPlainText(NOT_READY_RESPONSE))

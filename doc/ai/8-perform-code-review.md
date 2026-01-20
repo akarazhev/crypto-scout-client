@@ -34,12 +34,12 @@ Take the following roles:
 
 ## Findings
 
-- **Readiness semantics:** `GET /ready` correctly reflects AMQP producer readiness via
+- **Readiness semantics:** `GET /health` correctly reflects AMQP producer readiness via
   `AmqpPublisher.isReady()`; suitable for Orchestrator readiness checks.
 - **HTTP/DNS config:** `WebModule` uses `dns.address` and `dns.timeout.ms` via `WebConfig`. Connect timeout is set via
   the Bybit lib `Config.getConnectTimeoutMs()`. Optionally add read/write timeouts if needed.
 - **Containerization:** Hardened image and compose stack: non-root user, read-only FS with tmpfs `/tmp`, `no-new-privileges`,
-  `cap_drop: ALL`, resource limits, healthcheck to `/ready`, pinned base image, `JAVA_TOOL_OPTIONS` set. Good.
+  `cap_drop: ALL`, resource limits, healthcheck to `/health`, pinned base image, `JAVA_TOOL_OPTIONS` set. Good.
 - **Testing (recommendation):** Add a basic integration test that boots the injector and verifies `/health` and the
   module wiring (without external AMQP), plus a smoke test for `AmqpPublisher` with a mocked `Environment`.
 

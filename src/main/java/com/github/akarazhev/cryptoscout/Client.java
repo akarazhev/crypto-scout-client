@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,9 @@
 
 package com.github.akarazhev.cryptoscout;
 
+import com.github.akarazhev.cryptoscout.config.ConfigValidator;
 import com.github.akarazhev.cryptoscout.module.BybitLinearModule;
 import com.github.akarazhev.cryptoscout.module.BybitSpotModule;
-import com.github.akarazhev.cryptoscout.module.BybitParserModule;
 import com.github.akarazhev.cryptoscout.module.ClientModule;
 import com.github.akarazhev.cryptoscout.module.CmcParserModule;
 import com.github.akarazhev.cryptoscout.module.CoreModule;
@@ -41,10 +41,14 @@ import java.util.LinkedList;
 
 import static com.github.akarazhev.cryptoscout.Constants.Module.CMC_PARSER_MODULE_ENABLED;
 import static com.github.akarazhev.cryptoscout.Constants.Module.BYBIT_STREAM_MODULE_ENABLED;
-import static com.github.akarazhev.cryptoscout.Constants.Module.BYBIT_PARSER_MODULE_ENABLED;
 import static io.activej.inject.module.Modules.combine;
 
 final class Client extends Launcher {
+
+    @Override
+    protected void onStart() throws Exception {
+        ConfigValidator.validate(AppConfig.getAsBoolean(CMC_PARSER_MODULE_ENABLED));
+    }
 
     @Override
     protected Module getModule() {
@@ -53,10 +57,6 @@ final class Client extends Launcher {
         modules.add(ServiceGraphModule.create());
         modules.add(CoreModule.create());
         modules.add(ClientModule.create());
-
-        if (AppConfig.getAsBoolean(BYBIT_PARSER_MODULE_ENABLED)) {
-            modules.add(BybitParserModule.create());
-        }
 
         if (AppConfig.getAsBoolean(BYBIT_STREAM_MODULE_ENABLED)) {
             modules.add(BybitSpotModule.create());

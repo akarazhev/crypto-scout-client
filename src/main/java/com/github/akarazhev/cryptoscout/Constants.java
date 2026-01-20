@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ final class Constants {
         }
 
         static final String CMC_PARSER_MODULE_ENABLED = "cmc.parser.module.enabled";
-        static final String BYBIT_PARSER_MODULE_ENABLED = "bybit.parser.module.enabled";
         static final String BYBIT_STREAM_MODULE_ENABLED = "bybit.stream.module.enabled";
     }
 }

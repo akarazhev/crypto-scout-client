@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,12 +27,11 @@ package com.github.akarazhev.cryptoscout.config;
 import com.github.akarazhev.jcryptolib.config.AppConfig;
 import com.rabbitmq.stream.Environment;
 
-import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_CMC_PARSER_STREAM;
+import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_BYBIT_STREAM;
+import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_CRYPTO_SCOUT_STREAM;
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_RABBITMQ_HOST;
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_RABBITMQ_PASSWORD;
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_RABBITMQ_USERNAME;
-import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_BYBIT_CRYPTO_STREAM;
-import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_BYBIT_PARSER_STREAM;
 import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_STREAM_PORT;
 
 public final class AmqpConfig {
@@ -56,16 +55,12 @@ public final class AmqpConfig {
         return AppConfig.getAsInt(AMQP_STREAM_PORT);
     }
 
-    public static String getAmqpBybitCryptoStream() {
-        return AppConfig.getAsString(AMQP_BYBIT_CRYPTO_STREAM);
+    public static String getAmqpBybitStream() {
+        return AppConfig.getAsString(AMQP_BYBIT_STREAM);
     }
 
-    public static String getAmqpBybitParserStream() {
-        return AppConfig.getAsString(AMQP_BYBIT_PARSER_STREAM);
-    }
-
-    public static String getAmqpCmcParserStream() {
-        return AppConfig.getAsString(AMQP_CMC_PARSER_STREAM);
+    public static String getAmqpCryptoScoutStream() {
+        return AppConfig.getAsString(AMQP_CRYPTO_SCOUT_STREAM);
     }
 
     public static Environment getEnvironment() {

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,36 +25,17 @@
 package com.github.akarazhev.cryptoscout.client;
 
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
-import io.activej.async.service.ReactiveService;
-import io.activej.datastream.consumer.StreamConsumers;
-import io.activej.promise.Promise;
-import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
 
-public final class BybitLinearEthUsdtConsumer extends AbstractReactive implements ReactiveService {
-    private final BybitStream bybitLinearEthUsdtStream;
-    private final AmqpPublisher amqpPublisher;
+public final class BybitLinearEthUsdtConsumer extends AbstractBybitStreamConsumer {
 
-    public static BybitLinearEthUsdtConsumer create(final NioReactor reactor, final BybitStream bybitLinearEthUsdtStream,
+    public static BybitLinearEthUsdtConsumer create(final NioReactor reactor, final BybitStream bybitStream,
                                                     final AmqpPublisher amqpPublisher) {
-        return new BybitLinearEthUsdtConsumer(reactor, bybitLinearEthUsdtStream, amqpPublisher);
+        return new BybitLinearEthUsdtConsumer(reactor, bybitStream, amqpPublisher);
     }
 
-    private BybitLinearEthUsdtConsumer(final NioReactor reactor, final BybitStream bybitLinearEthUsdtStream,
+    private BybitLinearEthUsdtConsumer(final NioReactor reactor, final BybitStream bybitStream,
                                        final AmqpPublisher amqpPublisher) {
-        super(reactor);
-        this.bybitLinearEthUsdtStream = bybitLinearEthUsdtStream;
-        this.amqpPublisher = amqpPublisher;
-    }
-
-    @Override
-    public Promise<?> start() {
-        return bybitLinearEthUsdtStream.start().then(stream ->
-                stream.streamTo(StreamConsumers.ofConsumer(amqpPublisher::publish)));
-    }
-
-    @Override
-    public Promise<?> stop() {
-        return bybitLinearEthUsdtStream.stop();
+        super(reactor, bybitStream, amqpPublisher);
     }
 }

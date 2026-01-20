@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 package com.github.akarazhev.cryptoscout.client;
 
-import com.github.akarazhev.jcryptolib.cmc.stream.CmcParser;
+import com.github.akarazhev.jcryptolib.cmc.parser.CmcParser;
 import com.github.akarazhev.jcryptolib.stream.Payload;
 import com.github.akarazhev.jcryptolib.stream.Source;
 import io.activej.async.service.ReactiveService;
@@ -63,7 +63,7 @@ public final class CmcParserConsumer extends AbstractReactive implements Reactiv
     }
 
     @Override
-    public Promise<?> start() {
+    public Promise<Void> start() {
         return cmcParser.start().then(stream ->
                 stream.streamTo(StreamConsumers.ofConsumer((Payload<Map<String, Object>> payload) -> {
                     if (payload != null) {
@@ -78,7 +78,7 @@ public final class CmcParserConsumer extends AbstractReactive implements Reactiv
     }
 
     @Override
-    public Promise<?> stop() {
+    public Promise<Void> stop() {
         return cmcParser.stop();
     }
 

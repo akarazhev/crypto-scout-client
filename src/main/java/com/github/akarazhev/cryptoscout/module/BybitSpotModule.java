@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 Andrey Karazhev
+ * Copyright (c) 2026 Andrey Karazhev
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ import com.github.akarazhev.cryptoscout.client.BybitSpotEthUsdtConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
-import com.github.akarazhev.jcryptolib.bybit.stream.DataConfig;
+import com.github.akarazhev.jcryptolib.bybit.stream.BybitConfig;
 import io.activej.http.IWebSocketClient;
 import io.activej.inject.annotation.Eager;
 import io.activej.inject.annotation.Named;
@@ -56,7 +56,7 @@ public final class BybitSpotModule extends AbstractModule {
     @Provides
     @Named(BYBIT_SPOT_BTC_USDT_STREAM)
     private BybitStream bybitSpotBtcUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
-        final var config = new DataConfig.Builder()
+        final var config = new BybitConfig.Builder()
                 .streamType(StreamType.PMST) // Public Mainnet Spot
                 .topic(Topic.KLINE_15_BTC_USDT) // kline.15.BTCUSDT
                 .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
@@ -75,7 +75,7 @@ public final class BybitSpotModule extends AbstractModule {
     @Provides
     @Named(BYBIT_SPOT_ETH_USDT_STREAM)
     private BybitStream bybitSpotEthUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
-        final var config = new DataConfig.Builder()
+        final var config = new BybitConfig.Builder()
                 .streamType(StreamType.PMST) // Public Mainnet Spot
                 .topic(Topic.KLINE_15_ETH_USDT) // kline.15.ETHUSDT
                 .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT
@@ -94,16 +94,16 @@ public final class BybitSpotModule extends AbstractModule {
     @Eager
     @Provides
     private BybitSpotBtcUsdtConsumer bybitSpotBtcUsdtConsumer(final NioReactor reactor,
-                                                              @Named(BYBIT_SPOT_BTC_USDT_STREAM) final BybitStream bybitSpotBtcUsdtStream,
+                                                              @Named(BYBIT_SPOT_BTC_USDT_STREAM) final BybitStream bybitStream,
                                                               final AmqpPublisher amqpPublisher) {
-        return BybitSpotBtcUsdtConsumer.create(reactor, bybitSpotBtcUsdtStream, amqpPublisher);
+        return BybitSpotBtcUsdtConsumer.create(reactor, bybitStream, amqpPublisher);
     }
 
     @Eager
     @Provides
     private BybitSpotEthUsdtConsumer bybitSpotEthUsdtConsumer(final NioReactor reactor,
-                                                              @Named(BYBIT_SPOT_ETH_USDT_STREAM) final BybitStream bybitSpotEthUsdtStream,
+                                                              @Named(BYBIT_SPOT_ETH_USDT_STREAM) final BybitStream bybitStream,
                                                               final AmqpPublisher amqpPublisher) {
-        return BybitSpotEthUsdtConsumer.create(reactor, bybitSpotEthUsdtStream, amqpPublisher);
+        return BybitSpotEthUsdtConsumer.create(reactor, bybitStream, amqpPublisher);
     }
 }
