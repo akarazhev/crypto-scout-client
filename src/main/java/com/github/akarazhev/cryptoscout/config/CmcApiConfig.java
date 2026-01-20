@@ -26,8 +26,8 @@ package com.github.akarazhev.cryptoscout.config;
 
 import com.github.akarazhev.jcryptolib.config.AppConfig;
 
-public final class CmcConfig {
-    private CmcConfig() {
+public final class CmcApiConfig {
+    private CmcApiConfig() {
         throw new UnsupportedOperationException();
     }
 

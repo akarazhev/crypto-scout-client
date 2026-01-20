@@ -24,7 +24,7 @@
 
 package com.github.akarazhev.cryptoscout.client;
 
-import com.github.akarazhev.jcryptolib.cmc.stream.CmcParser;
+import com.github.akarazhev.jcryptolib.cmc.parser.CmcParser;
 import com.github.akarazhev.jcryptolib.stream.Payload;
 import com.github.akarazhev.jcryptolib.stream.Source;
 import io.activej.async.service.ReactiveService;

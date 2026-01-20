@@ -24,6 +24,8 @@
 
 package com.github.akarazhev.cryptoscout.client;
 
+import com.github.akarazhev.jcryptolib.cmc.parser.CmcParser;
+import io.activej.reactor.nio.NioReactor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -43,8 +45,8 @@ final class CmcParserConsumerTest {
     @DisplayName("create factory method exists and is accessible")
     void createFactoryMethodExists() throws NoSuchMethodException {
         final var method = CmcParserConsumer.class.getMethod("create",
-                io.activej.reactor.nio.NioReactor.class,
-                com.github.akarazhev.jcryptolib.cmc.stream.CmcParser.class,
+                NioReactor.class,
+                CmcParser.class,
                 AmqpPublisher.class);
         assertNotNull(method, "Factory method should exist");
     }

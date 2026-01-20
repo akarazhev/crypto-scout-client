@@ -30,7 +30,7 @@ import com.github.akarazhev.cryptoscout.client.BybitLinearEthUsdtConsumer;
 import com.github.akarazhev.jcryptolib.bybit.config.StreamType;
 import com.github.akarazhev.jcryptolib.bybit.config.Topic;
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
-import com.github.akarazhev.jcryptolib.bybit.stream.DataConfig;
+import com.github.akarazhev.jcryptolib.bybit.stream.BybitConfig;
 import io.activej.http.IWebSocketClient;
 import io.activej.inject.annotation.Eager;
 import io.activej.inject.annotation.Named;
@@ -56,7 +56,7 @@ public final class BybitLinearModule extends AbstractModule {
     @Provides
     @Named(BYBIT_LINEAR_BTC_USDT_STREAM)
     private BybitStream bybitLinearBtcUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
-        final var config = new DataConfig.Builder()
+        final var config = new BybitConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
                 .topic(Topic.KLINE_15_BTC_USDT) // kline.15.BTCUSDT
                 .topic(Topic.KLINE_60_BTC_USDT) // kline.60.BTCUSDT
@@ -76,7 +76,7 @@ public final class BybitLinearModule extends AbstractModule {
     @Provides
     @Named(BYBIT_LINEAR_ETH_USDT_STREAM)
     private BybitStream bybitLinearEthUsdtStream(final NioReactor reactor, final IWebSocketClient webSocketClient) {
-        final var config = new DataConfig.Builder()
+        final var config = new BybitConfig.Builder()
                 .streamType(StreamType.PML) // Public Mainnet Linear
                 .topic(Topic.KLINE_15_ETH_USDT) // kline.15.ETHUSDT
                 .topic(Topic.KLINE_60_ETH_USDT) // kline.60.ETHUSDT

@@ -31,19 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("CmcConfig Tests")
-final class CmcConfigTest {
+final class CmcApiConfigTest {
 
     @Test
     @DisplayName("getCmcApiKey returns non-null value")
     void getCmcApiKeyReturnsNonNullValue() {
-        final var apiKey = CmcConfig.getCmcApiKey();
+        final var apiKey = CmcApiConfig.getCmcApiKey();
         assertNotNull(apiKey, "CMC API key should not be null (may be empty string)");
     }
 
     @Test
     @DisplayName("getCmcApiKey returns empty string by default")
     void getCmcApiKeyReturnsEmptyStringByDefault() {
-        final var apiKey = CmcConfig.getCmcApiKey();
+        final var apiKey = CmcApiConfig.getCmcApiKey();
         assertEquals("", apiKey, "Default CMC API key should be empty string");
     }
 }

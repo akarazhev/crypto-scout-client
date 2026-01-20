@@ -26,10 +26,10 @@ package com.github.akarazhev.cryptoscout.module;
 
 import com.github.akarazhev.cryptoscout.client.AmqpPublisher;
 import com.github.akarazhev.cryptoscout.client.CmcParserConsumer;
-import com.github.akarazhev.cryptoscout.config.CmcConfig;
+import com.github.akarazhev.cryptoscout.config.CmcApiConfig;
 import com.github.akarazhev.jcryptolib.cmc.config.Type;
-import com.github.akarazhev.jcryptolib.cmc.stream.CmcParser;
-import com.github.akarazhev.jcryptolib.cmc.stream.DataConfig;
+import com.github.akarazhev.jcryptolib.cmc.parser.CmcConfig;
+import com.github.akarazhev.jcryptolib.cmc.parser.CmcParser;
 import io.activej.http.IHttpClient;
 import io.activej.inject.annotation.Eager;
 import io.activej.inject.annotation.Provides;
@@ -50,11 +50,11 @@ public final class CmcParserModule extends AbstractModule {
 
     @Provides
     private CmcParser cmcParser(final NioReactor reactor, final IHttpClient httpClient) {
-        final var config = new DataConfig.Builder()
+        final var config = new CmcConfig.Builder()
                 .type(Type.FGI_API_PRO_L)
                 .type(Type.BTC_USD_1D)
                 .type(Type.BTC_USD_1W)
-                .apiKey(CmcConfig.getCmcApiKey())
+                .apiKey(CmcApiConfig.getCmcApiKey())
                 .build();
         LOGGER.info(config.print());
         return CmcParser.create(reactor, httpClient, config);
