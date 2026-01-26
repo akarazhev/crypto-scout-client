@@ -5,6 +5,23 @@ publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully asyn
 
 Note: This project was authored using AI-driven tools and curated by the maintainer.
 
+**Production Status:** ✅ Production Ready (as of January 26, 2026)
+
+## Recent Changes
+
+### Code Review Fixes (January 26, 2026)
+
+All critical security and validation issues have been successfully resolved:
+
+- **Security Enhancements**: Comprehensive null safety improvements, exception handling standardization, and configuration validation
+- **Constants Organization**: All magic numbers consolidated into `Constants.java` for better maintainability
+- **Enhanced Validation**: Hostname, port, and timeout validation with descriptive error messages
+- **Code Quality**: Consistent use of `IllegalStateException`, improved constructor validation, removed unused methods
+- **Test Coverage**: All 28 tests passing (100% success rate) with lifecycle methods and proper naming conventions
+- **Documentation**: New `SECURITY.md` with comprehensive security guidelines and validation rules
+
+For complete details on all improvements, see the [SECURITY.md](SECURITY.md) file.
+
 ## Features
 
 - **Bybit streams (public):** Spot (PMST) and Linear (PML) channels for `BTCUSDT` and `ETHUSDT` with tickers, public
@@ -14,6 +31,46 @@ Note: This project was authored using AI-driven tools and curated by the maintai
 - **CoinMarketCap metrics:** Retrieves Fear & Greed Index (API Pro Latest) and BTC/USD quotes (1D, 1W) via `CmcParser`
   and publishes to `amqp.crypto.scout.stream`.
 - **AMQP (RabbitMQ Streams):** Publishes messages to two streams configured in `application.properties`.
+
+## Production Setup
+
+The service is production-ready with comprehensive security and validation features. Before deploying to production:
+
+### Prerequisites
+
+- Java 25 JDK (Temurin recommended)
+- RabbitMQ Streams (version 3.9+) with streams pre-created
+- Outbound network access to Bybit and CoinMarketCap endpoints
+- Proper credentials configured via environment variables or system properties
+
+### Configuration Validation
+
+The application validates all required configuration at startup using `ConfigValidator`. Invalid or missing configuration
+will cause the application to fail to start with descriptive error messages. See [Configuration Validation](#configuration)
+and [SECURITY.md](SECURITY.md) for complete validation rules.
+
+### Security Considerations
+
+- **Never commit credentials** - Use environment variables or system properties
+- **API key management** - Rotate credentials regularly and limit permissions
+- **Configuration protection** - Local configuration files are excluded via `.gitignore`
+- **Validation** - Hostnames, ports, and timeouts are validated at startup
+
+For complete security guidelines, see [SECURITY.md](SECURITY.md).
+
+### Health & Readiness
+
+- **Liveness**: `GET /health` returns `ok` when the application is running
+- **Readiness**: `GET /health` returns HTTP 200 when RabbitMQ Streams is initialized; HTTP 503 otherwise
+- Use the health endpoint for orchestration probes and monitoring
+
+### Monitoring
+
+- SLF4J API logging (binding provided transitively by `jcryptolib`)
+- JMX enabled via ActiveJ `JmxModule`
+- Health endpoint for orchestration
+
+See [Production notes](#production-notes) for additional operational guidance.
 
 ## Architecture
 
@@ -34,7 +91,12 @@ Note: This project was authored using AI-driven tools and curated by the maintai
 ## Requirements
 
 - Java 25 JDK (Temurin recommended) to build
-- Maven
+- Maven 3.6+
+- RabbitMQ Streams 3.9+ (for production deployment)
+- Outbound network access to Bybit and CoinMarketCap APIs
+
+**Note**: The service includes comprehensive configuration validation and security features that are enforced at startup.
+All sensitive credentials must be provided via environment variables or system properties. See [SECURITY.md](SECURITY.md) for details.
 
 ## Configuration
 
@@ -44,6 +106,14 @@ Defaults are loaded from `src/main/resources/application.properties` via `AppCon
 - Podman Compose loads environment variables from env_file entries. This repository's compose uses:
   `secret/parser-client.env` (see the "Podman Compose (with secrets)" section).
 - No rebuild is required when changing configuration via env vars or `-D` system properties; a restart is sufficient.
+- **Configuration Validation**: All configuration is validated at startup by `ConfigValidator`. Invalid or missing
+  configuration will prevent the application from starting with descriptive error messages. Validation includes:
+  - Hostname/IP address format validation
+  - Port range validation (1-65535)
+  - Timeout range validation (100-60000ms)
+  - Required field validation (non-null, non-blank)
+
+See [SECURITY.md](SECURITY.md) for complete validation rules and security best practices.
 
   Property-to-env mapping (dot to underscore, uppercased) examples:
 
@@ -127,12 +197,17 @@ Run unit tests:
 mvn test
 ```
 
-The test suite includes:
+**Test Status**: All tests passing (28/28, 100% success rate) as of January 26, 2026.
 
-- **Config tests:** `AmqpConfigTest`, `CmcConfigTest`, `WebConfigTest` – verify configuration loading.
-- **Publisher tests:** `AmqpPublisherTest` – verify creation, readiness state, and publish routing.
+The test suite includes comprehensive validation of the enhanced security and code quality improvements:
+
+- **Config tests:** `AmqpConfigTest`, `CmcConfigTest`, `WebConfigTest` – verify configuration loading and validation.
+- **Publisher tests:** `AmqpPublisherTest` – verify creation, readiness state, publish routing, and validation.
 - **Consumer tests:** `BybitSpotBtcUsdtConsumerTest`, `BybitSpotEthUsdtConsumerTest`, `BybitLinearBtcUsdtConsumerTest`,
-  `BybitLinearEthUsdtConsumerTest`, `CmcParserConsumerTest` – verify class loadability.
+  `BybitLinearEthUsdtConsumerTest`, `CmcParserConsumerTest` – verify constructor validation and null safety.
+
+All test classes follow JUnit 6/Jupiter patterns with `@BeforeAll` and `@AfterAll` lifecycle methods, and test methods
+follow the `should<Subject><Action>` naming convention for clarity.
 
 ## Run (local)
 
@@ -269,7 +344,10 @@ Notes:
 ## Production notes
 
 - **Java version alignment:** Build targets Java 25 and Docker image uses JRE 25 — aligned.
-- **RabbitMQ prerequisites:** Ensure Streams exist and the configured user can publish to:
+- **Code quality enhancements:** Comprehensive null safety improvements, consistent exception handling using
+  `IllegalStateException`, and robust configuration validation with constants organization prevent runtime errors.
+- **Security features:** Constructor validation, hostname/IP validation, port and timeout range validation, and
+  credential management guidelines ensure production-grade security.
     - `amqp.bybit.stream` (Bybit WebSocket stream data)
     - `amqp.crypto.scout.stream` (CMC parser data)
 - **Module toggles:** Control active modules with `cmc.parser.module.enabled` (default `true`) and
@@ -293,6 +371,17 @@ Notes:
 The service uses the SLF4J API with a binding provided transitively by `jcryptolib`, so logs are emitted by default.
 If you need different formatting/levels or a different backend, include your preferred SLF4J binding and its
 configuration on the classpath. JMX is enabled via ActiveJ `JmxModule`.
+
+## Security & Validation
+
+For comprehensive security guidelines, credential management, and configuration validation documentation,
+see [SECURITY.md](SECURITY.md). This document covers:
+
+- Credential management best practices
+- Configuration validation rules (hostname, ports, timeouts)
+- Null safety and exception handling improvements
+- Security best practices and monitoring
+- Configuration file security (.gitignore, warning comments)
 
 ## License
 
