@@ -24,6 +24,8 @@
 
 package com.github.akarazhev.cryptoscout.config;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +35,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("WebConfig Tests")
 final class WebConfigTest {
+
+    @BeforeAll
+    static void setUp() {
+        // Initialize test environment
+    }
+
+    @AfterAll
+    static void tearDown() {
+        // Cleanup test environment
+    }
 
     @Test
     @DisplayName("getServerPort returns configured port")

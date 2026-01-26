@@ -38,6 +38,15 @@ public abstract class AbstractBybitStreamConsumer extends AbstractReactive imple
     protected AbstractBybitStreamConsumer(final NioReactor reactor, final BybitStream bybitStream,
                                           final AmqpPublisher amqpPublisher) {
         super(reactor);
+        if (reactor == null) {
+            throw new IllegalStateException("Reactor cannot be null");
+        }
+        if (bybitStream == null) {
+            throw new IllegalStateException("BybitStream cannot be null");
+        }
+        if (amqpPublisher == null) {
+            throw new IllegalStateException("AmqpPublisher cannot be null");
+        }
         this.bybitStream = bybitStream;
         this.amqpPublisher = amqpPublisher;
     }

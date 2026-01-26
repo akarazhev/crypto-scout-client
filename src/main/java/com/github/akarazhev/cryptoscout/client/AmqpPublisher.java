@@ -44,7 +44,7 @@ import com.rabbitmq.stream.Environment;
 import com.rabbitmq.stream.Producer;
 
 public final class AmqpPublisher extends AbstractReactive implements ReactiveService {
-    private final static Logger LOGGER = LoggerFactory.getLogger(AmqpPublisher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmqpPublisher.class);
     private final Executor executor;
     private volatile Environment environment;
     private volatile Producer bybitStream;
@@ -63,18 +63,28 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     public Promise<Void> start() {
         return Promise.ofBlocking(executor, () -> {
             try {
+                final var bybitStreamName = AmqpConfig.getAmqpBybitStream();
+                if (bybitStreamName == null || bybitStreamName.isBlank()) {
+                    throw new IllegalStateException("Bybit stream name must be configured");
+                }
+
+                final var cryptoScoutStreamName = AmqpConfig.getAmqpCryptoScoutStream();
+                if (cryptoScoutStreamName == null || cryptoScoutStreamName.isBlank()) {
+                    throw new IllegalStateException("Crypto Scout stream name must be configured");
+                }
+
                 environment = AmqpConfig.getEnvironment();
                 bybitStream = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpBybitStream())
-                        .stream(AmqpConfig.getAmqpBybitStream())
+                        .name(bybitStreamName)
+                        .stream(bybitStreamName)
                         .build();
                 cryptoScoutStream = environment.producerBuilder()
-                        .name(AmqpConfig.getAmqpCryptoScoutStream())
-                        .stream(AmqpConfig.getAmqpCryptoScoutStream())
+                        .name(cryptoScoutStreamName)
+                        .stream(cryptoScoutStreamName)
                         .build();
             } catch (final Exception ex) {
                 LOGGER.error("Failed to start AmqpPublisher", ex);
-                throw new RuntimeException(ex);
+                throw new IllegalStateException("Failed to start AmqpPublisher", ex);
             }
         });
     }
@@ -109,7 +119,7 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
                         if (status.isConfirmed()) {
                             settablePromise.set(null);
                         } else {
-                            settablePromise.setException(new RuntimeException("Stream publish not confirmed: " + status));
+                            settablePromise.setException(new IllegalStateException("Stream publish not confirmed: " + status));
                         }
                     })
             );

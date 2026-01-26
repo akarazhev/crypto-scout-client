@@ -26,14 +26,27 @@ package com.github.akarazhev.cryptoscout.client;
 
 import com.github.akarazhev.jcryptolib.bybit.stream.BybitStream;
 import io.activej.reactor.nio.NioReactor;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("BybitLinearBtcUsdtConsumer Tests")
 final class BybitLinearBtcUsdtConsumerTest {
+
+    @BeforeAll
+    static void setUp() {
+        // Initialize test environment
+    }
+
+    @AfterAll
+    static void tearDown() {
+        // Cleanup test environment
+    }
 
     @Test
     @DisplayName("class is loadable")
@@ -51,8 +64,8 @@ final class BybitLinearBtcUsdtConsumerTest {
     }
 
     @Test
-    @DisplayName("create with null arguments does not throw")
-    void createWithNullArgumentsDoesNotThrow() {
-        assertDoesNotThrow(() -> BybitLinearBtcUsdtConsumer.create(null, null, null));
+    @DisplayName("create with null arguments throws IllegalStateException")
+    void createWithNullArgumentsThrowsIllegalStateException() {
+        assertThrows(IllegalStateException.class, () -> BybitLinearBtcUsdtConsumer.create(null, null, null));
     }
 }

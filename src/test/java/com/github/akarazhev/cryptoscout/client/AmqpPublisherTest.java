@@ -66,20 +66,20 @@ final class AmqpPublisherTest {
 
     @Test
     @DisplayName("create returns non-null instance")
-    void createReturnsNonNullInstance() {
+    void shouldCreateReturnNonNullInstance() {
         assertNotNull(amqpPublisher, "AmqpPublisher should not be null");
     }
 
     @Test
     @DisplayName("isReady returns false before start")
-    void isReadyReturnsFalseBeforeStart() {
+    void shouldIsReadyReturnFalseBeforeStart() {
         assertFalse(amqpPublisher.isReady(),
                 "Should not be ready before start");
     }
 
     @Test
     @DisplayName("publish with unknown provider returns completed promise")
-    void publishWithUnknownProviderReturnsCompletedPromise() {
+    void shouldPublishWithUnknownProviderReturnCompletedPromise() {
         final Payload<Map<String, Object>> payload = new Payload<>();
         payload.setProvider(null);
         payload.setSource(null);
@@ -92,7 +92,7 @@ final class AmqpPublisherTest {
 
     @Test
     @DisplayName("publish with CMC provider routes to crypto-scout stream")
-    void publishWithCmcProviderRoutesToCryptoScoutStream() {
+    void shouldPublishWithCmcProviderRouteToCryptoScoutStream() {
         final Payload<Map<String, Object>> payload = new Payload<>();
         payload.setProvider(Provider.CMC);
         payload.setSource(Source.FGI_API_PRO_L);
@@ -105,7 +105,7 @@ final class AmqpPublisherTest {
 
     @Test
     @DisplayName("publish with Bybit stream source routes to bybit stream")
-    void publishWithBybitStreamSourceRoutesToBybitStream() {
+    void shouldPublishWithBybitStreamSourceRouteToBybitStream() {
         final Payload<Map<String, Object>> payload = new Payload<>();
         payload.setProvider(Provider.BYBIT);
         payload.setSource(Source.PMST);

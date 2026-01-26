@@ -58,6 +58,15 @@ public final class CmcParserConsumer extends AbstractReactive implements Reactiv
     private CmcParserConsumer(final NioReactor reactor, final CmcParser cmcParser,
                               final AmqpPublisher amqpPublisher) {
         super(reactor);
+        if (reactor == null) {
+            throw new IllegalStateException("Reactor cannot be null");
+        }
+        if (cmcParser == null) {
+            throw new IllegalStateException("CmcParser cannot be null");
+        }
+        if (amqpPublisher == null) {
+            throw new IllegalStateException("AmqpPublisher cannot be null");
+        }
         this.cmcParser = cmcParser;
         this.amqpPublisher = amqpPublisher;
     }

@@ -24,6 +24,8 @@
 
 package com.github.akarazhev.cryptoscout.config;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +34,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("AmqpConfig Tests")
 final class AmqpConfigTest {
+
+    @BeforeAll
+    static void setUp() {
+        // Initialize test environment if needed
+    }
+
+    @AfterAll
+    static void tearDown() {
+        // Cleanup test environment if needed
+    }
 
     @Test
     @DisplayName("getAmqpBybitStream returns configured stream name")

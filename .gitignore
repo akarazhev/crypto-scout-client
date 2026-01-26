@@ -68,3 +68,7 @@ dependency-reduced-pom.xml
  
 ### Secrets ###
 secret/*.env
+
+# Local configuration files with sensitive data
+application-local.properties
+application-test.properties
