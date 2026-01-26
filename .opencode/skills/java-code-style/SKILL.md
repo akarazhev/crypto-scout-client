@@ -1,6 +1,6 @@
 ---
 name: java-code-style
-description: Java 25 code style conventions for crypto-scout-test including naming, imports, error handling, and testing patterns
+description: Java 25 code style conventions for crypto-scout-client including naming, imports, error handling, and testing patterns
 license: MIT
 compatibility: opencode
 metadata:
@@ -11,7 +11,7 @@ metadata:
 
 ## What I Do
 
-Enforce consistent code style across the crypto-scout-test library following established Java 25 conventions.
+Enforce consistent code style across the crypto-scout-client microservice following established Java 25 conventions.
 
 ## File Structure
 

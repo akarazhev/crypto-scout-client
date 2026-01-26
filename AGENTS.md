@@ -4,7 +4,7 @@ This document provides guidelines for agentic coding contributors to this reposi
 
 ## Project Overview
 
-Java 25 Maven library providing test support utilities (mock data, Podman Compose manager, RabbitMQ helpers) for the crypto-scout ecosystem.
+Java 25 Maven microservice that collects crypto market data from Bybit and CoinMarketCap, then publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully async I/O.
 
 ## Build, Test, and Lint Commands
 

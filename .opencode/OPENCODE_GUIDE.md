@@ -1,6 +1,6 @@
-# OpenCode Agent Guide for crypto-scout-test
+# OpenCode Agent Guide for crypto-scout-client
 
-This guide explains how to use the configured OpenCode agents and skills for developing, reviewing, and documenting the crypto-scout-test library.
+This guide explains how to use the configured OpenCode agents and skills for developing, reviewing, and documenting the crypto-scout-client microservice.
 
 ## Quick Start
 
@@ -9,7 +9,7 @@ This guide explains how to use the configured OpenCode agents and skills for dev
 # See: https://opencode.ai/docs/installation
 
 # Navigate to project
-cd /path/to/crypto-scout-test
+cd /path/to/crypto-scout-client
 
 # Start OpenCode
 opencode
@@ -19,7 +19,7 @@ opencode
 
 ### 1. Developer Agent (`developer`)
 
-**Purpose**: Primary agent for implementing features, fixing bugs, and maintaining the library.
+**Purpose**: Primary agent for implementing features, fixing bugs, and maintaining the microservice.
 
 **Mode**: Primary (use Tab to switch to this agent)
 
@@ -106,14 +106,14 @@ Add support for Bybit inverse contracts in MockData
 
 Skills are loaded on-demand by agents. View available skills in your session.
 
-### java-test-library
-Core library development patterns including MockData, PodmanCompose, and RabbitMQ utilities.
+### java-microservice
+Microservice development patterns including modules, AMQP publishing, and WebSocket consumers.
 
 ### java-code-style
 Java 25 code style conventions for naming, imports, error handling, and testing patterns.
 
-### podman-testing
-Podman Compose integration testing patterns for TimescaleDB and RabbitMQ container management.
+### podman-deployment
+Podman Compose deployment patterns for containerization and RabbitMQ integration.
 
 ## Usage Patterns
 
@@ -130,7 +130,7 @@ Podman Compose integration testing patterns for TimescaleDB and RabbitMQ contain
 ### Code Review Workflow
 
 ```
-@reviewer Review src/main/java/com/github/akarazhev/cryptoscout/test/MockData.java
+@reviewer Review src/main/java/com/github/akarazhev/cryptoscout/module/CoreModule.java
 
 @reviewer Check all files changed in the last commit for style violations
 
@@ -238,12 +238,12 @@ tools:
 │   ├── reviewer.md     # Code review subagent
 │   └── writer.md       # Documentation subagent
 ├── skills/
-│   ├── java-test-library/
-│   │   └── SKILL.md    # Library development patterns
+│   ├── java-microservice/
+│   │   └── SKILL.md    # Microservice development patterns
 │   ├── java-code-style/
 │   │   └── SKILL.md    # Code style conventions
-│   └── podman-testing/
-│       └── SKILL.md    # Container testing patterns
+│   └── podman-deployment/
+│       └── SKILL.md    # Container deployment patterns
 └── OPENCODE_GUIDE.md   # This guide
 ```
 
