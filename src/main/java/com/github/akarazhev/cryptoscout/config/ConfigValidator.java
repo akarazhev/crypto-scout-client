@@ -40,6 +40,11 @@ import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_
 import static com.github.akarazhev.cryptoscout.config.Constants.CmcConfig.CMC_API_KEY;
 import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.DNS_ADDRESS;
 import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.DNS_TIMEOUT_MS;
+import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.DNS_TIMEOUT_MIN_MS;
+import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.DNS_TIMEOUT_MAX_MS;
+import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.HOSTNAME_PATTERN;
+import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.PORT_MAX;
+import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.PORT_MIN;
 import static com.github.akarazhev.cryptoscout.config.Constants.WebConfig.SERVER_PORT;
 
 public final class ConfigValidator {
@@ -73,16 +78,16 @@ public final class ConfigValidator {
         validateHostname(AMQP_RABBITMQ_HOST, missing);
         validateRequired(AMQP_RABBITMQ_USERNAME, missing);
         validateRequired(AMQP_RABBITMQ_PASSWORD, missing);
-        validateRequiredIntRange(AMQP_STREAM_PORT, missing, 1, 65535);
+        validateRequiredIntRange(AMQP_STREAM_PORT, missing, PORT_MIN, PORT_MAX);
         validateRequired(AMQP_BYBIT_STREAM, missing);
         validateRequired(AMQP_CRYPTO_SCOUT_STREAM, missing);
     }
 
     private static void validateWebConfig(final List<String> missing) {
-        validateRequiredIntRange(SERVER_PORT, missing, 1, 65535);
+        validateRequiredIntRange(SERVER_PORT, missing, PORT_MIN, PORT_MAX);
         validateRequired(DNS_ADDRESS, missing);
         validateHostname(DNS_ADDRESS, missing);
-        validateRequiredIntRange(DNS_TIMEOUT_MS, missing, 100, 60000);
+        validateRequiredIntRange(DNS_TIMEOUT_MS, missing, DNS_TIMEOUT_MIN_MS, DNS_TIMEOUT_MAX_MS);
     }
 
     private static void validateCmcConfig(final List<String> missing) {
@@ -92,17 +97,6 @@ public final class ConfigValidator {
     private static void validateRequired(final String key, final List<String> missing) {
         final var value = AppConfig.getAsString(key);
         if (value == null || value.isBlank()) {
-            missing.add(key);
-        }
-    }
-
-    private static void validateRequiredInt(final String key, final List<String> missing) {
-        try {
-            final var value = AppConfig.getAsInt(key);
-            if (value <= 0) {
-                missing.add(key + " (must be positive)");
-            }
-        } catch (final Exception e) {
             missing.add(key);
         }
     }
@@ -130,6 +124,6 @@ public final class ConfigValidator {
 
     private static boolean isValidHostname(final String hostname) {
         // Simple validation for IPv4 addresses or hostnames
-        return hostname.matches("^(([0-9]{1,3}\\.){3}[0-9]{1,3})|([a-zA-Z0-9.-]+)$");
+        return hostname.matches(HOSTNAME_PATTERN);
     }
 }

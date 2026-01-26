@@ -50,6 +50,11 @@ final class Constants {
         static final String SERVER_PORT = "server.port";
         static final String DNS_ADDRESS = "dns.address";
         static final String DNS_TIMEOUT_MS = "dns.timeout.ms";
+        static final int PORT_MIN = 1;
+        static final int PORT_MAX = 65535;
+        static final int DNS_TIMEOUT_MIN_MS = 100;
+        static final int DNS_TIMEOUT_MAX_MS = 60000;
+        static final String HOSTNAME_PATTERN = "^(([0-9]{1,3}\\.){3}[0-9]{1,3})|([a-zA-Z0-9.-]+)$";
     }
 
     final static class CmcConfig {
