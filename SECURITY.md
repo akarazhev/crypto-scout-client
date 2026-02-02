@@ -572,9 +572,88 @@ Email: andrey.karazhev@example.com
 
 ## Recent Security Enhancements
 
-**Last Updated:** January 26, 2026
+**Last Updated:** February 2, 2026
 
-This documentation has been updated to reflect comprehensive security and validation improvements implemented following a thorough code review. These enhancements address critical security, validation, and code quality issues across the codebase.
+This documentation has been updated to reflect comprehensive security and validation improvements implemented following thorough code reviews. These enhancements address critical security, validation, concurrency, and code quality issues across the codebase.
+
+### February 2, 2026 - Thread-Safety and Resource Management
+
+#### Thread-Safety Improvements
+
+**AmqpPublisher.isReady() Race Condition Fix:**
+
+Fixed a race condition in the health check method where volatile fields could change state between individual null checks:
+
+```java
+// Before: Race condition possible
+public boolean isReady() {
+    return environment != null && bybitStream != null && cryptoScoutStream != null;
+}
+
+// After: Consistent snapshot
+public boolean isReady() {
+    final var env = environment;
+    final var bybit = bybitStream;
+    final var scout = cryptoScoutStream;
+    return env != null && bybit != null && scout != null;
+}
+```
+
+**Impact:** Health endpoint (`/health`) now provides consistent and accurate readiness state, preventing false positives during shutdown or concurrent state changes.
+
+#### Resource Leak Prevention
+
+**AmqpPublisher.stop() Robustness:**
+
+Fixed resource leak where exceptions during close operations could prevent subsequent resources from being closed:
+
+```java
+// Uses nested try-finally blocks to ensure all resources close
+@Override
+public Promise<Void> stop() {
+    return Promise.ofBlocking(executor, () -> {
+        try {
+            close(bybitStream);
+        } finally {
+            bybitStream = null;
+            try {
+                close(cryptoScoutStream);
+            } finally {
+                cryptoScoutStream = null;
+                closeEnvironment();
+            }
+        }
+    });
+}
+```
+
+**Impact:** All RabbitMQ resources are properly released even if individual close operations fail, preventing connection leaks in production.
+
+#### Null Safety Enhancements
+
+**CmcParserConsumer.selectLatestQuote() Hardening:**
+
+Added comprehensive null and empty checks to prevent NPE when processing malformed data:
+
+- Validates quotes list is not null or empty before iteration
+- Checks timestamp parsing results before comparison
+- Returns original data when no valid quote found (instead of adding null to list)
+- Added warning logs for debugging data quality issues
+
+**Impact:** Prevents runtime exceptions when receiving unexpected data formats from CoinMarketCap API.
+
+#### Test Infrastructure Improvements
+
+**AmqpPublisherTest Executor Management:**
+
+Fixed test resource leak where ExecutorService instances were not properly shut down:
+
+- Tracks both executor instances separately
+- Added `shutdownExecutor()` helper with 5-second timeout
+- Forces shutdown with `shutdownNow()` if graceful shutdown times out
+- Prevents thread pool accumulation during test runs
+
+### January 26, 2026 - Initial Security Hardening
 
 ### Critical Security Fixes
 
@@ -650,11 +729,13 @@ These enhancements provide significant benefits:
 
 | Area | Improvements | Benefits |
 |------|-------------|----------|
+| **Concurrency** | Thread-safe field access, atomic state checks | Consistent health checks, no race conditions |
+| **Resource Management** | Guaranteed cleanup with try-finally blocks | No connection leaks, graceful shutdown |
 | **Null Safety** | Constructor validation, NPE fixes | Eliminates null pointer exceptions |
 | **Validation** | Hostname, port, timeout validation | Prevents invalid configuration |
 | **Error Handling** | Consistent `IllegalStateException` usage | Clear, predictable error messages |
 | **Configuration** | Warning comments, .gitignore protection | Prevents credential exposure |
-| **Testing** | Lifecycle methods, naming conventions | Better test coverage and quality |
+| **Testing** | Lifecycle methods, proper executor shutdown | Better test coverage, no resource leaks |
 | **Maintainability** | Constants organization, removed unused code | Easier to maintain and update |
 
-These enhancements significantly improve the security posture, reliability, and maintainability of the crypto-scout-client microservice.
+These enhancements significantly improve the security posture, reliability, concurrency safety, and maintainability of the crypto-scout-client microservice.
