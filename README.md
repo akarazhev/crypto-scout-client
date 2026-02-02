@@ -9,6 +9,15 @@ Note: This project was authored using AI-driven tools and curated by the maintai
 
 ## Recent Changes
 
+### Code Review Fixes (February 2, 2026)
+
+Thread-safety and resource management improvements:
+
+- **Thread-Safety in `AmqpPublisher`**: Fixed race condition in `isReady()` by capturing consistent snapshot of volatile fields
+- **Resource Leak Prevention**: Fixed `stop()` to ensure all resources close even if individual close operations throw exceptions
+- **Null Safety in `CmcParserConsumer`**: Added null/empty checks in `selectLatestQuote()` with proper logging to prevent NPE
+- **Test Improvements**: Fixed `AmqpPublisherTest` to properly shut down all ExecutorService instances with timeout handling
+
 ### Code Review Fixes (January 26, 2026)
 
 All critical security and validation issues have been successfully resolved:
@@ -84,7 +93,8 @@ See [Production notes](#production-notes) for additional operational guidance.
     - `BybitLinearModule` – provides two Linear `BybitStream` beans `@Named("bybitLinearBtcUsdtStream")`,
       `@Named("bybitLinearEthUsdtStream")` + consumers `BybitLinearBtcUsdtConsumer`, `BybitLinearEthUsdtConsumer`.
     - `CmcParserModule` – CMC HTTP parser + consumer.
-- **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source.
+- **Publishing:** `AmqpPublisher` routes payloads to configured streams based on provider/source. Thread-safe
+  `isReady()` check ensures consistent state visibility across threads.
 - **Consumer abstraction:** `AbstractBybitStreamConsumer` base class provides common lifecycle logic for all Bybit
   stream consumers.
 
@@ -358,7 +368,8 @@ Notes:
   runtime via environment variables (e.g., `secret/client.env` with Podman Compose or your orchestrator’s secret store).
   Rebuilds are not required for config/secrets changes—restart with updated env.
 - **Health endpoint:** `GET /health` returns `ok` when RabbitMQ Streams environment and producers are initialized;
-  otherwise HTTP 503 `not-ready`. Use for both liveness and readiness checks.
+  otherwise HTTP 503 `not-ready`. The readiness check uses thread-safe volatile field access for accurate state
+  reporting. Use for both liveness and readiness checks.
 - **Observability:** SLF4J API with a logging binding provided transitively by `jcryptolib`; logs are emitted by
   default. To customize levels/format or switch backend, include your preferred SLF4J binding and configuration on the
   classpath. JMX is enabled via ActiveJ `JmxModule`.
