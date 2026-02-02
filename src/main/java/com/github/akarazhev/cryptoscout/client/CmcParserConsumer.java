@@ -32,6 +32,8 @@ import io.activej.datastream.consumer.StreamConsumers;
 import io.activej.promise.Promise;
 import io.activej.reactor.AbstractReactive;
 import io.activej.reactor.nio.NioReactor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import static com.github.akarazhev.jcryptolib.stream.Source.BTC_USD_1D;
 import static com.github.akarazhev.jcryptolib.stream.Source.BTC_USD_1W;
 
 public final class CmcParserConsumer extends AbstractReactive implements ReactiveService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CmcParserConsumer.class);
     private final CmcParser cmcParser;
     private final AmqpPublisher amqpPublisher;
 
@@ -96,22 +99,32 @@ public final class CmcParserConsumer extends AbstractReactive implements Reactiv
     }
 
     private Map<String, Object> selectLatestQuote(final Map<String, Object> data) {
+        @SuppressWarnings("unchecked") final var quotes = (List<Map<String, Object>>) data.get(QUOTES);
+        if (quotes == null || quotes.isEmpty()) {
+            LOGGER.warn("No quotes found in data");
+            return data;
+        }
+
         Map<String, Object> latest = null;
         Instant latestTs = null;
-        @SuppressWarnings("unchecked") final var quotes = (List<Map<String, Object>>) data.get(QUOTES);
         for (final var quote : quotes) {
             @SuppressWarnings("unchecked") final var q = (Map<String, Object>) quote.get(QUOTE);
             if (q != null) {
                 final var ts = getTimestamp((String) q.get(TIMESTAMP), (String) quote.get(TIME_CLOSE));
-                if (latestTs == null || ts.isAfter(latestTs)) {
+                if (latestTs == null || ts != null && ts.isAfter(latestTs)) {
                     latestTs = ts;
                     latest = quote;
                 }
             }
         }
 
+        if (latest == null) {
+            LOGGER.warn("No valid quote found in data");
+            return data;
+        }
+
         final var newData = new LinkedHashMap<>(data);
-        final var onlyLatest = new ArrayList<>(1);
+        final var onlyLatest = new ArrayList<Map<String, Object>>(1);
         onlyLatest.add(latest);
         newData.put(QUOTES, onlyLatest);
         return newData;

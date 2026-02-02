@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,24 +45,34 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DisplayName("AmqpPublisher Tests")
 final class AmqpPublisherTest {
     private ExecutorService executor;
+    private ExecutorService publisherExecutor;
     private Eventloop reactor;
     private AmqpPublisher amqpPublisher;
 
     @BeforeEach
     void setUp() {
         executor = Executors.newVirtualThreadPerTaskExecutor();
+        publisherExecutor = Executors.newVirtualThreadPerTaskExecutor();
         reactor = Eventloop.builder()
                 .withCurrentThread()
                 .build();
-        amqpPublisher = AmqpPublisher.create(reactor, Executors.newVirtualThreadPerTaskExecutor());
+        amqpPublisher = AmqpPublisher.create(reactor, publisherExecutor);
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws InterruptedException {
         reactor.post(() -> amqpPublisher.stop()
                 .whenComplete(() -> reactor.breakEventloop()));
         reactor.run();
-        executor.shutdown();
+        shutdownExecutor(executor);
+        shutdownExecutor(publisherExecutor);
+    }
+
+    private void shutdownExecutor(final ExecutorService exec) throws InterruptedException {
+        exec.shutdown();
+        if (!exec.awaitTermination(5, TimeUnit.SECONDS)) {
+            exec.shutdownNow();
+        }
     }
 
     @Test
