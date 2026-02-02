@@ -92,11 +92,17 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
     @Override
     public Promise<Void> stop() {
         return Promise.ofBlocking(executor, () -> {
-            close(bybitStream);
-            bybitStream = null;
-            close(cryptoScoutStream);
-            cryptoScoutStream = null;
-            closeEnvironment();
+            try {
+                close(bybitStream);
+            } finally {
+                bybitStream = null;
+                try {
+                    close(cryptoScoutStream);
+                } finally {
+                    cryptoScoutStream = null;
+                    closeEnvironment();
+                }
+            }
         });
     }
 
@@ -157,14 +163,18 @@ public final class AmqpPublisher extends AbstractReactive implements ReactiveSer
         try {
             if (environment != null) {
                 environment.close();
-                environment = null;
             }
         } catch (final Exception ex) {
             LOGGER.warn("Error closing stream environment", ex);
+        } finally {
+            environment = null;
         }
     }
 
     public boolean isReady() {
-        return environment != null && bybitStream != null && cryptoScoutStream != null;
+        final var env = environment;
+        final var bybit = bybitStream;
+        final var scout = cryptoScoutStream;
+        return env != null && bybit != null && scout != null;
     }
 }
