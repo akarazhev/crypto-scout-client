@@ -29,21 +29,21 @@ opencode
 - Access to all project skills
 
 **When to Use**:
-- Implementing new test utilities
-- Adding mock data fixtures
-- Fixing bugs
+- Implementing new stream consumers
+- Adding Bybit/CMC data sources
+- Fixing connection issues
 - Refactoring code
 - Running builds and tests
 
 **Example Prompts**:
 ```
-Add a new MockData.Type for WebSocket ticker data
+Add a new Bybit linear stream consumer for SOL/USDT
 
-Implement a new utility method in DBUtils to truncate tables
+Implement retry logic in AmqpPublisher for failed publishes
 
-Fix the timeout issue in PodmanCompose.waitForDatabaseReady()
+Fix the WebSocket reconnection logic in BybitSpotConsumer
 
-Add support for Bybit inverse contracts in MockData
+Add support for new CMC endpoints in CmcParserModule
 ```
 
 ### 2. Code Reviewer Agent (`reviewer`)
