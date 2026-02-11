@@ -1,17 +1,88 @@
 # AGENTS.md
 
-This document provides guidelines for agentic coding contributors to this repository.
+This document provides guidelines for agentic coding contributors to the crypto-scout-client module.
 
 ## Project Overview
 
-Java 25 Maven microservice that collects crypto market data from Bybit and CoinMarketCap, then publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully async I/O.
+**crypto-scout-client** is a Java 25 Maven microservice that collects cryptocurrency market data from Bybit (WebSocket streaming) and CoinMarketCap (REST API), then publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully async I/O.
+
+### Module Structure
+
+```
+crypto-scout-client/
+├── src/main/java/com/github/akarazhev/cryptoscout/
+│   ├── Client.java                    # Launcher (ActiveJ)
+│   ├── Constants.java                 # Module constants
+│   ├── client/                        # Data consumers
+│   │   ├── AbstractBybitStreamConsumer.java
+│   │   ├── AmqpPublisher.java
+│   │   ├── BybitLinearBtcUsdtConsumer.java
+│   │   ├── BybitLinearEthUsdtConsumer.java
+│   │   ├── BybitSpotBtcUsdtConsumer.java
+│   │   ├── BybitSpotEthUsdtConsumer.java
+│   │   └── CmcParserConsumer.java
+│   ├── config/                        # Configuration
+│   │   ├── AmqpConfig.java
+│   │   ├── CmcApiConfig.java
+│   │   ├── ConfigValidator.java
+│   │   ├── Constants.java
+│   │   └── WebConfig.java
+│   └── module/                        # ActiveJ DI modules
+│       ├── BybitLinearModule.java
+│       ├── BybitSpotModule.java
+│       ├── ClientModule.java
+│       ├── CmcParserModule.java
+│       ├── Constants.java
+│       ├── CoreModule.java
+│       └── WebModule.java
+├── src/main/resources/
+│   └── application.properties         # Configuration defaults
+└── src/test/java/...                  # Unit tests
+```
+
+### Key Dependencies
+
+| Dependency | Version | Purpose |
+|------------|---------|---------|
+| Java | 25 | Language |
+| ActiveJ | 6.0-rc2 | Async I/O framework |
+| jcryptolib | 0.0.4 | JSON utilities, Bybit/CMC clients |
+| RabbitMQ Stream Client | 1.4.0 | Streams protocol |
+| AMQP Client | 5.28.0 | AMQP protocol |
+| JUnit | 6.1.0-M1 | Testing |
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    crypto-scout-client                       │
+├─────────────────────────────────────────────────────────────┤
+│  Bybit WebSocket  │  CMC REST API   │  HTTP Health Endpoint │
+│     (4 streams)   │   (scheduled)   │       (/health)       │
+└─────────┬─────────┴────────┬────────┴───────────┬───────────┘
+          │                  │                    │
+          └──────────────────┼────────────────────┘
+                             ▼
+                    ┌─────────────────┐
+                    │  AmqpPublisher  │
+                    │  (RabbitMQ      │
+                    │   Streams)      │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┴──────────────┐
+              ▼                             ▼
+    ┌─────────────────────┐    ┌─────────────────────┐
+    │   bybit-stream      │    │  crypto-scout-stream│
+    │  (Bybit market data)│    │  (CMC/FGI data)     │
+    └─────────────────────┘    └─────────────────────┘
+```
 
 ## Build, Test, and Lint Commands
 
 ### Build
 ```bash
-mvn clean install
-mvn -q -DskipTests install
+mvn clean install              # Full build with tests
+mvn -q -DskipTests install     # Quick build without tests
 ```
 
 ### Run All Tests
@@ -22,15 +93,15 @@ mvn -q test
 
 ### Run Single Test
 ```bash
-mvn test -Dtest=MockBybitSpotDataTest
-mvn test -Dtest=MockBybitSpotDataTest#shouldSpotKline1DataReturnMap
-mvn -q test -Dtest=MockBybitSpotDataTest
+mvn test -Dtest=AmqpPublisherTest
+mvn test -Dtest=AmqpPublisherTest#shouldPublishPayloadToStream
+mvn -q test -Dtest=BybitSpotBtcUsdtConsumerTest
 ```
 
 ### Run Tests with System Properties
 ```bash
 mvn -q -Dpodman.compose.up.timeout.min=5 test
-mvn -q -Dtest.db.jdbc.url=jdbc:postgresql://localhost:5432/crypto_scout test
+mvn -q -Damqp.rabbitmq.host=localhost test
 ```
 
 ### Clean
@@ -41,91 +112,287 @@ mvn clean
 ## Code Style Guidelines
 
 ### File Structure
-- MIT License header at top (23 lines)
-- Package declaration on line 25
-- One blank line before imports
-- Imports organized: java.*, third-party, then static imports (each group separated by blank line)
-- One blank line after imports
-- Class/enum/interface declaration
-- No trailing whitespace
+```
+1-23:   MIT License header
+25:     Package declaration
+26:     Blank line
+27+:    Imports: java.* → third-party → static imports (blank lines between)
+        Blank line
+        Class/enum/interface declaration
+```
 
-### Imports
+### MIT License Header
+```java
+/*
+ * MIT License
+ *
+ * Copyright (c) 2026 Andrey Karazhev
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+```
+
+### Import Organization
 ```java
 import java.io.IOException;
-import java.nio.file.Path;
+import java.time.Duration;
+import java.util.Map;
 
 import com.rabbitmq.stream.Environment;
+import io.activej.promise.Promise;
+import io.activej.reactor.nio.NioReactor;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.github.akarazhev.cryptoscout.test.Constants.DB.JDBC_URL;
+import static com.github.akarazhev.cryptoscout.config.Constants.AmqpConfig.AMQP_RABBITMQ_HOST;
 ```
 
 ### Naming Conventions
-- **Classes**: PascalCase (e.g., `StreamTestPublisher`, `MockData`)
-- **Methods**: camelCase starting with lowercase verb (e.g., `waitForDatabaseReady`, `deleteFromTables`)
-- **Constants**: UPPER_SNAKE_CASE in nested static classes (e.g., `JDBC_URL`, `DB_USER`)
-- **Parameters and locals**: camelCase using `final var` (e.g., `final var timeout`, `final var data`)
-- **Test classes**: `<ClassName>Test` suffix (e.g., `MockBybitSpotDataTest`)
-- **Test methods**: `should<Subject><Action>` pattern (e.g., `shouldSpotKline1DataReturnMap`)
+
+| Element | Convention | Example |
+|---------|------------|---------|
+| Classes | PascalCase | `AmqpPublisher`, `BybitSpotBtcUsdtConsumer` |
+| Methods | camelCase with verb prefix | `start()`, `publish()`, `isReady()` |
+| Constants | UPPER_SNAKE_CASE in nested classes | `AMQP_RABBITMQ_HOST`, `SERVER_PORT` |
+| Parameters/locals | `final var` | `final var payload`, `final var stream` |
+| Test classes | `<ClassName>Test` suffix | `AmqpPublisherTest` |
+| Test methods | `should<Subject><Action>` pattern | `shouldPublishPayloadToStream` |
 
 ### Access Modifiers
-- **Utility classes**: package-private with private constructor throwing `UnsupportedOperationException`
-- **Nested constant classes**: `final static` with private constructor throwing `UnsupportedOperationException`
-- **Factory methods**: `public static` named `create()`
-- **Instance fields**: `private final` or `private volatile` for thread-safe lazy initialization
-- **Static fields**: `private static final`
-- **Methods**: `public`, `private`, or package-private as needed
 
-### Type System
-- Java 25 with `maven.compiler.release=25`
-- Use `final var` for local variable type inference when type is obvious
-- Explicit types when readability improves
-- `Map<String, Object>` for JSON data structures
-
-### Error Handling
-- **Unchecked exceptions**: Use `IllegalStateException` for invalid state/conditions
-- **Resource not found**: `IllegalStateException` with descriptive message
-- **Try-with-resources**: Always for `Connection`, `Statement`, `ResultSet`, `InputStream`, `OutputStream`
-- **Exception parameters**: `final Exception e` or `final Exception ex`
-- **Interrupt handling**: `Thread.currentThread().interrupt()` in catch blocks for `InterruptedException`
-- **Logging exceptions**: Include message and exception: `LOGGER.error("Failed to connect", e)`
-- **Exception chaining**: Wrap with cause: `throw new IllegalStateException(msg, e)`
-- **Return false on expected failures**: e.g., `canConnect()` returns `false` instead of throwing
-
-### Method Design
-- **Factory pattern**: Static `create()` methods returning new instances
-- **Void methods**: Use for side effects
-- **Boolean methods**: Return `true`/`false`, don't throw for expected failures
-- **Duration parameters**: Use `java.time.Duration` instead of `long millis`
-- **Varargs**: For optional lists of items (e.g., `deleteFromTables(String... tables)`)
-
-### Testing (JUnit 6/Jupiter)
-- **Test classes**: Package-private, no modifiers (e.g., `final class MockBybitSpotDataTest`)
-- **Lifecycle methods**: `@BeforeAll static void setUp()`, `@AfterAll static void tearDown()`
-- **Test methods**: `@Test void should...() throws Exception`
-- **Assertions**: Import from `org.junit.jupiter.api.Assertions` using static imports
-- **No test runners**: Use standard JUnit 5 patterns
-
-### Logging
-- **Logger field**: `private static final Logger LOGGER = LoggerFactory.getLogger(ClassName.class)`
-- **Log levels**: `info()` for important events, `warn()` for recoverable issues, `error()` for failures
-- **Messages**: Descriptive, include context (e.g., `"Connected to DB: {}"`, `"Failed to start publisher"`)
-- **Exceptions**: Pass as second parameter: `LOGGER.error("Description", exception)`
-
-### Constants Organization
-Group related constants in nested static classes:
+**Utility Classes:**
 ```java
 final class Constants {
-    static final String PATH_SEPARATOR = "/";
-
-    final static class DB {
-        static final String JDBC_URL = System.getProperty("test.db.jdbc.url", "...");
-        static final String DB_USER = System.getProperty("test.db.user", "...");
+    private Constants() {
+        throw new UnsupportedOperationException();
     }
 
-    final static class PodmanCompose {
-        static final Duration UP_TIMEOUT = Duration.ofMinutes(...);
+    final static class AmqpConfig {
+        private AmqpConfig() {
+            throw new UnsupportedOperationException();
+        }
+
+        static final String AMQP_RABBITMQ_HOST = "amqp.rabbitmq.host";
     }
+}
+```
+
+**ActiveJ Service Pattern:**
+```java
+public final class AmqpPublisher extends AbstractReactive implements ReactiveService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmqpPublisher.class);
+    private final Executor executor;
+    private volatile Environment environment;
+
+    public static AmqpPublisher create(final NioReactor reactor, final Executor executor) {
+        return new AmqpPublisher(reactor, executor);
+    }
+
+    private AmqpPublisher(final NioReactor reactor, final Executor executor) {
+        super(reactor);
+        this.executor = executor;
+    }
+
+    @Override
+    public Promise<Void> start() { /* ... */ }
+
+    @Override
+    public Promise<Void> stop() { /* ... */ }
+}
+```
+
+**ActiveJ Module Pattern:**
+```java
+public final class WebModule extends AbstractModule {
+    private WebModule() {}
+
+    public static WebModule create() {
+        return new WebModule();
+    }
+
+    @Provides
+    private IDnsClient dnsClient(final NioReactor reactor) { /* ... */ }
+
+    @Provides
+    @Eager
+    private HttpServer server(final NioReactor reactor, final AsyncServlet servlet) { /* ... */ }
+}
+```
+
+### Error Handling
+
+**Unchecked Exceptions:**
+```java
+if (reactor == null) {
+    throw new IllegalStateException("Reactor cannot be null");
+}
+```
+
+**Try-with-Resources:**
+```java
+try (final var conn = dataSource.getConnection();
+     final var stmt = conn.prepareStatement(sql)) {
+    // Process
+} catch (final SQLException e) {
+    throw new IllegalStateException("Database error", e);
+}
+```
+
+**Interrupt Handling:**
+```java
+try {
+    Thread.sleep(duration.toMillis());
+} catch (final InterruptedException e) {
+    Thread.currentThread().interrupt();
+}
+```
+
+**Exception Chaining:**
+```java
+try {
+    // Operation
+} catch (final Exception ex) {
+    LOGGER.error("Failed to start AmqpPublisher", ex);
+    throw new IllegalStateException("Failed to start AmqpPublisher", ex);
+}
+```
+
+### Logging
+```java
+private static final Logger LOGGER = LoggerFactory.getLogger(ClassName.class);
+
+LOGGER.info("Service started on port {}", port);
+LOGGER.warn("Connection lost, retrying...");
+LOGGER.error("Failed to process message", exception);
+LOGGER.debug("Skipping publish: no stream route for provider={} source={}", provider, source);
+```
+
+### Configuration Pattern
+```java
+// In Constants.java
+final static class AmqpConfig {
+    private AmqpConfig() {
+        throw new UnsupportedOperationException();
+    }
+
+    static final String AMQP_RABBITMQ_HOST = "amqp.rabbitmq.host";
+    static final String AMQP_RABBITMQ_USERNAME = "amqp.rabbitmq.username";
+    static final String AMQP_STREAM_PORT = "amqp.stream.port";
+}
+
+// In AmqpConfig.java
+public final class AmqpConfig {
+    private AmqpConfig() {
+        throw new UnsupportedOperationException();
+    }
+
+    private static String getAmqpRabbitmqHost() {
+        return AppConfig.getAsString(Constants.AmqpConfig.AMQP_RABBITMQ_HOST);
+    }
+
+    public static Environment getEnvironment() {
+        return Environment.builder()
+                .host(getAmqpRabbitmqHost())
+                .port(getAmqpStreamPort())
+                .username(getAmqpRabbitmqUsername())
+                .password(getAmqpRabbitmqPassword())
+                .build();
+    }
+}
+```
+
+### Testing (JUnit 6/Jupiter)
+```java
+final class AmqpPublisherTest {
+
+    @BeforeAll
+    static void setUp() {
+        PodmanCompose.up();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        PodmanCompose.down();
+    }
+
+    @Test
+    void shouldPublishPayloadToStream() throws Exception {
+        final var result = service.doSomething();
+        assertNotNull(result);
+        assertEquals(expected, result);
+    }
+}
+```
+
+### ActiveJ Patterns
+
+**Reactive Service:**
+```java
+public final class Consumer extends AbstractReactive implements ReactiveService {
+    public static Consumer create(final NioReactor reactor, /* deps */) {
+        return new Consumer(reactor, /* deps */);
+    }
+
+    private Consumer(final NioReactor reactor, /* deps */) {
+        super(reactor);
+        // Validate dependencies
+        if (dep == null) {
+            throw new IllegalStateException("Dep cannot be null");
+        }
+    }
+
+    @Override
+    public Promise<Void> start() {
+        return upstream.start().then(stream ->
+            stream.streamTo(StreamConsumers.ofConsumer(this::process)));
+    }
+
+    @Override
+    public Promise<Void> stop() {
+        return upstream.stop();
+    }
+}
+```
+
+**Stream Publishing:**
+```java
+public Promise<Void> publish(final Payload<Map<String, Object>> payload) {
+    final var settablePromise = new SettablePromise<Void>();
+    try {
+        final var message = producer.messageBuilder()
+                .addData(JsonUtils.object2Bytes(payload))
+                .build();
+        producer.send(message, status ->
+            reactor.execute(() -> {
+                if (status.isConfirmed()) {
+                    settablePromise.set(null);
+                } else {
+                    settablePromise.setException(
+                        new IllegalStateException("Publish not confirmed: " + status));
+                }
+            })
+        );
+    } catch (final Exception ex) {
+        LOGGER.error("Failed to publish", ex);
+        settablePromise.setException(ex);
+    }
+    return settablePromise;
 }
 ```
 
@@ -133,24 +400,68 @@ final class Constants {
 - **Volatile fields**: For lazy-initialized singleton-style fields
 - **Thread naming**: Provide names for background threads
 - **Interruption**: Always restore interrupt status when catching `InterruptedException`
-- **Daemon threads**: Set for background readers that shouldn't block JVM shutdown
+- **Executor**: Use injected `Executor` for blocking operations with `Promise.ofBlocking()`
 
 ### Resource Management
-- **Try-with-resources**: Required for all closeable resources (SQL, streams, connections)
+- **Try-with-resources**: Required for all closeable resources
 - **Null checks**: Throw `IllegalStateException` for null resources
-- **Timeout handling**: Throw `IllegalStateException` with descriptive message including timeout value
-- **Process management**: `destroyForcibly()` after timeout, preserve partial output in exception message
+- **Graceful shutdown**: Close resources in `stop()` method, set volatile fields to null
 
-### Code Organization
-- **Static imports**: From project's `Constants` class heavily used
-- **Method length**: Keep reasonable, extract private helpers if too long
-- **Static blocks**: Used for initialization that may throw (e.g., resource resolution in `PodmanCompose`)
-- **Enum design**: Enums can have fields and methods (see `MockData.Source` and `MockData.Type`)
+## Configuration Reference
 
-### System Properties
-All configuration via system properties with defaults:
-```java
-static final String VALUE = System.getProperty("property.key", "defaultValue");
-static final int PORT = Integer.parseInt(System.getProperty("port.key", "5552"));
-static final Duration TIMEOUT = Duration.ofMinutes(Long.getLong("timeout.key", 3L));
+### application.properties
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `cmc.parser.module.enabled` | `true` | Enable CMC parser module |
+| `bybit.stream.module.enabled` | `false` | Enable Bybit streaming modules |
+| `server.port` | `8081` | HTTP server port |
+| `dns.address` | `8.8.8.8` | DNS server address |
+| `amqp.rabbitmq.host` | `localhost` | RabbitMQ host |
+| `amqp.rabbitmq.username` | `crypto_scout_mq` | RabbitMQ username |
+| `amqp.rabbitmq.password` | *(required)* | RabbitMQ password |
+| `amqp.stream.port` | `5552` | RabbitMQ Streams port |
+| `amqp.bybit.stream` | `bybit-stream` | Bybit stream name |
+| `amqp.crypto.scout.stream` | `crypto-scout-stream` | CryptoScout stream name |
+| `bybit.api.key` | *(required)* | Bybit API key |
+| `bybit.api.secret` | *(required)* | Bybit API secret |
+| `cmc.api.key` | *(required)* | CoinMarketCap API key |
+
+### Health Endpoint
+```bash
+curl http://localhost:8081/health
+# Returns: "ready" (HTTP 200) or "not ready" (HTTP 503)
 ```
+
+## Module-Specific Guidelines
+
+### Client Package (`client/`)
+- **AbstractBybitStreamConsumer**: Base class for Bybit WebSocket consumers
+- **AmqpPublisher**: Routes payloads to appropriate RabbitMQ Streams based on `Provider` and `Source`
+- **Bybit*Consumer**: Concrete consumers for spot/linear BTC/ETH markets
+- **CmcParserConsumer**: Processes CMC data, selects latest quote for BTC timeframes
+
+### Config Package (`config/`)
+- **AmqpConfig**: RabbitMQ Streams configuration
+- **WebConfig**: HTTP server configuration
+- **CmcApiConfig**: CoinMarketCap API configuration
+- **ConfigValidator**: Validates required configuration at startup
+- **Constants**: Configuration property keys
+
+### Module Package (`module/`)
+- **CoreModule**: Core ActiveJ dependencies (Reactor, Executor)
+- **ClientModule**: Client service bindings
+- **BybitSpotModule**: Spot market consumer bindings
+- **BybitLinearModule**: Linear market consumer bindings
+- **CmcParserModule**: CMC parser bindings
+- **WebModule**: HTTP server and health endpoint
+
+## Security Best Practices
+
+- **No hardcoded credentials** - Use environment variables or system properties
+- **Secret properties** - Mark with `# WARNING: Must be provided via system property`
+- **Validation** - Validate all required configuration at startup in `ConfigValidator`
+
+## License
+
+MIT License - See `LICENSE` file.
