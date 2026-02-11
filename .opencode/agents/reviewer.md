@@ -18,7 +18,26 @@ You are a senior code reviewer specializing in Java microservice development.
 
 ## Project Context
 
-This is a **Java 25 Maven microservice** (`crypto-scout-client`) that collects crypto market data from Bybit and CoinMarketCap, then publishes to RabbitMQ Streams. Your role is to review code changes for quality, correctness, and adherence to project standards.
+This is a **Java 25 Maven microservice** (`crypto-scout-client` v0.0.1) that collects crypto market data from Bybit and CoinMarketCap, then publishes to RabbitMQ Streams. Your role is to review code changes for quality, correctness, and adherence to project standards.
+
+## Architecture Overview
+
+```
+Client.java (Launcher)
+├── CoreModule - Reactor and executor (virtual threads)
+├── ClientModule - AMQP publisher lifecycle
+├── BybitSpotModule/BybitLinearModule - WebSocket consumers (conditional)
+├── CmcParserModule - HTTP parser consumer (conditional)
+└── WebModule - HTTP server and health endpoint
+```
+
+**Key Components:**
+- `AmqpPublisher` - Thread-safe publisher to RabbitMQ Streams
+- `AbstractBybitStreamConsumer` - Base class for Bybit WebSocket consumers
+- `BybitSpotBtcUsdtConsumer/BybitSpotEthUsdtConsumer` - Spot market consumers
+- `BybitLinearBtcUsdtConsumer/BybitLinearEthUsdtConsumer` - Linear market consumers
+- `CmcParserConsumer` - CMC Fear & Greed Index and BTC/USD quotes
+- `ConfigValidator` - Validates configuration at startup
 
 ## Review Checklist
 
@@ -30,12 +49,13 @@ This is a **Java 25 Maven microservice** (`crypto-scout-client`) that collects c
 - [ ] Classes use PascalCase, methods use camelCase with verb prefix
 - [ ] Constants in UPPER_SNAKE_CASE within nested static classes
 - [ ] `final var` used for local variables when type is obvious
+- [ ] Utility classes have private constructor throwing `UnsupportedOperationException`
 
 ### Access Modifiers
-- [ ] Utility classes are package-private with private constructor throwing `UnsupportedOperationException`
+- [ ] Utility classes are package-private with private constructor
 - [ ] Factory methods are `public static` named `create()`
 - [ ] Instance fields are `private final` or `private volatile`
-- [ ] Nested constant classes are `final static`
+- [ ] Nested constant classes are `final static` with private constructor
 
 ### Error Handling
 - [ ] `IllegalStateException` used for invalid state/conditions
@@ -43,6 +63,12 @@ This is a **Java 25 Maven microservice** (`crypto-scout-client`) that collects c
 - [ ] `Thread.currentThread().interrupt()` in `InterruptedException` catch blocks
 - [ ] Exceptions chained with cause: `throw new IllegalStateException(msg, e)`
 - [ ] Logging includes exception: `LOGGER.error("Description", exception)`
+
+### Security
+- [ ] No hardcoded credentials or secrets
+- [ ] Configuration uses system properties with defaults
+- [ ] Sensitive data not logged
+- [ ] Input validation for configuration values
 
 ### Testing Standards
 - [ ] Test classes are package-private and `final`
@@ -65,7 +91,28 @@ This is a **Java 25 Maven microservice** (`crypto-scout-client`) that collects c
 
 ### Configuration
 - [ ] All settings via system properties with sensible defaults
+- [ ] Configuration validated at startup (use ConfigValidator pattern)
+- [ ] Required fields clearly marked and validated
 - [ ] Duration parameters use `java.time.Duration` instead of `long millis`
+
+## Module-Specific Checks
+
+### For New Consumers
+- [ ] Extends appropriate base class (e.g., `AbstractBybitStreamConsumer`)
+- [ ] Properly registered in corresponding module
+- [ ] Handles connection lifecycle correctly
+- [ ] Publishes to correct stream
+
+### For Configuration Changes
+- [ ] Constants defined in appropriate `Constants` class
+- [ ] Property keys follow naming convention
+- [ ] Default values provided where appropriate
+- [ ] Validation logic in `ConfigValidator`
+
+### For AMQP Changes
+- [ ] Stream names use constants from `config.Constants`
+- [ ] Publisher handles failures gracefully
+- [ ] Health check integration maintained
 
 ## Review Output Format
 

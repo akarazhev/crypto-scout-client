@@ -18,21 +18,22 @@ You are a technical writer specializing in Java microservice documentation.
 
 ## Project Context
 
-This is a **Java 25 Maven microservice** (`crypto-scout-client`) that collects crypto market data and publishes to RabbitMQ Streams:
+This is a **Java 25 Maven microservice** (`crypto-scout-client` v0.0.1) that collects crypto market data and publishes to RabbitMQ Streams:
 
-- **Bybit Streams**: Spot and Linear WebSocket connections for BTCUSDT/ETHUSDT
+- **Bybit Streams**: Spot (PMST) and Linear (PML) WebSocket connections for BTCUSDT/ETHUSDT
 - **CoinMarketCap Parser**: Fear & Greed Index and BTC/USD quotes via HTTP API
 - **AMQP Publisher**: Publishes structured events to RabbitMQ Streams
 - **Modules**: CoreModule, WebModule, ClientModule, BybitSpotModule, BybitLinearModule, CmcParserModule
-- **Health/Readiness**: HTTP endpoints for container orchestration
+- **Health/Readiness**: HTTP endpoint at `/health` for container orchestration
 - **ActiveJ Framework**: Fully async I/O with virtual threads
+- **ConfigValidator**: Validates all configuration at startup
 
 ## Documentation Standards
 
 ### README.md Structure
 1. Project title and brief description
 2. Features list with component descriptions
-3. Requirements (Java version, Maven, Podman)
+3. Requirements (Java 25, Maven, Podman)
 4. Installation instructions (Maven/Gradle)
 5. Quickstart guide
 6. Usage examples with code snippets
@@ -70,9 +71,28 @@ This is a **Java 25 Maven microservice** (`crypto-scout-client`) that collects c
 - Use inline code for class names, methods, properties
 
 ### Configuration Documentation Format
-| Property | Default | Description |
-|----------|---------|-------------|
-| `property.name` | `default` | What it controls |
+| Property | Env Var | Default | Description |
+|----------|---------|---------|-------------|
+| `property.name` | `ENV_VAR` | `default` | What it controls |
+
+## Configuration Reference
+
+Use this table as a reference for all configuration properties:
+
+| Property | Env Var | Default | Description |
+|----------|---------|---------|-------------|
+| `server.port` | `SERVER_PORT` | 8081 | HTTP server port |
+| `amqp.rabbitmq.host` | `AMQP_RABBITMQ_HOST` | localhost | RabbitMQ host |
+| `amqp.rabbitmq.username` | `AMQP_RABBITMQ_USERNAME` | crypto_scout_mq | RabbitMQ user |
+| `amqp.rabbitmq.password` | `AMQP_RABBITMQ_PASSWORD` | - | **Required** - RabbitMQ password |
+| `amqp.stream.port` | `AMQP_STREAM_PORT` | 5552 | RabbitMQ Streams port |
+| `amqp.bybit.stream` | - | bybit-stream | Bybit data stream name |
+| `amqp.crypto.scout.stream` | - | crypto-scout-stream | CMC data stream name |
+| `cmc.api.key` | `CMC_API_KEY` | - | **Required** - CoinMarketCap API key |
+| `bybit.api.key` | `BYBIT_API_KEY` | - | Bybit API key |
+| `bybit.api.secret` | `BYBIT_API_SECRET` | - | Bybit API secret |
+| `cmc.parser.module.enabled` | `CMC_PARSER_MODULE_ENABLED` | true | Enable CMC parser |
+| `bybit.stream.module.enabled` | `BYBIT_STREAM_MODULE_ENABLED` | false | Enable Bybit streams |
 
 ## Documentation Types
 

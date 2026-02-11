@@ -7,110 +7,194 @@ metadata:
   tools: podman
   services: rabbitmq
   domain: deployment
+  version: "0.0.1"
 ---
 
 ## What I Do
 
 Guide containerized deployment of crypto-scout-client with Podman, including RabbitMQ Streams integration.
 
-## Container Services
+## Container Configuration
 
-### crypto-scout-client Container
+### Service Name
+- **Service**: `crypto-scout-parser-client`
 - **Image**: `crypto-scout-client:0.0.1`
-- **Base**: `eclipse-temurin:25-jre-alpine`
-- **User**: UID/GID `10001` (non-root)
-- **Port**: `8081` (internal, not exposed to host)
-- **Network**: `crypto-scout-bridge`
+- **Container Name**: `crypto-scout-parser-client`
 
-### RabbitMQ (external dependency)
-- **Streams Port**: `5552`
-- **User/Password**: `crypto_scout_mq` / configured via env
-- **Streams**: `bybit-stream`, `crypto-scout-stream`
+### Resource Limits
+| Resource | Value |
+|----------|-------|
+| CPUs | 0.5 |
+| Memory Limit | 256m |
+| Memory Reservation | 128m |
+| PIDs Limit | 256 |
+| Open Files (soft/hard) | 4096 |
 
-## Container Build & Run
+### Security Hardening
+```yaml
+security_opt:
+  - no-new-privileges=true
+read_only: true
+cap_drop:
+  - ALL
+user: "10001:10001"
+init: true
+```
 
+### tmpfs Configuration
+```yaml
+tmpfs:
+  - /tmp:rw,size=512m,mode=1777,nodev,nosuid
+```
+
+### Health Check
+```yaml
+healthcheck:
+  test: [ "CMD-SHELL", "curl -f http://localhost:8081/health || exit 1" ]
+  interval: 10s
+  timeout: 3s
+  retries: 5
+  start_period: 30s
+```
+
+### Lifecycle Settings
+```yaml
+restart: unless-stopped
+stop_signal: SIGTERM
+stop_grace_period: 30s
+```
+
+## Build & Deploy
+
+### Build Shaded JAR
 ```bash
-# Build shaded JAR
 mvn clean package -DskipTests
+```
 
-# Build container image
+### Build Container Image
+```bash
 podman build -t crypto-scout-client:0.0.1 .
+```
 
-# Create network (once)
+### Create Network (once)
+```bash
 podman network create crypto-scout-bridge
+```
 
-# Run with compose
-podman-compose -f podman-compose.yml up -d
+### Run with Compose
+```bash
+podman-compose up -d
+```
 
-# Check health
+### Check Health
+```bash
 podman inspect --format='{{.State.Health.Status}}' crypto-scout-parser-client
 ```
 
 ## Environment Configuration
 
+Secrets are loaded from `secret/parser-client.env` (gitignored).
+
+### Required Environment Variables
+| Variable | Description |
+|----------|-------------|
+| `AMQP_RABBITMQ_PASSWORD` | **Required** - RabbitMQ password |
+| `CMC_API_KEY` | **Required** - CoinMarketCap API key |
+
+### Optional Environment Variables
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SERVER_PORT` | `8081` | HTTP server port |
 | `AMQP_RABBITMQ_HOST` | `localhost` | RabbitMQ host |
-| `AMQP_STREAM_PORT` | `5552` | RabbitMQ Streams port |
 | `AMQP_RABBITMQ_USERNAME` | `crypto_scout_mq` | RabbitMQ user |
-| `AMQP_RABBITMQ_PASSWORD` | (empty) | RabbitMQ password |
-| `BYBIT_STREAM_MODULE_ENABLED` | `false` | Enable Bybit modules |
-| `CMC_PARSER_MODULE_ENABLED` | `true` | Enable CMC module |
-
-## Compose Hardening
-
-The `podman-compose.yml` includes production hardening:
-- `init: true` - proper signal handling
-- `pids_limit: 256` - process limit
-- `read_only` rootfs with `tmpfs: /tmp`
-- `cap_drop: ALL` - drop all capabilities
-- `security_opt: no-new-privileges=true`
-- `cpus: 0.5`, `mem_limit: 256m`
-- `restart: unless-stopped`
-- healthcheck with `start_period: 30s`
+| `AMQP_STREAM_PORT` | `5552` | RabbitMQ Streams port |
+| `BYBIT_API_KEY` | - | Bybit API key |
+| `BYBIT_API_SECRET` | - | Bybit API secret |
+| `CMC_PARSER_MODULE_ENABLED` | `true` | Enable CMC parser |
+| `BYBIT_STREAM_MODULE_ENABLED` | `false` | Enable Bybit streams |
+| `TZ` | `UTC` | Timezone |
 
 ## Secrets Management
 
 Secrets are managed via env files:
-- `secret/parser-client.env` - runtime secrets (gitignored)
-- `secret/client.env.example` - template for secrets
+- `secret/parser-client.env` - Runtime secrets (gitignored)
+- `secret/client.env.example` - Template for secrets
 
 ```bash
 cp secret/client.env.example secret/parser-client.env
 $EDITOR secret/parser-client.env
 ```
 
-## Running the Service
-
+Example `secret/parser-client.env`:
 ```bash
-# Local run (after build)
+AMQP_RABBITMQ_PASSWORD=your-secure-password
+CMC_API_KEY=your-cmc-api-key
+BYBIT_API_KEY=your-bybit-key
+BYBIT_API_SECRET=your-bybit-secret
+```
+
+## Local Development
+
+### Run Locally (after build)
+```bash
 java -jar target/crypto-scout-client-0.0.1.jar
+```
 
-# Health check
+### With Environment Variables
+```bash
+export AMQP_RABBITMQ_PASSWORD="secure-password"
+export CMC_API_KEY="your-cmc-key"
+java -jar target/crypto-scout-client-0.0.1.jar
+```
+
+### Health Check
+```bash
 curl -fsS http://localhost:8081/health
+```
 
-# With compose
-podman-compose -f podman-compose.yml up -d
-podman logs -f crypto-scout-parser-client
+## RabbitMQ Integration
+
+### External RabbitMQ
+- **Streams Port**: 5552
+- **User/Password**: Configured via env vars
+- **Streams**: `bybit-stream`, `crypto-scout-stream`
+
+### For Host RabbitMQ
+When RabbitMQ runs on the host (not in container):
+```bash
+AMQP_RABBITMQ_HOST=host.containers.internal
 ```
 
 ## Troubleshooting
 
-### Container not starting
+### Container Not Starting
 - Verify Podman is installed: `podman --version`
 - Check podman-compose: `podman-compose --version`
 - Check logs: `podman logs crypto-scout-parser-client`
+- Verify secrets file exists: `secret/parser-client.env`
 
-### RabbitMQ Streams not reachable
+### RabbitMQ Streams Not Reachable
 - Confirm port 5552 is accessible
 - For host RabbitMQ: `AMQP_RABBITMQ_HOST=host.containers.internal`
 - Verify Streams plugin is enabled on RabbitMQ
+- Check network connectivity: `podman network inspect crypto-scout-bridge`
 
-### Health check failing
+### Health Check Failing
 - Check RabbitMQ connectivity
 - Verify streams exist: `bybit-stream`, `crypto-scout-stream`
 - Check credentials in env file
+- Check logs for startup errors
+
+### Out of Memory
+- Increase tmpfs size if enabling JVM heap dumps:
+  ```yaml
+  tmpfs:
+    - /tmp:rw,size=1g,mode=1777,nodev,nosuid
+  ```
+- Increase memory limit:
+  ```yaml
+  mem_limit: "512m"
+  ```
 
 ## When to Use Me
 
@@ -120,3 +204,4 @@ Use this skill when:
 - Troubleshooting container or connectivity issues
 - Setting up CI/CD pipelines
 - Managing secrets and environment configuration
+- Tuning resource limits and security settings
