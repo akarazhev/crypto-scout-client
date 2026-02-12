@@ -6,6 +6,46 @@ This document provides guidelines for agentic coding contributors to the crypto-
 
 **crypto-scout-client** is a Java 25 Maven microservice that collects cryptocurrency market data from Bybit (WebSocket streaming) and CoinMarketCap (REST API), then publishes structured events to RabbitMQ Streams. Built on ActiveJ for fully async I/O.
 
+## MCP Server Configuration
+
+This module uses the **Context7 MCP server** for enhanced code intelligence and documentation retrieval.
+
+### Available MCP Tools
+
+When working with this codebase, you can use the following MCP tools via the context7 server:
+
+- **resolve-library-id**: Resolve a library name to its Context7 library ID
+- **get-library-docs**: Retrieve up-to-date documentation for a library by its ID
+
+### Configuration
+
+The MCP server is configured in `.opencode/package.json`:
+
+```json
+{
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-4cec80b8-d947-4ff4-a29a-d00bea5a2fac"
+      },
+      "enabled": true
+    }
+  }
+}
+```
+
+### Usage Guidelines
+
+1. **ActiveJ Framework**: Use `resolve-library-id` for "activej" to get async HTTP client patterns, WebSocket implementation guides, and Promise-based programming models.
+
+2. **RabbitMQ Streams**: Retrieve publisher documentation for stream routing, message confirmation patterns, and producer configuration.
+
+3. **WebSocket APIs**: Access WebSocket client documentation for connection management, ping/pong handling, and reconnection strategies.
+
+4. **REST API Integration**: Get HTTP client best practices for rate-limited API consumption (CoinMarketCap integration).
+
 ### Module Structure
 
 ```
